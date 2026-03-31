@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>美元流动性看板</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --green: #3fb950;
+      --red: #f85149;
+      --blue: #58a6ff;
+      --yellow: #d29922;
+      --purple: #bc8cff;
+      --orange: #ffa657;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px;
+      min-height: 100vh;
+    }
+
+    header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+
+    header .subtitle {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .range-btn {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: all 0.15s;
+    }
+
+    .range-btn:hover, .range-btn.active {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    .refresh-btn {
+      background: var(--blue);
+      color: #0d1117;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+
+    .refresh-btn:hover { opacity: 0.85; }
+    .refresh-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .api-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      background: #111827;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .api-bar label {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .api-bar input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: monospace;
+      max-width: 340px;
+    }
+
+    .api-bar input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .api-bar .hint {
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .api-bar .hint a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    .status-bar {
+      padding: 8px 24px;
+      font-size: 11px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      min-height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .status-dot.ok { background: var(--green); }
+    .status-dot.err { background: var(--red); }
+    .status-dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kpi-card {
+      background: var(--surface);
+      padding: 20px 24px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .kpi-change {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .kpi-change.up { color: var(--green); }
+    .kpi-change.down { color: var(--red); }
+    .kpi-change.neutral { color: var(--muted); }
+
+    .kpi-sub {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Charts */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1px;
+      background: var(--border);
+    }
+
+    .chart-panel {
+      background: var(--surface);
+      padding: 20px 24px;
+    }
+
+    .chart-panel.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .chart-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .chart-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 220px;
+    }
+
+    .chart-wrap.tall {
+      height: 280px;
+    }
+
+    /* Net Liquidity formula */
+    .formula-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .formula-bar .tag {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .tag-fed { background: rgba(88,166,255,0.15); color: var(--blue); }
+    .tag-tga { background: rgba(248,81,73,0.15); color: var(--red); }
+    .tag-rrp { background: rgba(188,140,255,0.15); color: var(--purple); }
+    .tag-nl  { background: rgba(63,185,80,0.15); color: var(--green); }
+
+    /* Loading skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+      height: 28px;
+      width: 140px;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    footer {
+      padding: 16px 24px;
+      color: var(--muted);
+      font-size: 11px;
+      border-top: 1px solid var(--border);
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-panel.full-width { grid-column: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .kpi-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>💧 美元流动性看板</h1>
+    <div class="subtitle">数据来源：美联储圣路易斯 FRED</div>
+  </div>
+  <div class="actions">
+    <button class="range-btn" data-range="90">3M</button>
+    <button class="range-btn active" data-range="365">1Y</button>
+    <button class="range-btn" data-range="730">2Y</button>
+    <button class="range-btn" data-range="1825">5Y</button>
+    <button class="refresh-btn" id="refreshBtn">刷新数据</button>
+  </div>
+</header>
+
+<div class="api-bar">
+  <label>FRED API Key</label>
+  <input type="password" id="apiKey" placeholder="粘贴你的 FRED API Key..." autocomplete="off" />
+  <span class="hint">没有 Key？<a href="https://fredaccount.stlouisfed.org/apikey" target="_blank">免费申请 →</a></span>
+</div>
+
+<div class="status-bar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusText">请输入 FRED API Key 后点击刷新</span>
+</div>
+
+<!-- KPI Row -->
+<div class="kpi-grid">
+  <div class="kpi-card">
+    <div class="kpi-label">净流动性 Net Liquidity</div>
+    <div class="kpi-value" id="kpi-nl" style="color: var(--green)">—</div>
+    <div class="kpi-change neutral" id="kpi-nl-chg">Fed资产 - TGA - RRP</div>
+    <div class="kpi-sub" id="kpi-nl-date"></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">Fed 资产负债表</div>
+    <div class="kpi-value" id="kpi-fed" style="color: var(--blue)">—</div>
+    <div class="kpi-change neutral" id="kpi-fed-chg">周变动</div>
+    <div class="kpi-sub" id="kpi-fed-date"></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">TGA 财政部一般账户</div>
+    <div class="kpi-value" id="kpi-tga" style="color: var(--red)">—</div>
+    <div class="kpi-change neutral" id="kpi-tga-chg">周变动</div>
+    <div class="kpi-sub" id="kpi-tga-date"></div>
+  </div>
+  <div class="kpi-card">
+    <div class="kpi-label">ON RRP 隔夜逆回购</div>
+    <div class="kpi-value" id="kpi-rrp" style="color: var(--purple)">—</div>
+    <div class="kpi-change neutral" id="kpi-rrp-chg">周变动</div>
+    <div class="kpi-sub" id="kpi-rrp-date"></div>
+  </div>
+</div>
+
+<!-- Charts -->
+<div class="charts-grid">
+
+  <!-- Net Liquidity -->
+  <div class="chart-panel full-width">
+    <div class="chart-title">净流动性 Net Liquidity</div>
+    <div class="formula-bar">
+      <span class="tag tag-fed">Fed 资产</span>
+      <span>−</span>
+      <span class="tag tag-tga">TGA</span>
+      <span>−</span>
+      <span class="tag tag-rrp">RRP</span>
+      <span>=</span>
+      <span class="tag tag-nl">净流动性</span>
+    </div>
+    <div class="chart-wrap tall">
+      <canvas id="chart-nl"></canvas>
+    </div>
+  </div>
+
+  <!-- Fed Balance Sheet -->
+  <div class="chart-panel">
+    <div class="chart-title">Fed 资产负债表总规模</div>
+    <div class="chart-desc">WALCL — 周度，十亿美元</div>
+    <div class="chart-wrap">
+      <canvas id="chart-fed"></canvas>
+    </div>
+  </div>
+
+  <!-- TGA -->
+  <div class="chart-panel">
+    <div class="chart-title">TGA 财政部一般账户</div>
+    <div class="chart-desc">WDTGAL — 周度，十亿美元</div>
+    <div class="chart-wrap">
+      <canvas id="chart-tga"></canvas>
+    </div>
+  </div>
+
+  <!-- RRP -->
+  <div class="chart-panel">
+    <div class="chart-title">ON RRP 隔夜逆回购</div>
+    <div class="chart-desc">RRPONTSYD — 日度，十亿美元</div>
+    <div class="chart-wrap">
+      <canvas id="chart-rrp"></canvas>
+    </div>
+  </div>
+
+  <!-- Reserves -->
+  <div class="chart-panel">
+    <div class="chart-title">银行准备金余额</div>
+    <div class="chart-desc">WRESBAL — 周度，十亿美元</div>
+    <div class="chart-wrap">
+      <canvas id="chart-res"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  数据来源：Federal Reserve Bank of St. Louis (FRED) &nbsp;|&nbsp;
+  系列：WALCL · WDTGAL · RRPONTSYD · WRESBAL &nbsp;|&nbsp;
+  仅供参考，不构成投资建议
+</footer>
+
+<script>
+// ─── Config ───────────────────────────────────────────────────────────────────
+// 代理地址：优先用本地，否则用 corsproxy.io
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const FRED_BASE = IS_LOCAL
+  ? '/fred'
+  : 'https://corsproxy.io/?' + encodeURIComponent('https://api.stlouisfed.org/fred/series/observations');
+const SERIES = {
+  fed: { id: 'WALCL',      label: 'Fed资产负债表', color: '#58a6ff', freq: 'w' },
+  tga: { id: 'WDTGAL',     label: 'TGA',           color: '#f85149', freq: 'w' },
+  rrp: { id: 'RRPONTSYD',  label: 'ON RRP',        color: '#bc8cff', freq: 'd' },
+  res: { id: 'WRESBAL',    label: '准备金',         color: '#ffa657', freq: 'w' },
+};
+
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#30363d';
+
+let charts = {};
+let cachedData = {};
+let activeDays = 365;
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function fmt(bn) {
+  if (bn === null || bn === undefined || isNaN(bn)) return '—';
+  if (Math.abs(bn) >= 1000) return (bn / 1000).toFixed(2) + ' T';
+  return bn.toFixed(0) + ' B';
+}
+
+function fmtChg(chg) {
+  if (chg === null || isNaN(chg)) return { text: '—', cls: 'neutral' };
+  const sign = chg >= 0 ? '+' : '';
+  const cls = chg > 0 ? 'up' : chg < 0 ? 'down' : 'neutral';
+  return { text: sign + fmt(chg) + ' (7d)', cls };
+}
+
+function getApiKey() {
+  return document.getElementById('apiKey').value.trim();
+}
+
+function setStatus(state, msg) {
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot ' + state;
+  document.getElementById('statusText').textContent = msg;
+}
+
+function startDate() {
+  const d = new Date();
+  d.setDate(d.getDate() - activeDays);
+  return d.toISOString().split('T')[0];
+}
+
+// ─── FRED Fetch ───────────────────────────────────────────────────────────────
+async function fetchSeries(seriesId) {
+  const key = getApiKey();
+  if (!key) throw new Error('missing_key');
+  const params = `series_id=${seriesId}&api_key=${key}&file_type=json&observation_start=${startDate()}&units=lin`;
+  const url = IS_LOCAL
+    ? `${FRED_BASE}?${params}`
+    : `https://corsproxy.io/?${encodeURIComponent('https://api.stlouisfed.org/fred/series/observations?' + params)}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const json = await res.json();
+  if (json.error_message) throw new Error(json.error_message);
+  return json.observations
+    .filter(o => o.value !== '.')
+    .map(o => ({ date: o.date, value: parseFloat(o.value) / 1000 })); // → billions
+}
+
+// ─── Chart Factory ────────────────────────────────────────────────────────────
+function makeChart(canvasId, label, color, data) {
+  const ctx = document.getElementById(canvasId);
+  if (charts[canvasId]) charts[canvasId].destroy();
+
+  const latest = data[data.length - 1]?.value ?? 0;
+  const earliest = data[0]?.value ?? 0;
+  const going = latest >= earliest;
+
+  charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.date),
+      datasets: [{
+        label,
+        data: data.map(d => d.value),
+        borderColor: color,
+        backgroundColor: color + '18',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: activeDays <= 90 ? 'week' : activeDays <= 365 ? 'month' : 'quarter' },
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8 }
+        },
+        y: {
+          grid: { color: '#21262d' },
+          ticks: { callback: v => fmt(v) }
+        }
+      }
+    }
+  });
+}
+
+// ─── Net Liquidity Chart ──────────────────────────────────────────────────────
+function makeNetLiquidityChart(fedData, tgaData, rrpData) {
+  const ctx = document.getElementById('chart-nl');
+  if (charts['chart-nl']) charts['chart-nl'].destroy();
+
+  // Align dates: use fed dates as base (weekly), interpolate others
+  const tgaMap = Object.fromEntries(tgaData.map(d => [d.date, d.value]));
+  const rrpMap = Object.fromEntries(rrpData.map(d => [d.date, d.value]));
+
+  // For RRP (daily), we need to find closest date
+  const rrpDates = rrpData.map(d => d.date).sort();
+  function closestRRP(date) {
+    let closest = rrpDates[0];
+    for (const d of rrpDates) {
+      if (d <= date) closest = d;
+      else break;
+    }
+    return rrpMap[closest] ?? 0;
+  }
+
+  const nlData = fedData.map(d => {
+    const tga = tgaMap[d.date] ?? 0;
+    const rrp = closestRRP(d.date);
+    return { date: d.date, value: d.value - tga - rrp };
+  });
+
+  charts['chart-nl'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: nlData.map(d => d.date),
+      datasets: [
+        {
+          label: '净流动性',
+          data: nlData.map(d => d.value),
+          borderColor: '#3fb950',
+          backgroundColor: '#3fb95018',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: true,
+          order: 1,
+        },
+        {
+          label: 'Fed资产',
+          data: fedData.map(d => d.value),
+          borderColor: '#58a6ff',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          borderDash: [4, 3],
+          order: 2,
+        },
+        {
+          label: 'TGA',
+          data: fedData.map(d => ({ x: d.date, y: tgaMap[d.date] ?? null })),
+          borderColor: '#f85149',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          borderDash: [4, 3],
+          order: 3,
+        },
+        {
+          label: 'RRP',
+          data: fedData.map(d => ({ x: d.date, y: closestRRP(d.date) })),
+          borderColor: '#bc8cff',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          tension: 0.3,
+          fill: false,
+          borderDash: [4, 3],
+          order: 4,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'top',
+          align: 'end',
+          labels: { boxWidth: 12, font: { size: 11 }, padding: 16 }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.dataset.label + ': ' + fmt(ctx.parsed.y)
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: activeDays <= 90 ? 'week' : activeDays <= 365 ? 'month' : 'quarter' },
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8 }
+        },
+        y: {
+          grid: { color: '#21262d' },
+          ticks: { callback: v => fmt(v) }
+        }
+      }
+    }
+  });
+
+  return nlData;
+}
+
+// ─── KPI Update ───────────────────────────────────────────────────────────────
+function updateKPI(id, data, colorVar) {
+  if (!data || data.length === 0) return;
+  const latest = data[data.length - 1];
+  const prev = data.length > 7 ? data[data.length - 8] : data[0];
+  const chg = latest.value - prev.value;
+  const { text, cls } = fmtChg(chg);
+
+  document.getElementById('kpi-' + id).textContent = fmt(latest.value);
+  const chgEl = document.getElementById('kpi-' + id + '-chg');
+  chgEl.textContent = text;
+  chgEl.className = 'kpi-change ' + cls;
+  const dateEl = document.getElementById('kpi-' + id + '-date');
+  if (dateEl) dateEl.textContent = '最新：' + latest.date;
+}
+
+function updateNLKPI(nlData) {
+  if (!nlData || nlData.length === 0) return;
+  const latest = nlData[nlData.length - 1];
+  const prev = nlData.length > 7 ? nlData[nlData.length - 8] : nlData[0];
+  const chg = latest.value - prev.value;
+  const { text, cls } = fmtChg(chg);
+  document.getElementById('kpi-nl').textContent = fmt(latest.value);
+  const chgEl = document.getElementById('kpi-nl-chg');
+  chgEl.textContent = text;
+  chgEl.className = 'kpi-change ' + cls;
+  const dateEl = document.getElementById('kpi-nl-date');
+  if (dateEl) dateEl.textContent = '最新：' + latest.date;
+}
+
+// ─── Main Load ────────────────────────────────────────────────────────────────
+async function loadAll() {
+  const key = getApiKey();
+  if (!key) { setStatus('', '请先输入 FRED API Key'); return; }
+
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = true;
+  btn.textContent = '加载中…';
+  setStatus('loading', '正在从 FRED 拉取数据…');
+
+  try {
+    const [fedData, tgaData, rrpData, resData] = await Promise.all([
+      fetchSeries('WALCL'),
+      fetchSeries('WDTGAL'),
+      fetchSeries('RRPONTSYD'),
+      fetchSeries('WRESBAL'),
+    ]);
+
+    cachedData = { fedData, tgaData, rrpData, resData };
+
+    // Charts
+    const nlData = makeNetLiquidityChart(fedData, tgaData, rrpData);
+    makeChart('chart-fed', 'Fed资产', '#58a6ff', fedData);
+    makeChart('chart-tga', 'TGA',     '#f85149', tgaData);
+    makeChart('chart-rrp', 'ON RRP',  '#bc8cff', rrpData);
+    makeChart('chart-res', '准备金',  '#ffa657', resData);
+
+    // KPIs
+    updateNLKPI(nlData);
+    updateKPI('fed', fedData);
+    updateKPI('tga', tgaData);
+    updateKPI('rrp', rrpData);
+
+    const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    setStatus('ok', `数据已更新 · ${now} CST`);
+    localStorage.setItem('fred_api_key', key);
+  } catch (e) {
+    if (e.message === 'missing_key') {
+      setStatus('err', '请输入 FRED API Key');
+    } else if (e.message.includes('Bad API Key')) {
+      setStatus('err', 'API Key 无效，请检查是否填写正确');
+    } else {
+      setStatus('err', '数据加载失败：' + e.message);
+    }
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '刷新数据';
+  }
+}
+
+// ─── Range Buttons ────────────────────────────────────────────────────────────
+document.querySelectorAll('.range-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    activeDays = parseInt(btn.dataset.range);
+    if (Object.keys(cachedData).length > 0) loadAll();
+  });
+});
+
+document.getElementById('refreshBtn').addEventListener('click', loadAll);
+
+// Auto-load if key was saved
+const savedKey = localStorage.getItem('fred_api_key');
+if (savedKey) {
+  document.getElementById('apiKey').value = savedKey;
+  loadAll();
+}
+</script>
+</body>
+</html>
