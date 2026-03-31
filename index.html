@@ -416,11 +416,8 @@
 
 <script>
 // ─── Config ───────────────────────────────────────────────────────────────────
-// 代理地址：优先用本地，否则用 corsproxy.io
 const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-const FRED_BASE = IS_LOCAL
-  ? '/fred'
-  : 'https://corsproxy.io/?' + encodeURIComponent('https://api.stlouisfed.org/fred/series/observations');
+const FRED_BASE = '/fred';
 const SERIES = {
   fed: { id: 'WALCL',      label: 'Fed资产负债表', color: '#58a6ff', freq: 'w' },
   tga: { id: 'WDTGAL',     label: 'TGA',           color: '#f85149', freq: 'w' },
@@ -470,9 +467,7 @@ async function fetchSeries(seriesId) {
   const key = getApiKey();
   if (!key) throw new Error('missing_key');
   const params = `series_id=${seriesId}&api_key=${key}&file_type=json&observation_start=${startDate()}&units=lin`;
-  const url = IS_LOCAL
-    ? `${FRED_BASE}?${params}`
-    : `https://corsproxy.io/?${encodeURIComponent('https://api.stlouisfed.org/fred/series/observations?' + params)}`;
+  const url = `${FRED_BASE}?${params}`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
@@ -739,12 +734,10 @@ document.querySelectorAll('.range-btn').forEach(btn => {
 
 document.getElementById('refreshBtn').addEventListener('click', loadAll);
 
-// Auto-load if key was saved
-const savedKey = localStorage.getItem('fred_api_key');
-if (savedKey) {
-  document.getElementById('apiKey').value = savedKey;
-  loadAll();
-}
+// Auto-load: 优先用 localStorage，否则用内置 Key
+const savedKey = localStorage.getItem('fred_api_key') || 'cd80bce065d6d311df574fbe558929f6';
+document.getElementById('apiKey').value = savedKey;
+loadAll();
 </script>
 </body>
 </html>
