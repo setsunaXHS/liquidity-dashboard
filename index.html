@@ -361,6 +361,46 @@
       border-top: 1px solid var(--border);
     }
 
+    /* Fund Flow */
+    .section-header {
+      padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 1px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 600;
+      padding-bottom: 16px;
+    }
+
+    .flow-legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+    .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+    .flow-paths {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 2;
+    }
+    .flow-paths .tag {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-right: 3px;
+    }
+    .tag-loose { background: rgba(63,185,80,0.15); color: var(--green); }
+    .tag-tight { background: rgba(248,81,73,0.15); color: var(--red); }
+    .tag-warn  { background: rgba(210,153,34,0.15); color: var(--yellow); }
+
     @media (max-width: 900px) {
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
       .charts-grid { grid-template-columns: 1fr; }
@@ -573,6 +613,49 @@
     </div>
   </div>
 
+</div>
+
+<!-- Fund Flow Section -->
+<div class="section-header">
+  <div class="section-title">
+    <span class="tooltip-wrap">
+      💸 Fund Flow — Fed 负债端资金分布
+      <span class="tooltip-icon">?</span>
+      <div class="tooltip-box">
+        <div class="tt-title">钱都在哪里？</div>
+        <div class="tt-desc">Fed 资产负债表负债端满足恒等式：WALCL = 准备金 + TGA + RRP + 流通货币 + 其他。任意一项变动必然引起其他项对应变化，总量由 Fed 操作决定。</div>
+        <div class="tt-signal bear">⚠️ 流动性压力信号：准备金逼近 ~3T 警戒线，历史上触发 repo 利率飙升（2019年9月）</div>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="charts-grid">
+  <!-- 桑基图：当前快照 -->
+  <div class="chart-panel">
+    <div class="chart-title">当前资金结构快照</div>
+    <div class="chart-desc">Fed 负债端各口袋当前占比（实时数据）</div>
+    <div id="sankey-wrap" style="position:relative; height:300px;">
+      <canvas id="chart-sankey"></canvas>
+    </div>
+    <div class="flow-legend" id="flow-legend"></div>
+    <div class="flow-paths" id="flow-paths"></div>
+  </div>
+
+  <!-- 堆叠面积图：历史演变 -->
+  <div class="chart-panel">
+    <div class="chart-title">历史资金流动</div>
+    <div class="chart-desc">各口袋随时间的变化，总高度 = Fed 资产负债表规模</div>
+    <div class="chart-wrap">
+      <canvas id="chart-stacked"></canvas>
+    </div>
+    <div class="legend" style="margin-top:12px">
+      <div class="legend-item"><div class="legend-dot" style="background:#bc8cff"></div>ON RRP</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>TGA</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#ffa657"></div>银行准备金</div>
+      <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>其他</div>
+    </div>
+  </div>
 </div>
 
 <footer>
@@ -865,6 +948,10 @@ async function loadAll() {
     makeChart('chart-rrp', 'ON RRP',  '#bc8cff', rrpData);
     makeChart('chart-res', '准备金',  '#ffa657', resData);
 
+    // Fund Flow
+    makeSankeyChart(fedData, tgaData, rrpData, resData);
+    makeStackedChart(fedData, tgaData, rrpData, resData);
+
     // KPIs
     updateNLKPI(nlData);
     updateKPI('fed', fedData);
@@ -887,6 +974,148 @@ async function loadAll() {
     btn.disabled = false;
     btn.textContent = '刷新数据';
   }
+}
+
+// ─── Sankey（横向条形分解图） ────────────────────────────────────────────────
+function makeSankeyChart(fedData, tgaData, rrpData, resData) {
+  // 取最新数据点
+  const fed = fedData[fedData.length - 1]?.value ?? 0;
+  const tga = tgaData[tgaData.length - 1]?.value ?? 0;
+  const rrp = rrpData[rrpData.length - 1]?.value ?? 0;
+  const res = resData[resData.length - 1]?.value ?? 0;
+  const other = Math.max(fed - tga - rrp - res, 0);
+
+  const ctx = document.getElementById('chart-sankey');
+  if (charts['chart-sankey']) charts['chart-sankey'].destroy();
+
+  const labels = ['ON RRP', 'TGA', '银行准备金', '流通货币+其他'];
+  const values = [rrp, tga, res, other];
+  const colors = ['#bc8cff', '#f85149', '#ffa657', '#58a6ff'];
+  const bgColors = ['#bc8cff33', '#f8514933', '#ffa65733', '#58a6ff22'];
+
+  charts['chart-sankey'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Fed 负债端'],
+      datasets: labels.map((label, i) => ({
+        label,
+        data: [values[i]],
+        backgroundColor: colors[i] + '99',
+        borderColor: colors[i],
+        borderWidth: 1.5,
+        borderRadius: i === 0 ? { topLeft: 4, bottomLeft: 4 } : i === labels.length - 1 ? { topRight: 4, bottomRight: 4 } : 0,
+      }))
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => {
+              const pct = ((ctx.parsed.x / fed) * 100).toFixed(1);
+              return ` ${ctx.dataset.label}: ${fmt(ctx.parsed.x)} (${pct}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { color: '#21262d' },
+          ticks: { callback: v => fmt(v) },
+          max: fed * 1.02,
+        },
+        y: { stacked: true, display: false }
+      }
+    }
+  });
+
+  // 图例 + 传导路径
+  const legendEl = document.getElementById('flow-legend');
+  legendEl.innerHTML = labels.map((l, i) => {
+    const pct = fed > 0 ? ((values[i] / fed) * 100).toFixed(1) : '0';
+    return `<div class="legend-item"><div class="legend-dot" style="background:${colors[i]}"></div>${l}: <strong style="color:${colors[i]};margin-left:3px">${fmt(values[i])}</strong> <span style="color:var(--muted);margin-left:2px">(${pct}%)</span></div>`;
+  }).join('');
+
+  const warn = res < 3000 ? `<span class="tag tag-warn">⚠️ 警戒</span> 准备金 ${fmt(res)} 已接近 3T 警戒线，流动性压力上升` : `<span class="tag tag-loose">✅ 安全</span> 准备金 ${fmt(res)} 高于 3T 警戒线`;
+  document.getElementById('flow-paths').innerHTML = `
+    <span class="tag tag-loose">宽松路径</span> TGA↓ / RRP↓ → 准备金↑ &nbsp;|&nbsp;
+    <span class="tag tag-tight">收紧路径</span> TGA↑ / QT → 准备金↓<br>
+    ${warn}
+  `;
+}
+
+// ─── Stacked Area（历史资金分布） ───────────────────────────────────────────
+function makeStackedChart(fedData, tgaData, rrpData, resData) {
+  const ctx = document.getElementById('chart-stacked');
+  if (charts['chart-stacked']) charts['chart-stacked'].destroy();
+
+  const tgaMap = Object.fromEntries(tgaData.map(d => [d.date, d.value]));
+  const rrpDates = rrpData.map(d => d.date).sort();
+  const rrpMap = Object.fromEntries(rrpData.map(d => [d.date, d.value]));
+  const resMap = Object.fromEntries(resData.map(d => [d.date, d.value]));
+
+  function closestRRP(date) {
+    let c = rrpDates[0];
+    for (const d of rrpDates) { if (d <= date) c = d; else break; }
+    return rrpMap[c] ?? 0;
+  }
+
+  const dates = fedData.map(d => d.date);
+  const rrpSeries  = dates.map(dt => closestRRP(dt));
+  const tgaSeries  = dates.map(dt => tgaMap[dt] ?? null);
+  const resSeries  = dates.map(dt => resMap[dt] ?? null);
+  const otherSeries = dates.map((dt, i) => {
+    const f = fedData[i].value;
+    const t = tgaSeries[i] ?? 0;
+    const r = rrpSeries[i];
+    const rs = resSeries[i] ?? 0;
+    return Math.max(f - t - r - rs, 0);
+  });
+
+  const timeUnit = activeDays <= 90 ? 'week' : activeDays <= 365 ? 'month' : 'quarter';
+
+  charts['chart-stacked'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: dates,
+      datasets: [
+        { label: 'ON RRP',      data: rrpSeries,   borderColor: '#bc8cff', backgroundColor: '#bc8cff30', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3, stack: 'fed' },
+        { label: 'TGA',         data: tgaSeries,   borderColor: '#f85149', backgroundColor: '#f8514930', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3, stack: 'fed' },
+        { label: '银行准备金',   data: resSeries,   borderColor: '#ffa657', backgroundColor: '#ffa65730', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3, stack: 'fed' },
+        { label: '其他',        data: otherSeries,  borderColor: '#58a6ff', backgroundColor: '#58a6ff20', borderWidth: 1.5, pointRadius: 0, fill: true, tension: 0.3, stack: 'fed' },
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.parsed.y)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: timeUnit },
+          grid: { display: false },
+          ticks: { maxTicksLimit: 8 }
+        },
+        y: {
+          stacked: true,
+          grid: { color: '#21262d' },
+          ticks: { callback: v => fmt(v) }
+        }
+      }
+    }
+  });
 }
 
 // ─── Range Buttons ────────────────────────────────────────────────────────────
