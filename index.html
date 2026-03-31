@@ -262,6 +262,83 @@
     .tag-rrp { background: rgba(188,140,255,0.15); color: var(--purple); }
     .tag-nl  { background: rgba(63,185,80,0.15); color: var(--green); }
 
+    /* Tooltip */
+    .tooltip-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: help;
+    }
+
+    .tooltip-icon {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+
+    .tooltip-box {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 0;
+      z-index: 100;
+      width: 280px;
+      background: #1c2128;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+      pointer-events: none;
+    }
+
+    .tooltip-wrap:hover .tooltip-box {
+      display: block;
+    }
+
+    .tooltip-box .tt-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .tooltip-box .tt-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .tooltip-box .tt-signal {
+      font-size: 11px;
+      line-height: 1.6;
+      padding: 7px 10px;
+      border-radius: 5px;
+      background: rgba(88,166,255,0.08);
+      border-left: 3px solid var(--blue);
+      color: var(--text);
+    }
+
+    .tooltip-box .tt-signal.bull {
+      background: rgba(63,185,80,0.08);
+      border-left-color: var(--green);
+    }
+
+    .tooltip-box .tt-signal.bear {
+      background: rgba(248,81,73,0.08);
+      border-left-color: var(--red);
+    }
+
     /* Loading skeleton */
     .skeleton {
       background: linear-gradient(90deg, var(--surface) 25%, var(--border) 50%, var(--surface) 75%);
@@ -325,25 +402,65 @@
 <!-- KPI Row -->
 <div class="kpi-grid">
   <div class="kpi-card">
-    <div class="kpi-label">净流动性 Net Liquidity</div>
+    <div class="kpi-label">
+      <span class="tooltip-wrap">
+        净流动性 Net Liquidity
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">净流动性 Net Liquidity</div>
+          <div class="tt-desc">Fed资产负债表规模 减去 财政部TGA账户余额 再减去 ON RRP余额，得出实际注入金融体系的流动性净额。是衡量美元流动性最核心的合成指标。</div>
+          <div class="tt-signal bull">📈 上升：流动性宽松，风险资产（股票、加密、信用）倾向受益<br>📉 下降：流动性收紧，风险资产承压，美元倾向走强</div>
+        </div>
+      </span>
+    </div>
     <div class="kpi-value" id="kpi-nl" style="color: var(--green)">—</div>
     <div class="kpi-change neutral" id="kpi-nl-chg">Fed资产 - TGA - RRP</div>
     <div class="kpi-sub" id="kpi-nl-date"></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">Fed 资产负债表</div>
+    <div class="kpi-label">
+      <span class="tooltip-wrap">
+        Fed 资产负债表
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">Fed 资产负债表（WALCL）</div>
+          <div class="tt-desc">美联储持有的全部资产总规模，主要包括美国国债和MBS。QE期间扩张，QT期间收缩。每周三更新。</div>
+          <div class="tt-signal bull">📈 扩张（QE）：直接向市场注入流动性，利好风险资产<br>📉 收缩（QT）：抽走流动性，每月缩减约600亿美元上限</div>
+        </div>
+      </span>
+    </div>
     <div class="kpi-value" id="kpi-fed" style="color: var(--blue)">—</div>
     <div class="kpi-change neutral" id="kpi-fed-chg">周变动</div>
     <div class="kpi-sub" id="kpi-fed-date"></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">TGA 财政部一般账户</div>
+    <div class="kpi-label">
+      <span class="tooltip-wrap">
+        TGA 财政部一般账户
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">TGA — Treasury General Account</div>
+          <div class="tt-desc">财政部存放在美联储的"支票账户"。当财政部发债募资时TGA上升（抽走市场流动性）；当财政部支出时TGA下降（向市场释放流动性）。债务上限谈判期间是重要观测变量。</div>
+          <div class="tt-signal bear">📈 TGA上升：流动性被抽走，相当于隐性收紧<br>📉 TGA下降：流动性释放入市场，相当于隐性宽松</div>
+        </div>
+      </span>
+    </div>
     <div class="kpi-value" id="kpi-tga" style="color: var(--red)">—</div>
     <div class="kpi-change neutral" id="kpi-tga-chg">周变动</div>
     <div class="kpi-sub" id="kpi-tga-date"></div>
   </div>
   <div class="kpi-card">
-    <div class="kpi-label">ON RRP 隔夜逆回购</div>
+    <div class="kpi-label">
+      <span class="tooltip-wrap">
+        ON RRP 隔夜逆回购
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">ON RRP — Overnight Reverse Repo</div>
+          <div class="tt-desc">货币市场基金等机构将多余资金隔夜存入美联储的工具，提供利率下限。RRP余额高说明市场流动性过剩但不愿承担风险；余额下降说明资金流回市场（目前已接近清零）。</div>
+          <div class="tt-signal">📈 RRP上升：流动性淤积在Fed，未进入实体/风险市场<br>📉 RRP下降：资金流出进入市场，净流动性实质改善<br>⚠️ 当前接近零：缓冲垫已耗尽，后续流动性更依赖Fed直接操作</div>
+        </div>
+      </span>
+    </div>
     <div class="kpi-value" id="kpi-rrp" style="color: var(--purple)">—</div>
     <div class="kpi-change neutral" id="kpi-rrp-chg">周变动</div>
     <div class="kpi-sub" id="kpi-rrp-date"></div>
@@ -355,7 +472,17 @@
 
   <!-- Net Liquidity -->
   <div class="chart-panel full-width">
-    <div class="chart-title">净流动性 Net Liquidity</div>
+    <div class="chart-title">
+      <span class="tooltip-wrap">
+        净流动性 Net Liquidity
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">净流动性走势</div>
+          <div class="tt-desc">绿线为净流动性（Fed − TGA − RRP），虚线为三个分项。观察净流动性拐点往往领先风险资产4-8周。</div>
+          <div class="tt-signal bull">净流动性与标普500相关性历史上约0.9，是宏观交易者最核心的跟踪指标之一</div>
+        </div>
+      </span>
+    </div>
     <div class="formula-bar">
       <span class="tag tag-fed">Fed 资产</span>
       <span>−</span>
@@ -372,7 +499,17 @@
 
   <!-- Fed Balance Sheet -->
   <div class="chart-panel">
-    <div class="chart-title">Fed 资产负债表总规模</div>
+    <div class="chart-title">
+      <span class="tooltip-wrap">
+        Fed 资产负债表总规模
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">WALCL — 每周三更新</div>
+          <div class="tt-desc">当前处于QT（量化紧缩）阶段，美联储被动让到期债券不再续作。关注每周变动是否超预期（正向偏差=意外宽松）。</div>
+          <div class="tt-signal">峰值约9T（2022年4月），当前约6.7T，已缩减约2.3T</div>
+        </div>
+      </span>
+    </div>
     <div class="chart-desc">WALCL — 周度，十亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-fed"></canvas>
@@ -381,7 +518,17 @@
 
   <!-- TGA -->
   <div class="chart-panel">
-    <div class="chart-title">TGA 财政部一般账户</div>
+    <div class="chart-title">
+      <span class="tooltip-wrap">
+        TGA 财政部一般账户
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">WDTGAL — 每周四更新</div>
+          <div class="tt-desc">债务上限触发后财政部无法发债，TGA快速消耗→流动性被动释放（对市场利好）。债务上限解除后财政部重新发债补充TGA→流动性被抽走（对市场利空）。</div>
+          <div class="tt-signal bear">重点关注：TGA从低位快速回补的时间窗口，历史上往往是股市承压的阶段</div>
+        </div>
+      </span>
+    </div>
     <div class="chart-desc">WDTGAL — 周度，十亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-tga"></canvas>
@@ -390,7 +537,17 @@
 
   <!-- RRP -->
   <div class="chart-panel">
-    <div class="chart-title">ON RRP 隔夜逆回购</div>
+    <div class="chart-title">
+      <span class="tooltip-wrap">
+        ON RRP 隔夜逆回购
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">RRPONTSYD — 每日更新</div>
+          <div class="tt-desc">2022-2023年RRP高达2.5T，是超额流动性的蓄水池。2024年底已基本清零，意味着这个缓冲垫消失，市场对Fed操作更加敏感。</div>
+          <div class="tt-signal bear">⚠️ RRP清零后：准备金成为流动性的核心变量，关注准备金是否逼近"充足"临界线（约3T）</div>
+        </div>
+      </span>
+    </div>
     <div class="chart-desc">RRPONTSYD — 日度，十亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-rrp"></canvas>
@@ -399,7 +556,17 @@
 
   <!-- Reserves -->
   <div class="chart-panel">
-    <div class="chart-title">银行准备金余额</div>
+    <div class="chart-title">
+      <span class="tooltip-wrap">
+        银行准备金余额
+        <span class="tooltip-icon">?</span>
+        <div class="tooltip-box">
+          <div class="tt-title">WRESBAL — 每周四更新</div>
+          <div class="tt-desc">商业银行存放在美联储的超额准备金。RRP清零后，准备金是流动性最后的缓冲层。准备金过低会导致货币市场利率飙升（类似2019年9月repo危机）。</div>
+          <div class="tt-signal bear">⚠️ 警戒线：准备金低于约3T时，Fed可能被迫暂停QT或重启流动性工具<br>当前水平决定QT还能走多远</div>
+        </div>
+      </span>
+    </div>
     <div class="chart-desc">WRESBAL — 周度，十亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-res"></canvas>
