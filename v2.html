@@ -501,26 +501,38 @@ canvas { display: block; }
     <div class="chart-card clickable" onclick="openPanel('effr_iorb')">
       <div class="chart-card-title">② EFFR − IORB 利差</div>
       <div class="chart-card-sub">日度 · bp ｜ 准备金充裕度的早期预警信号</div>
-      <div class="score-row" style="margin-bottom:12px;">
-        <span class="score-label">松紧</span>
-        <div class="score-pips" id="sp-effr_iorb">
-          <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      <div class="chart-inline-meta">
+        <span class="kpi-val" id="kv-effr_iorb" style="color:var(--blue);font-size:18px;">—</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:4px;">bp</span>
+        <span class="kpi-chg neu" id="kc-effr_iorb" style="font-size:11px;margin-left:8px;">—</span>
+        <span class="kpi-date" id="kd-effr_iorb" style="font-size:10px;color:var(--muted);margin-left:6px;"></span>
+        <div class="score-row" style="margin-left:auto;">
+          <span class="score-label">松紧</span>
+          <div class="score-pips" id="sp-effr_iorb">
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+          <span class="score-text" id="st-effr_iorb"></span>
         </div>
-        <span class="score-text" id="st-effr_iorb"></span>
       </div>
-      <canvas id="c-effr-iorb" height="130" onclick="openPanel('effr_iorb')"></canvas>
+      <canvas id="c-effr-iorb" height="120" onclick="openPanel('effr_iorb')"></canvas>
     </div>
     <div class="chart-card clickable" onclick="openPanel('sofr_effr')">
       <div class="chart-card-title">③ SOFR − EFFR 利差</div>
       <div class="chart-card-sub">日度 · bp ｜ Repo 市场流动性压力温度计</div>
-      <div class="score-row" style="margin-bottom:12px;">
-        <span class="score-label">松紧</span>
-        <div class="score-pips" id="sp-sofr_effr">
-          <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+      <div class="chart-inline-meta">
+        <span class="kpi-val" id="kv-sofr_effr" style="color:var(--green);font-size:18px;">—</span>
+        <span style="font-size:10px;color:var(--muted);margin-left:4px;">bp</span>
+        <span class="kpi-chg neu" id="kc-sofr_effr" style="font-size:11px;margin-left:8px;">—</span>
+        <span class="kpi-date" id="kd-sofr_effr" style="font-size:10px;color:var(--muted);margin-left:6px;"></span>
+        <div class="score-row" style="margin-left:auto;">
+          <span class="score-label">松紧</span>
+          <div class="score-pips" id="sp-sofr_effr">
+            <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
+          </div>
+          <span class="score-text" id="st-sofr_effr"></span>
         </div>
-        <span class="score-text" id="st-sofr_effr"></span>
       </div>
-      <canvas id="c-sofr-effr" height="130" onclick="openPanel('sofr_effr')"></canvas>
+      <canvas id="c-sofr-effr" height="120" onclick="openPanel('sofr_effr')"></canvas>
     </div>
   </div>
 
@@ -1012,6 +1024,18 @@ function drawSpreads() {
   renderPips('sp-effr_iorb', s1);
   const t1 = document.getElementById('st-effr_iorb');
   if (t1) { t1.textContent = SCORE_LABELS[s1]; t1.className = 'score-text s' + s1; }
+  // 填充当前值 + 变化
+  if (sp1.vals.length) {
+    const cur1  = sp1.vals[sp1.vals.length - 1];
+    const prev1 = sp1.vals.length > 5 ? sp1.vals[sp1.vals.length - 6] : sp1.vals[0];
+    const chg1  = cur1 - prev1;
+    const v1 = document.getElementById('kv-effr_iorb');
+    const c1 = document.getElementById('kc-effr_iorb');
+    const d1 = document.getElementById('kd-effr_iorb');
+    if (v1) v1.textContent = cur1.toFixed(2);
+    if (c1) { c1.textContent = (chg1 >= 0 ? '+' : '') + chg1.toFixed(2) + ' bp 5d'; c1.className = 'kpi-chg ' + (chg1 > 0 ? 'down' : chg1 < 0 ? 'up' : 'neu'); }
+    if (d1) d1.textContent = sp1.dates[sp1.dates.length - 1];
+  }
 
   // SOFR − EFFR
   const sp2 = buildSpreadSeries(sofr, effr);
@@ -1020,6 +1044,18 @@ function drawSpreads() {
   renderPips('sp-sofr_effr', s2);
   const t2 = document.getElementById('st-sofr_effr');
   if (t2) { t2.textContent = SCORE_LABELS[s2]; t2.className = 'score-text s' + s2; }
+  // 填充当前值 + 变化
+  if (sp2.vals.length) {
+    const cur2  = sp2.vals[sp2.vals.length - 1];
+    const prev2 = sp2.vals.length > 5 ? sp2.vals[sp2.vals.length - 6] : sp2.vals[0];
+    const chg2  = cur2 - prev2;
+    const v2 = document.getElementById('kv-sofr_effr');
+    const c2 = document.getElementById('kc-sofr_effr');
+    const d2 = document.getElementById('kd-sofr_effr');
+    if (v2) v2.textContent = cur2.toFixed(2);
+    if (c2) { c2.textContent = (chg2 >= 0 ? '+' : '') + chg2.toFixed(2) + ' bp 5d'; c2.className = 'kpi-chg ' + (chg2 > 0 ? 'down' : chg2 < 0 ? 'up' : 'neu'); }
+    if (d2) d2.textContent = sp2.dates[sp2.dates.length - 1];
+  }
 }
 
 // ── Chart Builder ─────────────────────────────────────────────────────────────
