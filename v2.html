@@ -151,10 +151,11 @@ canvas { display: block; }
 <!-- Range Tabs -->
 <div class="range-bar">
   <span>时间范围：</span>
-  <button class="rtab" data-days="90"  onclick="setRange(90)">3M</button>
-  <button class="rtab active" data-days="365" onclick="setRange(365)">1Y</button>
+  <button class="rtab" data-days="90"   onclick="setRange(90)">3M</button>
+  <button class="rtab active" data-days="365"  onclick="setRange(365)">1Y</button>
   <button class="rtab" data-days="730"  onclick="setRange(730)">2Y</button>
   <button class="rtab" data-days="1825" onclick="setRange(1825)">5Y</button>
+  <button class="rtab" data-days="9999" onclick="setRange(9999)">ALL</button>
 </div>
 
 <!-- Main -->
@@ -191,43 +192,43 @@ canvas { display: block; }
     </div>
   </div>
 
-  <!-- Charts Row 1: TGA + ON RRP -->
+  <!-- Chart Row 1: Liability Stack (full width, top) -->
+  <div class="charts-grid">
+    <div class="chart-card chart-full">
+      <div class="chart-card-title">① Fed 负债端结构演变 — Liability Breakdown</div>
+      <div class="chart-card-sub">WRESBAL · WCURRNS · WDTGAL · RRPONTSYD · Other ｜ 堆叠柱状图 · 周度 · 万亿美元</div>
+      <canvas id="c-stack" height="55"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: TGA + ON RRP -->
   <div class="charts-grid">
     <div class="chart-card">
-      <div class="chart-card-title">① TGA — 财政部一般账户</div>
+      <div class="chart-card-title">② TGA — 财政部一般账户</div>
       <div class="chart-card-sub">WDTGAL · 周度 · 万亿美元 ｜ TGA↑ 抽走流动性，TGA↓ 释放流动性</div>
       <canvas id="c-tga" height="130"></canvas>
     </div>
     <div class="chart-card">
-      <div class="chart-card-title">② ON RRP — 隔夜逆回购</div>
+      <div class="chart-card-title">③ ON RRP — 隔夜逆回购</div>
       <div class="chart-card-sub">RRPONTSYD · 日度→周均 · 万亿美元 ｜ RRP↑ 流动性淤积 Fed，RRP↓ 资金流入市场</div>
       <canvas id="c-rrp" height="130"></canvas>
     </div>
   </div>
 
-  <!-- Charts Row 2: Reserves + Net Liquidity -->
+  <!-- Charts Row 3: Reserves + Net Liquidity -->
   <div class="charts-grid">
     <div class="chart-card">
       <div class="chart-card-title">
-        ③ 准备金 — Bank Reserves
+        ④ 准备金 — Bank Reserves
         <span class="warn-badge" id="res-warn"></span>
       </div>
       <div class="chart-card-sub">WRESBAL · 周度 · 万亿美元 ｜ 红色虚线 = $3T 警戒线（低于此值 QT 大概率终止）</div>
       <canvas id="c-res" height="130"></canvas>
     </div>
     <div class="chart-card">
-      <div class="chart-card-title">④ 净流动性 — Net Liquidity</div>
+      <div class="chart-card-title">⑤ 净流动性 — Net Liquidity</div>
       <div class="chart-card-sub">WALCL − WDTGAL − RRPONTSYD · 周度 · 万亿美元</div>
       <canvas id="c-nl" height="130"></canvas>
-    </div>
-  </div>
-
-  <!-- Chart Row 3: Liability Stack (full width) -->
-  <div class="charts-grid">
-    <div class="chart-card chart-full">
-      <div class="chart-card-title">⑤ Fed 负债端结构演变 — Liability Breakdown</div>
-      <div class="chart-card-sub">WRESBAL · WCURRNS · WDTGAL · RRPONTSYD · Other ｜ 堆叠柱状图 · 周度 · 万亿美元</div>
-      <canvas id="c-stack" height="55"></canvas>
     </div>
   </div>
 
@@ -326,6 +327,7 @@ function timeUnit() {
 }
 
 function filterDates(dates) {
+  if (activeDays >= 9999) return dates;   // ALL: no filter
   const cut = new Date();
   cut.setDate(cut.getDate() - activeDays);
   const cutStr = cut.toISOString().slice(0, 10);
