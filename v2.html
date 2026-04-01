@@ -570,10 +570,10 @@ function setStatus(state, msg) {
 
 // ── FRED Fetch ────────────────────────────────────────────────────────────────
 async function fetchFred(series) {
+  // 使用 FRED 原始频率（WALCL/WRESBAL/WCURRNS/WDTGAL 本身是周度，RRPONTSYD 是日度）
   const params = new URLSearchParams({
     series_id: series, api_key: apiKey(), file_type: 'json',
-    observation_start: '2019-01-01',   // always fetch full history, filter client-side
-    frequency: 'w', aggregation_method: 'avg', sort_order: 'asc'
+    observation_start: '2019-01-01', sort_order: 'asc'
   });
   const r = await fetch(`${PROXY}?${params}`);
   const d = await r.json();
