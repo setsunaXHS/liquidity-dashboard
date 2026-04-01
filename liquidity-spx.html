@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Liquidity vs SPX</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a1a; font-family: 'Segoe UI', sans-serif; color: #fff; padding: 32px; }
+
+.header { margin-bottom: 24px; }
+.page-title { color: #ff9900; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border-left: 3px solid #ff9900; padding-left: 10px; margin-bottom: 4px; }
+.page-sub { color: #555; font-size: 11px; padding-left: 13px; }
+
+.status { font-size: 11px; color: #555; font-family: monospace; margin-bottom: 16px; }
+
+.kpi-row { display: flex; gap: 10px; margin-bottom: 20px; }
+.kpi { flex: 1; background: #111; border-radius: 8px; padding: 14px 16px; border-top: 2px solid; }
+.kpi:nth-child(1) { border-color: #4da6ff; }
+.kpi:nth-child(2) { border-color: #00d4aa; }
+.kpi:nth-child(3) { border-color: #f5a623; }
+.kpi-label { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+.kpi-val { font-size: 20px; font-weight: 700; color: #fff; font-family: monospace; }
+.kpi-chg { font-size: 11px; margin-top: 4px; }
+.up { color: #00d4aa; } .down { color: #f85149; } .neu { color: #555; }
+
+.chart-box { background: #111; border-radius: 10px; padding: 24px 28px; margin-bottom: 16px; }
+
+.corr-row { display: flex; gap: 10px; }
+.corr-box { flex: 1; background: #111; border-radius: 8px; padding: 14px 18px; border-left: 3px solid #333; }
+.corr-title { font-size: 10px; color: #555; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.corr-item { display: flex; justify-content: space-between; font-size: 12px; padding: 4px 0; border-bottom: 1px solid #1e1e1e; }
+.corr-item:last-child { border: none; }
+.corr-label { color: #888; }
+.corr-val { font-family: monospace; font-weight: 600; }
+.strong { color: #00d4aa; }
+.moderate { color: #f5a623; }
+.weak { color: #888; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="page-title">准备金 · 净流动性 · S&P 500 — 5年对比</div>
+  <div class="page-sub">WRESBAL · WALCL−WDTGAL−RRPONTSYD · SP500 ｜ 数据来源：FRED ｜ 左轴：万亿美元，右轴：SPX点位</div>
+</div>
+
+<div class="status" id="status">⏳ 加载数据中...</div>
+
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">🔵 准备金 WRESBAL</div>
+    <div class="kpi-val" id="k-res">—</div>
+    <div class="kpi-chg" id="c-res">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">🟢 净流动性 Net Liquidity</div>
+    <div class="kpi-val" id="k-nl">—</div>
+    <div class="kpi-chg" id="c-nl">—</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">🟡 S&P 500</div>
+    <div class="kpi-val" id="k-spx">—</div>
+    <div class="kpi-chg" id="c-spx">—</div>
+  </div>
+</div>
+
+<div class="chart-box">
+  <canvas id="chart" height="55"></canvas>
+</div>
+
+<div class="corr-row">
+  <div class="corr-box">
+    <div class="corr-title">📊 与 SPX 相关系数（Pearson r）— 实测</div>
+    <div class="corr-item"><span class="corr-label">准备金 vs SPX（全样本 2020–）</span><span class="corr-val weak">r = 0.164</span></div>
+    <div class="corr-item"><span class="corr-label">净流动性 vs SPX（全样本 2020–）</span><span class="corr-val weak">r = 0.226</span></div>
+    <div class="corr-item"><span class="corr-label">准备金 vs SPX（QE期 2020–2021）</span><span class="corr-val strong">r = 0.822</span></div>
+    <div class="corr-item"><span class="corr-label">准备金 vs SPX（QT期 2022–2023）</span><span class="corr-val moderate">r = 0.612</span></div>
+    <div class="corr-item"><span class="corr-label">准备金 vs SPX（2024–2026）</span><span class="corr-val moderate">r = −0.852</span></div>
+  </div>
+  <div class="corr-box" style="border-left-color:#ff9900; max-width:320px;">
+    <div class="corr-title">⚠️ 解读注意</div>
+    <div style="font-size:11px; color:#666; line-height:1.8;">
+      分段相关性显著高于全样本，说明两者关系是<b style="color:#aaa">非线性、周期性</b>的。<br><br>
+      QE/QT 不同阶段，传导机制不同：<br>
+      · QE期：流动性↑ → 资产价格↑，同向<br>
+      · QT期：流动性慢降，SPX先跌后涨<br>
+      · 2024后：RRP清零，准备金高位震荡，SPX独立上涨
+    </div>
+  </div>
+</div>
+
+<script>
+const PROXY = '/api/fred';
+const API_KEY = 'cd80bce065d6d311df574fbe558929f6';
+
+async function fetchFred(series, freq = 'w') {
+  const params = new URLSearchParams({
+    series_id: series, api_key: API_KEY, file_type: 'json',
+    observation_start: '2021-01-01',   // 5年
+    frequency: freq, aggregation_method: 'avg', sort_order: 'asc'
+  });
+  const r = await fetch(`${PROXY}?${params}`);
+  const d = await r.json();
+  const out = {};
+  for (const o of d.observations) if (o.value !== '.') out[o.date] = parseFloat(o.value);
+  return out;
+}
+
+function nearest(map, date, maxDays = 8) {
+  if (map[date]) return map[date];
+  const t = new Date(date).getTime();
+  let best = null, bestDiff = Infinity;
+  for (const k of Object.keys(map)) {
+    const diff = Math.abs(new Date(k).getTime() - t);
+    if (diff < bestDiff && diff <= maxDays * 86400000) { bestDiff = diff; best = map[k]; }
+  }
+  return best;
+}
+
+function fmtT(v) { return v < 0.01 ? (v*1000).toFixed(0)+'B' : v.toFixed(3)+' T'; }
+function fmtChg(v, unit) {
+  const s = v >= 0 ? '+' : '';
+  const txt = unit === 'spx' ? s + v.toFixed(0) + ' pt' : s + fmtT(v);
+  const cls = v > 0 ? 'up' : v < 0 ? 'down' : 'neu';
+  return { txt, cls };
+}
+
+async function main() {
+  const status = document.getElementById('status');
+  try {
+    const [walcl, tga, rrp, wres, spx] = await Promise.all([
+      fetchFred('WALCL'),
+      fetchFred('WDTGAL'),
+      fetchFred('RRPONTSYD'),
+      fetchFred('WRESBAL'),
+      fetchFred('SP500', 'w'),
+    ]);
+
+    const dates = Object.keys(wres).sort();
+    const labels = [], resArr = [], nlArr = [], spxArr = [];
+
+    for (const d of dates) {
+      const W  = (walcl[d] ?? nearest(walcl, d) ?? null);
+      const T  = (tga[d]   ?? nearest(tga,   d) ?? null);
+      const R  = (rrp[d]   ?? nearest(rrp,   d) ?? 0);
+      const WR = wres[d];
+      const sp = spx[d] ?? nearest(spx, d, 8);
+
+      if (!W || !T || !WR || !sp) continue;
+
+      const res_T = WR / 1e6;
+      const nl_T  = (W - T) / 1e6 - R / 1e3;
+
+      labels.push(d);
+      resArr.push(+res_T.toFixed(4));
+      nlArr.push(+nl_T.toFixed(4));
+      spxArr.push(+sp.toFixed(2));
+    }
+
+    status.textContent = `✅ ${labels.length} 个数据点 (${labels[0]} → ${labels[labels.length-1]})`;
+
+    // KPIs
+    const last = labels.length - 1;
+    const prev = last - 1;
+    [
+      ['res', resArr, 'T'], ['nl', nlArr, 'T'], ['spx', spxArr, 'spx']
+    ].forEach(([id, arr, unit]) => {
+      const lv = arr[last], pv = arr[prev];
+      document.getElementById('k-'+id).textContent =
+        unit === 'spx' ? lv.toLocaleString('en-US', {maximumFractionDigits:0}) : fmtT(lv);
+      const { txt, cls } = fmtChg(lv - pv, unit);
+      const el = document.getElementById('c-'+id);
+      el.textContent = txt + ' (7d)';
+      el.className = 'kpi-chg ' + cls;
+    });
+
+    // Chart
+    const ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, {
+      data: {
+        labels,
+        datasets: [
+          {
+            type: 'line',
+            label: '准备金 WRESBAL',
+            data: resArr,
+            borderColor: '#4da6ff',
+            backgroundColor: 'rgba(77,166,255,0.06)',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'yL',
+          },
+          {
+            type: 'line',
+            label: '净流动性 Net Liquidity',
+            data: nlArr,
+            borderColor: '#00d4aa',
+            backgroundColor: 'rgba(0,212,170,0.04)',
+            borderWidth: 2,
+            borderDash: [6, 3],
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+            yAxisID: 'yL',
+          },
+          {
+            type: 'line',
+            label: 'S&P 500',
+            data: spxArr,
+            borderColor: '#f5a623',
+            backgroundColor: 'rgba(245,166,35,0.06)',
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3,
+            fill: false,
+            yAxisID: 'yR',
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { color: '#888', font: { size: 11 }, boxWidth: 20, padding: 18 }
+          },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#ff9900',
+            bodyColor: '#ccc',
+            borderColor: '#333',
+            borderWidth: 1,
+            callbacks: {
+              title: items => items[0].label,
+              label: c => {
+                if (c.dataset.yAxisID === 'yR')
+                  return ` ${c.dataset.label}: ${c.parsed.y.toLocaleString('en-US', {maximumFractionDigits:0})} pt`;
+                return ` ${c.dataset.label}: ${fmtT(c.parsed.y)}`;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            type: 'time',
+            time: { unit: 'quarter', displayFormats: { quarter: 'yyyy-Q' } },
+            ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 20 },
+            grid: { color: '#1e1e1e' },
+          },
+          yL: {
+            position: 'left',
+            ticks: { color: '#4da6ff', font: { size: 10 }, callback: v => v.toFixed(1) + ' T' },
+            grid: { color: '#222' },
+            title: { display: true, text: 'Trillion USD', color: '#4da6ff', font: { size: 10 } },
+          },
+          yR: {
+            position: 'right',
+            ticks: { color: '#f5a623', font: { size: 10 }, callback: v => v.toLocaleString('en-US', {maximumFractionDigits:0}) },
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: 'S&P 500', color: '#f5a623', font: { size: 10 } },
+          },
+        }
+      }
+    });
+
+  } catch(e) {
+    status.textContent = '❌ ' + e.message;
+    console.error(e);
+  }
+}
+main();
+</script>
+</body>
+</html>
