@@ -856,114 +856,7 @@ function drawSpread(canvasId, spread, color, zeroLine = true) {
   });
 }
 
-// Panel meta for spreads
-Object.assign(PANEL_META, {
-  effr_iorb: {
-    title: 'EFFR − IORB 利差',
-    color: '#4da6ff',
-    description: `EFFR（有效联邦基金利率）是银行间隔夜拆借的实际成交利率。IORB（准备金利率）是美联储付给商业银行准备金存款的利率，是银行愿意出借资金的最低价格底线。
-<br><br>
-<b>正常状态</b>：EFFR 应略高于或等于 IORB，利差接近 0~5bp。银行持有准备金能拿到 IORB，如果市场利率明显低于此，银行没有动力出借；如果明显高于此，说明银行间流动性出现短缺。
-<br><br>
-<b>利差扩大（EFFR ≫ IORB）</b>：准备金供给不足，银行开始"抢水"，隔夜拆借成本上升。2019年9月 repo 危机时，EFFR 单日飙升约 100bp 以上，触发 Fed 紧急注入流动性。
-<br><br>
-<b>利差为负（EFFR &lt; IORB）</b>：当前状态，极度充裕，银行不愁资金，市场利率甚至低于 Fed 付的存款利率。
-<br><br>
-<b>评分方法</b>：取近 20 个交易日均值（约 4 周），按绝对利差 bp 数分档。利差越大越紧缩，超过 20bp 视为高度紧张。`,
-    logicRows: [
-      { cond: '≤ 2 bp',   trend: '—', score: 1, note: '准备金极充裕，EFFR 紧贴/低于 IORB' },
-      { cond: '2 – 5 bp', trend: '—', score: 2, note: '正常偏宽松区间' },
-      { cond: '5 – 10 bp',trend: '—', score: 3, note: '中性，开始值得关注' },
-      { cond: '10 – 20 bp',trend:'—', score: 4, note: '准备金趋紧，repo 市场承压' },
-      { cond: '> 20 bp',  trend: '—', score: 5, note: '准备金严重短缺，系统性风险' },
-    ],
-    calcFn: (raw) => {
-      const { effr, iorb } = raw;
-      const dates = Object.keys(effr).sort();
-      const spreads = dates.map(d => {
-        const e = effr[d], i = iorb[d] ?? nearest(iorb, d, 5);
-        return (e !== undefined && i !== undefined) ? (e - i) * 100 : null;
-      }).filter(v => v !== null);
-      const latest = spreads[spreads.length - 1];
-      const avg20  = spreads.slice(-20).reduce((a,b)=>a+b,0) / Math.min(spreads.length,20);
-      const score  = scoreEFFR_IORB(effr, iorb);
-      return {
-        lines: [
-          `<span class="calc-key">最新 EFFR：</span><span class="calc-val">${effr[dates[dates.length-1]]?.toFixed(4)}%</span>`,
-          `<span class="calc-key">最新 IORB：</span><span class="calc-val">${(iorb[Object.keys(iorb).sort().slice(-1)[0]] ?? 0).toFixed(4)}%</span>`,
-          `<span class="calc-key">最新利差：</span><span class="calc-val">${latest?.toFixed(2)} bp</span>`,
-          `<span class="calc-key">近20日均值：</span><span class="calc-val">${avg20.toFixed(2)} bp</span>`,
-          `<span class="calc-result">→ 评分：${score} / 5 &nbsp;${SCORE_LABELS[score]}</span>`,
-        ],
-        score,
-      };
-    },
-    historyFn: (raw) => {
-      const { effr, iorb } = raw;
-      const sp = buildSpreadSeries(effr, iorb);
-      const dates = sp.dates;
-      const scoreVals = computeHistoryScores(dates, (i) => {
-        const es = {}, is = {};
-        dates.slice(0,i+1).forEach(d => { es[d]=effr[d]; is[d]=iorb[d]; });
-        return scoreEFFR_IORB(es, is);
-      });
-      return { dates, metricVals: sp.vals, scoreVals, metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
-    },
-  },
-
-  sofr_effr: {
-    title: 'SOFR − EFFR 利差',
-    color: '#00d4aa',
-    description: `SOFR（担保隔夜融资利率）是美国 repo 市场的基准利率，以美国国债为抵押的隔夜拆借成本，已于 2023 年完全取代 LIBOR。EFFR 是无抵押银行间拆借利率。
-<br><br>
-<b>理论上</b>：有抵押借款（SOFR）风险更低，利率应略低于无抵押借款（EFFR）。所以正常状态下 SOFR ≤ EFFR，利差为负或接近零。
-<br><br>
-<b>利差扩大（SOFR ≫ EFFR）</b>：repo 市场出现抵押品压力或流动性短缺——机构急需融资，即使有国债抵押也要付出更高代价。通常在月末/季末/年末会有技术性尖刺（银行缩表），持续扩大则是真实压力信号。
-<br><br>
-<b>2019年9月</b>：SOFR 单日飙至 5.25%（EFFR 目标上沿仅 2.25%），利差达 300bp，直接触发 Fed 重启 repo 操作。
-<br><br>
-<b>评分方法</b>：取近 20 日均值，按利差 bp 数分档。负值（SOFR &lt; EFFR）视为极宽松，持续正且扩大视为压力信号。`,
-    logicRows: [
-      { cond: '≤ 0 bp',   trend: '—', score: 1, note: 'SOFR ≤ EFFR，repo 极充裕，正常偏宽松' },
-      { cond: '0 – 3 bp', trend: '—', score: 2, note: '轻微溢价，正常波动范围内' },
-      { cond: '3 – 8 bp', trend: '—', score: 3, note: '中性，开始有摩擦' },
-      { cond: '8 – 15 bp',trend: '—', score: 4, note: 'Repo 市场流动性趋紧' },
-      { cond: '> 15 bp',  trend: '—', score: 5, note: '持续异常，抵押品压力显著' },
-    ],
-    calcFn: (raw) => {
-      const { sofr, effr } = raw;
-      const dates = Object.keys(sofr).sort();
-      const spreads = dates.map(d => {
-        const s = sofr[d], e = effr[d] ?? nearest(effr, d, 5);
-        return (s !== undefined && e !== undefined) ? (s - e) * 100 : null;
-      }).filter(v => v !== null);
-      const latest = spreads[spreads.length - 1];
-      const avg20  = spreads.slice(-20).reduce((a,b)=>a+b,0) / Math.min(spreads.length, 20);
-      const score  = scoreSOFR_EFFR(sofr, effr);
-      return {
-        lines: [
-          `<span class="calc-key">最新 SOFR：</span><span class="calc-val">${sofr[dates[dates.length-1]]?.toFixed(4)}%</span>`,
-          `<span class="calc-key">最新 EFFR：</span><span class="calc-val">${(effr[Object.keys(effr).sort().slice(-1)[0]] ?? 0).toFixed(4)}%</span>`,
-          `<span class="calc-key">最新利差：</span><span class="calc-val">${latest?.toFixed(2)} bp</span>`,
-          `<span class="calc-key">近20日均值：</span><span class="calc-val">${avg20.toFixed(2)} bp</span>`,
-          `<span class="calc-result">→ 评分：${score} / 5 &nbsp;${SCORE_LABELS[score]}</span>`,
-        ],
-        score,
-      };
-    },
-    historyFn: (raw) => {
-      const { sofr, effr } = raw;
-      const sp = buildSpreadSeries(sofr, effr);
-      const dates = sp.dates;
-      const scoreVals = computeHistoryScores(dates, (i) => {
-        const ss = {}, es = {};
-        dates.slice(0,i+1).forEach(d => { ss[d]=sofr[d]; es[d]=effr[d]; });
-        return scoreSOFR_EFFR(ss, es);
-      });
-      return { dates, metricVals: sp.vals, scoreVals, metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
-    },
-  },
-});
+// spread panel meta — appended to PANEL_META after its definition (see below)
 
 function drawSpreads() {
   const { effr, iorb, sofr } = cachedRaw;
@@ -1623,6 +1516,114 @@ const PANEL_META = {
         metricLabel: '净流动性 (T)',
         metricColor: '#3fb950',
       };
+    },
+  },
+
+  effr_iorb: {
+    title: 'EFFR − IORB 利差',
+    color: '#4da6ff',
+    description: `EFFR（有效联邦基金利率）是银行间隔夜拆借的实际成交利率。IORB（准备金利率）是美联储付给商业银行准备金存款的利率，是银行愿意出借资金的最低价格底线。
+<br><br>
+<b>正常状态</b>：EFFR 应略高于或等于 IORB，利差接近 0~5bp。银行持有准备金能拿到 IORB，如果市场利率明显低于此，银行没有动力出借；如果明显高于此，说明银行间流动性出现短缺。
+<br><br>
+<b>利差扩大（EFFR ≫ IORB）</b>：准备金供给不足，银行开始"抢水"，隔夜拆借成本上升。2019年9月 repo 危机时，EFFR 单日飙升约 100bp 以上，触发 Fed 紧急注入流动性。
+<br><br>
+<b>利差为负（EFFR &lt; IORB）</b>：当前状态，极度充裕，银行不愁资金，市场利率甚至低于 Fed 付的存款利率。
+<br><br>
+<b>评分方法</b>：取近 20 周均值，按绝对利差 bp 数分档。利差越大越紧缩，超过 20bp 视为高度紧张。`,
+    logicRows: [
+      { cond: '≤ 2 bp',    trend: '—', score: 1, note: '准备金极充裕，EFFR 紧贴/低于 IORB' },
+      { cond: '2 – 5 bp',  trend: '—', score: 2, note: '正常偏宽松区间' },
+      { cond: '5 – 10 bp', trend: '—', score: 3, note: '中性，开始值得关注' },
+      { cond: '10 – 20 bp',trend: '—', score: 4, note: '准备金趋紧，repo 市场承压' },
+      { cond: '> 20 bp',   trend: '—', score: 5, note: '准备金严重短缺，系统性风险' },
+    ],
+    calcFn: (raw) => {
+      const { effr, iorb } = raw;
+      if (!effr || !iorb) return { lines: ['数据未加载'], score: 3 };
+      const dates = Object.keys(effr).sort();
+      const spreads = dates.map(d => {
+        const e = effr[d], i = iorb[d] ?? nearest(iorb, d, 10);
+        return (e != null && i != null) ? (e - i) * 100 : null;
+      }).filter(v => v !== null);
+      const latest = spreads[spreads.length - 1];
+      const avg20  = spreads.slice(-20).reduce((a,b)=>a+b,0) / Math.min(spreads.length, 20);
+      const score  = scoreEFFR_IORB(effr, iorb);
+      return {
+        lines: [
+          `<span class="calc-key">最新 EFFR：</span><span class="calc-val">${effr[dates[dates.length-1]]?.toFixed(4)}%</span>`,
+          `<span class="calc-key">最新 IORB：</span><span class="calc-val">${(iorb[Object.keys(iorb).sort().slice(-1)[0]] ?? 0).toFixed(4)}%</span>`,
+          `<span class="calc-key">最新利差：</span><span class="calc-val">${latest?.toFixed(2)} bp</span>`,
+          `<span class="calc-key">近20周均值：</span><span class="calc-val">${avg20.toFixed(2)} bp</span>`,
+          `<span class="calc-result">→ 评分：${score} / 5 &nbsp;${SCORE_LABELS[score]}</span>`,
+        ],
+        score,
+      };
+    },
+    historyFn: (raw) => {
+      const { effr, iorb } = raw;
+      if (!effr || !iorb) return { dates: [], metricVals: [], scoreVals: [], metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
+      const sp = buildSpreadSeries(effr, iorb);
+      const scoreVals = computeHistoryScores(sp.dates, (i) => {
+        const es = {}, is = {};
+        sp.dates.slice(0,i+1).forEach(d => { es[d]=effr[d]; is[d]=iorb[d]; });
+        return scoreEFFR_IORB(es, is);
+      });
+      return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
+    },
+  },
+
+  sofr_effr: {
+    title: 'SOFR − EFFR 利差',
+    color: '#00d4aa',
+    description: `SOFR（担保隔夜融资利率）是美国 repo 市场的基准利率，以美国国债为抵押的隔夜拆借成本，已于 2023 年完全取代 LIBOR。EFFR 是无抵押银行间拆借利率。
+<br><br>
+<b>理论上</b>：有抵押借款（SOFR）风险更低，利率应略低于无抵押借款（EFFR）。所以正常状态下 SOFR ≤ EFFR，利差为负或接近零。
+<br><br>
+<b>利差扩大（SOFR ≫ EFFR）</b>：repo 市场出现抵押品压力或流动性短缺——机构急需融资，即使有国债抵押也要付出更高代价。通常在月末/季末/年末会有技术性尖刺（银行缩表），持续扩大则是真实压力信号。
+<br><br>
+<b>2019年9月</b>：SOFR 单日飙至 5.25%（EFFR 目标上沿仅 2.25%），利差达 300bp，直接触发 Fed 重启 repo 操作。
+<br><br>
+<b>评分方法</b>：取近 20 周均值，按利差 bp 数分档。负值（SOFR &lt; EFFR）视为极宽松，持续正且扩大视为压力信号。`,
+    logicRows: [
+      { cond: '≤ 0 bp',    trend: '—', score: 1, note: 'SOFR ≤ EFFR，repo 极充裕' },
+      { cond: '0 – 3 bp',  trend: '—', score: 2, note: '轻微溢价，正常波动范围内' },
+      { cond: '3 – 8 bp',  trend: '—', score: 3, note: '中性，开始有摩擦' },
+      { cond: '8 – 15 bp', trend: '—', score: 4, note: 'Repo 市场流动性趋紧' },
+      { cond: '> 15 bp',   trend: '—', score: 5, note: '持续异常，抵押品压力显著' },
+    ],
+    calcFn: (raw) => {
+      const { sofr, effr } = raw;
+      if (!sofr || !effr) return { lines: ['数据未加载'], score: 3 };
+      const dates = Object.keys(sofr).sort();
+      const spreads = dates.map(d => {
+        const s = sofr[d], e = effr[d] ?? nearest(effr, d, 10);
+        return (s != null && e != null) ? (s - e) * 100 : null;
+      }).filter(v => v !== null);
+      const latest = spreads[spreads.length - 1];
+      const avg20  = spreads.slice(-20).reduce((a,b)=>a+b,0) / Math.min(spreads.length, 20);
+      const score  = scoreSOFR_EFFR(sofr, effr);
+      return {
+        lines: [
+          `<span class="calc-key">最新 SOFR：</span><span class="calc-val">${sofr[dates[dates.length-1]]?.toFixed(4)}%</span>`,
+          `<span class="calc-key">最新 EFFR：</span><span class="calc-val">${(effr[Object.keys(effr).sort().slice(-1)[0]] ?? 0).toFixed(4)}%</span>`,
+          `<span class="calc-key">最新利差：</span><span class="calc-val">${latest?.toFixed(2)} bp</span>`,
+          `<span class="calc-key">近20周均值：</span><span class="calc-val">${avg20.toFixed(2)} bp</span>`,
+          `<span class="calc-result">→ 评分：${score} / 5 &nbsp;${SCORE_LABELS[score]}</span>`,
+        ],
+        score,
+      };
+    },
+    historyFn: (raw) => {
+      const { sofr, effr } = raw;
+      if (!sofr || !effr) return { dates: [], metricVals: [], scoreVals: [], metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
+      const sp = buildSpreadSeries(sofr, effr);
+      const scoreVals = computeHistoryScores(sp.dates, (i) => {
+        const ss = {}, es = {};
+        sp.dates.slice(0,i+1).forEach(d => { ss[d]=sofr[d]; es[d]=effr[d]; });
+        return scoreSOFR_EFFR(ss, es);
+      });
+      return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
     },
   },
 };
