@@ -1416,7 +1416,7 @@ const PANEL_META = {
           const slice = {};
           dates.slice(0, i+1).forEach(d => slice[d] = tga[d]);
           return scoreTGA(slice);
-        }),
+        }, 4),
         metricLabel: 'TGA (T)',
         metricColor: '#f87171',
       };
@@ -1467,7 +1467,7 @@ const PANEL_META = {
           const slice = {};
           dates.slice(0, i+1).forEach(d => slice[d] = rrp[d]);
           return scoreRRP(slice);
-        }),
+        }, 4),
         metricLabel: 'ON RRP (T)',
         metricColor: '#fb923c',
       };
@@ -1525,7 +1525,7 @@ const PANEL_META = {
           const rs = {}, ws = {};
           dates.slice(0, i+1).forEach(d => { rs[d] = wres[d]; ws[d] = walcl[d] ?? nearest(walcl, d); });
           return scoreReserves(rs, ws);
-        }),
+        }, 4),
         metricLabel: '准备金 (T)',
         metricColor: '#4da6ff',
         refLine: { value: 3.0, label: '$3T 警戒线', color: '#f87171' },
@@ -1587,7 +1587,7 @@ const PANEL_META = {
           const ws={}, ts={}, rs={};
           dates.slice(0,i+1).forEach(d => { ws[d]=walcl[d]; ts[d]=tga[d]; rs[d]=rrp[d]; });
           return scoreNetLiquidity(ws, ts, rs);
-        }),
+        }, 4),
         metricLabel: '净流动性 (T)',
         metricColor: '#3fb950',
       };
@@ -1645,11 +1645,16 @@ const PANEL_META = {
       const { effr, iorb } = raw;
       if (!effr || !iorb) return { dates: [], metricVals: [], scoreVals: [], metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
       const sp = buildSpreadSeries(effr, iorb);
+      // 直接在 spread 数组上做滑窗，避免 O(n²) 重建对象
       const scoreVals = computeHistoryScores(sp.dates, (i) => {
-        const es = {}, is = {};
-        sp.dates.slice(0,i+1).forEach(d => { es[d]=effr[d]; is[d]=iorb[d]; });
-        return scoreEFFR_IORB(es, is);
-      });
+        const slice = sp.vals.slice(Math.max(0, i-19), i+1);
+        const cur   = slice[slice.length - 1];
+        const avg5  = slice.slice(-5).reduce((a,b)=>a+b,0) / Math.min(5, slice.length);
+        const s1    = _effrIorbAbs(cur);
+        const s2    = _effrIorbAbs(avg5);
+        const s3    = _effrIorbTrend(sp.vals, i);
+        return Math.round(s1*0.40 + s2*0.35 + s3*0.25);
+      }, 10);
       return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
     },
   },
@@ -1706,19 +1711,23 @@ const PANEL_META = {
       if (!sofr || !effr) return { dates: [], metricVals: [], scoreVals: [], metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
       const sp = buildSpreadSeries(sofr, effr);
       const scoreVals = computeHistoryScores(sp.dates, (i) => {
-        const ss = {}, es = {};
-        sp.dates.slice(0,i+1).forEach(d => { ss[d]=sofr[d]; es[d]=effr[d]; });
-        return scoreSOFR_EFFR(ss, es);
-      });
+        const slice = sp.vals.slice(Math.max(0, i-19), i+1);
+        const cur   = slice[slice.length - 1];
+        const avg5  = slice.slice(-5).reduce((a,b)=>a+b,0) / Math.min(5, slice.length);
+        const s1    = _sofrEffrAbs(cur);
+        const s2    = _sofrEffrAbs(avg5);
+        const s3    = _sofrEffrTrend(sp.vals, i);
+        return Math.round(s1*0.40 + s2*0.35 + s3*0.25);
+      }, 10);
       return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
     },
   },
 };
 
 // 计算历史评分序列（每个时间点用截至当时的数据重算）
-function computeHistoryScores(dates, scoreFn) {
-  // 每4周算一个点，避免太密
-  return dates.map((d, i) => i % 2 === 0 ? scoreFn(i) : null);
+function computeHistoryScores(dates, scoreFn, step = 10) {
+  // 每 step 个点取一个，日度数据 step=10 约每2周1点，周度数据 step=2
+  return dates.map((d, i) => (i % step === 0 || i === dates.length - 1) ? scoreFn(i) : null);
 }
 
 let panelChart = null;
