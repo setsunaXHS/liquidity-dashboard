@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fed Liability Structure Over Time</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a1a; font-family: 'Segoe UI', sans-serif; color: #fff; padding: 32px; }
+
+.page-title { color: #ff9900; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border-left: 3px solid #ff9900; padding-left: 10px; margin-bottom: 4px; }
+.page-sub { color: #555; font-size: 11px; margin-bottom: 24px; padding-left: 13px; }
+
+.controls { display: flex; gap: 8px; margin-bottom: 20px; }
+.btn { background: #222; border: 1px solid #333; color: #888; font-size: 11px; padding: 5px 14px; border-radius: 4px; cursor: pointer; letter-spacing: 1px; transition: all 0.15s; }
+.btn:hover { border-color: #ff9900; color: #ff9900; }
+.btn.active { background: #ff990022; border-color: #ff9900; color: #ff9900; }
+
+.chart-box { background: #111; border-radius: 10px; padding: 24px 28px 16px; margin-bottom: 20px; }
+.chart-title { font-size: 12px; color: #666; margin-bottom: 16px; }
+
+.status { font-size: 11px; color: #555; font-family: monospace; margin-bottom: 12px; }
+
+/* KPI strip */
+.kpi-strip { display: flex; gap: 10px; margin-bottom: 20px; }
+.kpi { flex: 1; background: #111; border-radius: 8px; padding: 14px 16px; border-top: 2px solid; }
+.kpi:nth-child(1) { border-color: #4da6ff; }
+.kpi:nth-child(2) { border-color: #a78bfa; }
+.kpi:nth-child(3) { border-color: #f87171; }
+.kpi:nth-child(4) { border-color: #fb923c; }
+.kpi:nth-child(5) { border-color: #6b7280; }
+.kpi-label { font-size: 10px; color: #666; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+.kpi-val { font-size: 18px; font-weight: 700; color: #fff; font-family: monospace; }
+.kpi-pct { font-size: 11px; color: #888; margin-top: 3px; }
+
+.note { font-size: 11px; color: #444; margin-top: 8px; line-height: 1.8; }
+.note b { color: #666; }
+</style>
+</head>
+<body>
+
+<div class="page-title">Fed 负债端结构演变</div>
+<div class="page-sub">2020–2026 周度数据 ｜ FRED</div>
+
+<div class="status" id="status">⏳ 正在加载数据...</div>
+
+<div class="kpi-strip">
+  <div class="kpi"><div class="kpi-label">Reserves</div><div class="kpi-val" id="k0">—</div><div class="kpi-pct" id="p0">—</div></div>
+  <div class="kpi"><div class="kpi-label">Currency</div><div class="kpi-val" id="k1">—</div><div class="kpi-pct" id="p1">—</div></div>
+  <div class="kpi"><div class="kpi-label">TGA</div><div class="kpi-val" id="k2">—</div><div class="kpi-pct" id="p2">—</div></div>
+  <div class="kpi"><div class="kpi-label">ON RRP</div><div class="kpi-val" id="k3">—</div><div class="kpi-pct" id="p3">—</div></div>
+  <div class="kpi"><div class="kpi-label">Other</div><div class="kpi-val" id="k4">—</div><div class="kpi-pct" id="p4">—</div></div>
+</div>
+
+<div class="controls">
+  <div style="font-size:11px;color:#555;line-height:28px;margin-right:4px;">时间范围：</div>
+  <button class="btn" data-range="2">2Y</button>
+  <button class="btn active" data-range="5">5Y</button>
+  <button class="btn" data-range="all">ALL</button>
+  <div style="flex:1"></div>
+  <div style="font-size:11px;color:#555;line-height:28px;margin-right:4px;">图表类型：</div>
+  <button class="btn active" data-type="area">堆叠面积</button>
+  <button class="btn" data-type="bar">堆叠柱状</button>
+</div>
+
+<div class="chart-box">
+  <div class="chart-title">Fed 负债端分项构成（万亿美元）</div>
+  <canvas id="chart" height="65"></canvas>
+</div>
+
+<div class="note">
+  <b>Reserves（蓝）</b> 银行在 Fed 的准备金存款，直接决定银行间流动性松紧。警戒线 ~$3T<br>
+  <b>Currency（紫）</b> 流通中货币，长期缓慢增长，对流动性影响小<br>
+  <b>TGA（红）</b> 财政部在 Fed 的账户，TGA↑抽走流动性，TGA↓释放流动性<br>
+  <b>ON RRP（橙）</b> 隔夜逆回购，2022–2024 年峰值 $2.5T，现已基本清零<br>
+  <b>Other（灰）</b> Fed 资本、浮差等其他负债项，相对稳定
+</div>
+
+<script>
+const PROXY = '/api/fred';
+const API_KEY = 'cd80bce065d6d311df574fbe558929f6';
+
+const COLORS = {
+  reserves: { bg: 'rgba(77,166,255,0.75)',  border: '#4da6ff' },
+  currency: { bg: 'rgba(167,139,250,0.75)', border: '#a78bfa' },
+  tga:      { bg: 'rgba(248,113,113,0.75)', border: '#f87171' },
+  rrp:      { bg: 'rgba(251,146,60,0.85)',  border: '#fb923c' },
+  other:    { bg: 'rgba(107,114,128,0.6)',  border: '#6b7280' },
+};
+
+let allLabels = [], allSeries = {};
+let chart = null;
+let currentType = 'area';
+let currentRange = '5';
+
+async function fetchFred(series, freq = 'w') {
+  const params = new URLSearchParams({
+    series_id: series, api_key: API_KEY, file_type: 'json',
+    observation_start: '2020-01-01', frequency: freq, aggregation_method: 'avg'
+  });
+  const r = await fetch(`${PROXY}?${params}`);
+  const d = await r.json();
+  const out = {};
+  for (const o of d.observations) if (o.value !== '.') out[o.date] = parseFloat(o.value);
+  return out;
+}
+
+function nearestVal(map, date, maxDays = 10) {
+  if (map[date]) return map[date];
+  const t = new Date(date).getTime();
+  let best = null, bestDiff = Infinity;
+  for (const k of Object.keys(map)) {
+    const diff = Math.abs(new Date(k).getTime() - t);
+    if (diff < bestDiff && diff <= maxDays * 86400000) { bestDiff = diff; best = map[k]; }
+  }
+  return best;
+}
+
+function filterByRange(labels, range) {
+  if (range === 'all') return labels;
+  const cutoff = new Date();
+  cutoff.setFullYear(cutoff.getFullYear() - parseInt(range));
+  const cutStr = cutoff.toISOString().slice(0, 10);
+  return labels.filter(d => d >= cutStr);
+}
+
+function buildChart(type, range) {
+  const labels = filterByRange(allLabels, range);
+  const slice = (key) => labels.map(d => allSeries[key][allLabels.indexOf(d)]);
+
+  const datasets = [
+    { label: 'Reserves (WRESBAL)',   data: slice('reserves'), backgroundColor: COLORS.reserves.bg, borderColor: COLORS.reserves.border },
+    { label: 'Currency (WCURRNS)',   data: slice('currency'), backgroundColor: COLORS.currency.bg, borderColor: COLORS.currency.border },
+    { label: 'TGA (WDTGAL)',         data: slice('tga'),      backgroundColor: COLORS.tga.bg,      borderColor: COLORS.tga.border      },
+    { label: 'ON RRP (RRPONTSYD)',   data: slice('rrp'),      backgroundColor: COLORS.rrp.bg,      borderColor: COLORS.rrp.border      },
+    { label: 'Other Liabilities',    data: slice('other'),    backgroundColor: COLORS.other.bg,    borderColor: COLORS.other.border    },
+  ].map(d => ({
+    ...d,
+    borderWidth: type === 'area' ? 1.5 : 0,
+    fill: type === 'area' ? true : undefined,
+    pointRadius: 0,
+    tension: 0.3,
+    type: type === 'area' ? 'line' : 'bar',
+    stack: 'fed',
+  }));
+
+  if (chart) chart.destroy();
+  const ctx = document.getElementById('chart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: type === 'area' ? 'line' : 'bar',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#888', font: { size: 11 }, boxWidth: 14, padding: 14 } },
+        tooltip: {
+          backgroundColor: '#1e1e1e', titleColor: '#ff9900', bodyColor: '#ccc',
+          borderColor: '#333', borderWidth: 1,
+          callbacks: {
+            title: items => items[0].label,
+            label: c => {
+              const v = c.parsed.y;
+              const total = c.chart.data.datasets.reduce((s, ds) => s + (ds.data[c.dataIndex] || 0), 0);
+              return ` ${c.dataset.label}: $${v.toFixed(2)}T  (${((v/total)*100).toFixed(1)}%)`;
+            },
+            footer: items => {
+              const total = items[0].chart.data.datasets.reduce((s, ds) => s + (ds.data[items[0].dataIndex] || 0), 0);
+              return `Total: $${total.toFixed(2)}T`;
+            }
+          }
+        },
+        annotation: {
+          // 3T warning line drawn manually below
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          ticks: { color: '#555', maxTicksLimit: type === 'bar' ? 10 : 16, font: { size: 10 } },
+          grid: { color: '#1e1e1e' },
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
+        },
+        y: {
+          stacked: true,
+          ticks: { color: '#aaa', font: { size: 10 }, callback: v => '$' + v.toFixed(1) + 'T' },
+          grid: { color: '#222' },
+          title: { display: true, text: 'Trillion USD', color: '#555', font: { size: 10 } },
+        }
+      }
+    }
+  });
+}
+
+async function main() {
+  const status = document.getElementById('status');
+  try {
+    status.textContent = '⏳ 拉取数据中（5个系列）...';
+    const [walcl, wres, curr, tga, rrp] = await Promise.all([
+      fetchFred('WALCL'),
+      fetchFred('WRESBAL'),
+      fetchFred('WCURRNS'),
+      fetchFred('WDTGAL'),
+      fetchFred('RRPONTSYD'),
+    ]);
+
+    // 以 WRESBAL 的周度日期为主轴
+    const dates = Object.keys(wres).sort();
+    allLabels = dates;
+    allSeries = { reserves: [], currency: [], tga: [], rrp: [], other: [] };
+
+    for (const d of dates) {
+      const W  = (nearestVal(walcl, d) || 0) / 1000;   // M→T
+      const WR = (nearestVal(wres,  d) || 0) / 1000;
+      const C  = (nearestVal(curr,  d) || 0) / 1000;   // B→T  (WCURRNS is Billions)
+      const T  = (nearestVal(tga,   d) || 0) / 1000;
+      const R  = (nearestVal(rrp,   d) || 0) / 1000;   // B→T
+      const other = Math.max(0, W - WR - C - T - R);
+
+      allSeries.reserves.push(+WR.toFixed(3));
+      allSeries.currency.push(+C.toFixed(3));
+      allSeries.tga.push(+T.toFixed(3));
+      allSeries.rrp.push(+R.toFixed(3));
+      allSeries.other.push(+other.toFixed(3));
+    }
+
+    // Update KPIs with latest
+    const last = dates.length - 1;
+    const vals = ['reserves','currency','tga','rrp','other'];
+    const total = vals.reduce((s,k) => s + allSeries[k][last], 0);
+    vals.forEach((k, i) => {
+      const v = allSeries[k][last];
+      document.getElementById('k'+i).textContent = '$' + v.toFixed(3) + 'T';
+      document.getElementById('p'+i).textContent = ((v/total)*100).toFixed(1) + '%';
+    });
+
+    status.textContent = `✅ ${dates.length} 个数据点 (${dates[0]} → ${dates[last]})`;
+    buildChart(currentType, currentRange);
+
+  } catch(e) {
+    status.textContent = '❌ ' + e.message;
+    console.error(e);
+  }
+}
+
+// Controls
+document.querySelectorAll('[data-range]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-range]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRange = btn.dataset.range;
+    buildChart(currentType, currentRange);
+  });
+});
+document.querySelectorAll('[data-type]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('[data-type]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentType = btn.dataset.type;
+    buildChart(currentType, currentRange);
+  });
+});
+
+main();
+</script>
+</body>
+</html>
