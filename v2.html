@@ -246,6 +246,14 @@ canvas { display: block; }
 .panel-legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
 .panel-legend-dot { width: 10px; height: 3px; border-radius: 2px; }
 
+/* Description */
+.panel-desc {
+  font-size: 12px; color: #999; line-height: 1.8;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 14px 16px;
+}
+.panel-desc b { color: #ccc; }
+
 /* pip clickable */
 .score-pips .pip { cursor: pointer; }
 .score-pips .pip:hover { opacity: 0.75; transform: scale(1.1); }
@@ -407,6 +415,12 @@ canvas { display: block; }
     <div class="panel-close" onclick="closePanel()">×</div>
   </div>
   <div class="panel-body">
+
+    <!-- Description -->
+    <div>
+      <div class="panel-section-title">指标说明</div>
+      <div class="panel-desc" id="panelDesc"></div>
+    </div>
 
     <!-- Logic -->
     <div>
@@ -940,6 +954,12 @@ const PANEL_META = {
   tga: {
     title: 'TGA — 财政部一般账户',
     color: '#f87171',
+    description: `TGA（Treasury General Account）是美国财政部在美联储开设的唯一运营账户，相当于政府的"支票账户"。财政部发债筹来的钱会先存入 TGA，支出时再从 TGA 转出到市场。
+<br><br>
+<b>TGA↑（余额增加）</b>：财政部在发债融资但尚未支出，资金从银行体系流入 Fed，<b>抽走市场流动性</b>，对准备金形成压力。<br>
+<b>TGA↓（余额减少）</b>：财政部在花钱，资金从 Fed 流回银行体系，<b>释放流动性</b>，效果类似 QE 的一部分。
+<br><br>
+<b>评分方法：绝对水位 + 4周均线趋势</b>。单看水位不够，同样是 0.8T，如果在快速下降说明财政正在注水，评分应更宽松；如果在快速上升说明正在抽水，评分应更紧。`,
     logicRows: [
       { cond: '< 0.3T',                          trend: '任意',    score: 1, note: '财政几乎弹尽，被动释放流动性' },
       { cond: '0.3T – 0.6T',                     trend: '下降 ↓', score: 2, note: '财政花钱，流动性持续注入' },
@@ -984,6 +1004,13 @@ const PANEL_META = {
   rrp: {
     title: 'ON RRP — 隔夜逆回购',
     color: '#fb923c',
+    description: `ON RRP（Overnight Reverse Repo）是货币市场基金等机构将多余现金隔夜停放在美联储的工具，Fed 以国债作抵押，支付一个固定利率。本质上是 Fed 的"蓄水池"。
+<br><br>
+<b>RRP↑（余额增加）</b>：市场上钱多到找不到足够收益机会，只能停放在 Fed。这是流动性极度充裕的信号——2022 年峰值曾达 $2.5T。<br>
+<b>RRP↓（余额减少）</b>：资金离开 Fed 流向市场寻找收益，本身是宽松信号；但在 QT 背景下，RRP 清零意味着<b>缓冲垫耗尽</b>，此后任何流动性收缩都直接消耗准备金，系统脆弱性上升。<br>
+<b>当前（2026 Q1）</b>：RRP 已接近清零（~$0.016T），缓冲垫基本消失。
+<br><br>
+<b>评分方法：绝对水位 + 4周趋势</b>。RRP 的含义在不同周期阶段不同，因此需要结合水位和方向综合判断。清零状态下无论趋势如何，评为最紧（5 分）。`,
     logicRows: [
       { cond: '> 1.0T',    trend: '上升 ↑', score: 1, note: '高位且上升：流动性极度充裕，溢出停放 Fed' },
       { cond: '> 1.0T',    trend: '下降 ↓', score: 2, note: '高位下降：宽松但蓄水池开始消耗' },
@@ -1028,6 +1055,14 @@ const PANEL_META = {
   res: {
     title: '准备金 — Bank Reserves',
     color: '#4da6ff',
+    description: `准备金（Bank Reserves）是商业银行存放在美联储的资金，是银行间支付结算和流动性管理的核心弹药。Fed 通过 QE/QT 直接控制准备金总量。
+<br><br>
+<b>准备金↑</b>：银行流动性充裕，做市能力强，风险资产有买盘，信用扩张顺畅。<br>
+<b>准备金↓</b>：银行开始"抢水"，隔夜 repo 利率承压，若低于临界点将触发类似 2019 年 9 月的 repo 市场危机（当日利率飙至 10%）。
+<br><br>
+<b>$3T 警戒线</b>：基于 Fed 官员暗示"准备金不应低于 GDP 约 10–11%"及市场共识估算，是当前 QT 周期的充裕/充足分界线。低于此值，QT 大概率终止。<b>当前准备金已跌破 $3T</b>，处于高度敏感区域。
+<br><br>
+<b>评分方法：绝对水位 + 占 WALCL 比例，两项各自评分取保守值（max）</b>。比例维度可以捕捉 Fed 缩表过程中基准线下移的情况，避免只看绝对值被误导。`,
     logicRows: [
       { cond: '> 3.5T  或  占比 > 52%', trend: '—', score: 1, note: '极度充裕' },
       { cond: '> 3.2T  或  占比 > 48%', trend: '—', score: 2, note: '充裕' },
@@ -1079,6 +1114,14 @@ const PANEL_META = {
   nl: {
     title: '净流动性 — Net Liquidity',
     color: '#3fb950',
+    description: `净流动性（Net Liquidity）= WALCL − WDTGAL − RRPONTSYD，是宏观社区（Michael Howell、Joseph Wang、Raoul Pal 等）广泛使用的流动性代理指标。逻辑是：从 Fed 总资产中剔除"不可用"的部分（TGA 锁定在 Fed、RRP 停放在 Fed），剩余的才是真正注入金融系统的流动性。
+<br><br>
+<b>净流动性↑</b>：流动性宽松，历史上与风险资产（尤其 SPX）相关性约 0.8 以上（分段）。<br>
+<b>净流动性↓</b>：流动性收紧，往往领先风险资产回调 4–8 周。
+<br><br>
+<b>局限性</b>：净流动性包含流通中货币（WCURRNS ≈ $2.35T），该项长期缓慢增长、与市场流动性关联度低，会造成绝对值虚高。因此<b>不适合跨周期用绝对值比较</b>。
+<br><br>
+<b>评分方法：2年滚动百分位 + 12周动量</b>。百分位捕捉当前在近期历史中的相对位置（排除 QE 峰值干扰），动量判断趋势方向，两者组合给出更完整的周期定位。`,
     logicRows: [
       { cond: '2Y 百分位 > P75',          trend: '任意',    score: 1, note: '历史高位，极度充裕' },
       { cond: 'P50 – P75',                trend: '上升/平稳', score: 2, note: '偏高且稳，偏宽松' },
@@ -1141,6 +1184,9 @@ let panelChart = null;
 function openPanel(key) {
   const meta = PANEL_META[key];
   if (!meta || !cachedRaw.walcl) return;
+
+  // Description
+  document.getElementById('panelDesc').innerHTML = meta.description || '';
 
   // Header
   document.getElementById('panelTitle').textContent = meta.title;
@@ -1222,17 +1268,23 @@ function openPanel(key) {
           backgroundColor: meta.metricColor + '18',
           borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true,
           yAxisID: 'yL',
+          order: 2,   // 底层
         },
         {
           label: '评分',
           data: sVals,
           borderColor: '#ff9900',
           backgroundColor: 'transparent',
-          borderWidth: 2, pointRadius: 3,
+          borderWidth: 2.5,
+          pointRadius: sVals.map(v => v !== null ? 4 : 0),
           pointBackgroundColor: sVals.map(v => v ? SCORE_COLORS[Math.round(v)] : 'transparent'),
+          pointBorderColor: '#fff',
+          pointBorderWidth: 1,
+          pointHoverRadius: 6,
           tension: 0.2,
           spanGaps: true,
           yAxisID: 'yR',
+          order: 1,   // 上层
         },
       ]
     },
