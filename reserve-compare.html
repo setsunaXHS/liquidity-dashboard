@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Reserve Comparison</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a1a; font-family: 'Segoe UI', sans-serif; color: #fff; padding: 30px; }
+h2 { color: #ff9900; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border-left: 3px solid #ff9900; padding-left: 10px; margin-bottom: 6px; }
+.subtitle { color: #666; font-size: 12px; margin-bottom: 24px; padding-left: 13px; }
+.chart-box { background: #111; border-radius: 8px; padding: 24px; margin-bottom: 20px; }
+.status { color: #888; font-size: 12px; margin-bottom: 16px; font-family: monospace; }
+.legend { display: flex; gap: 24px; margin-bottom: 16px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #aaa; }
+.legend-line { width: 28px; height: 2px; }
+.diff-box { background: #222; border-radius: 6px; padding: 16px; margin-top: 16px; border-left: 3px solid #ff9900; }
+.diff-box h3 { color: #ff9900; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+.diff-row { display: flex; justify-content: space-between; font-size: 12px; color: #aaa; padding: 6px 0; border-bottom: 1px solid #2a2a2a; }
+.diff-row:last-child { border-bottom: none; }
+.diff-val { color: #fff; font-weight: 600; font-family: monospace; }
+.note { color: #555; font-size: 11px; margin-top: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<h2>准备金验证图</h2>
+<div class="subtitle">WRESBAL vs 自算准备金（WALCL − WCURRNS − WDTGAL − RRPONTSYD）— 过去 2 年</div>
+
+<div class="chart-box">
+  <div class="status" id="status">⏳ 正在从 FRED 拉取数据...</div>
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-line" style="background:#4da6ff"></div>
+      WRESBAL（Fed 直接公布）
+    </div>
+    <div class="legend-item">
+      <div class="legend-line" style="background:#ff9900; border-top: 2px dashed #ff9900; background:none; border-bottom:none; height:0"></div>
+      自算准备金（WALCL−WCURRNS−WDTGAL−RRPONTSYD）
+    </div>
+    <div class="legend-item">
+      <div class="legend-line" style="background:#ef4444"></div>
+      差值 = Other Liabilities（右轴）
+    </div>
+  </div>
+  <canvas id="chart" height="90"></canvas>
+</div>
+
+<div class="diff-box" id="diff-box" style="display:none">
+  <h3>最新数据对比（单位：万亿美元）</h3>
+  <div class="diff-row"><span>WRESBAL（直接公布准备金）</span><span class="diff-val" id="d-wresbal">—</span></div>
+  <div class="diff-row"><span>自算准备金（WALCL−WCURRNS−WDTGAL−RRPONTSYD）</span><span class="diff-val" id="d-calc">—</span></div>
+  <div class="diff-row"><span>差值（Other Liabilities）</span><span class="diff-val" id="d-diff">—</span></div>
+  <div class="diff-row"><span>差值占 WRESBAL 的比例</span><span class="diff-val" id="d-pct">—</span></div>
+  <div class="note">
+    差值 = Fed 负债端"其他小项"（Other Liabilities & Capital），包括 Float、Treasury Currency Outstanding 等。<br>
+    如果两条线高度重合，说明 WALCL−WCURRNS−WDTGAL−RRPONTSYD ≈ WRESBAL，准备金公式成立。
+  </div>
+</div>
+
+<script>
+const PROXY = '/api/fred';
+const API_KEY = 'cd80bce065d6d311df574fbe558929f6';
+
+async function fetchFred(series, start) {
+  const params = new URLSearchParams({
+    series_id: series,
+    api_key: API_KEY,
+    file_type: 'json',
+    observation_start: start,
+    frequency: 'w',
+    aggregation_method: 'avg'
+  });
+  const r = await fetch(`${PROXY}?${params}`);
+  const d = await r.json();
+  const out = {};
+  for (const o of d.observations) {
+    if (o.value !== '.') out[o.date] = parseFloat(o.value);
+  }
+  return out;
+}
+
+function nearestVal(map, date) {
+  if (map[date]) return map[date];
+  // 找前后7天最近值
+  const t = new Date(date).getTime();
+  let best = null, bestDiff = Infinity;
+  for (const k of Object.keys(map)) {
+    const diff = Math.abs(new Date(k).getTime() - t);
+    if (diff < bestDiff && diff < 7 * 86400000) { bestDiff = diff; best = map[k]; }
+  }
+  return best;
+}
+
+async function main() {
+  const start = '2023-01-01';
+  const status = document.getElementById('status');
+
+  try {
+    status.textContent = '⏳ 拉取 WALCL (Fed总资产)...';
+    const walcl = await fetchFred('WALCL', start);
+    status.textContent = '⏳ 拉取 WCURRNS (流通货币)...';
+    const curr = await fetchFred('WCURRNS', start);
+    status.textContent = '⏳ 拉取 WDTGAL (TGA)...';
+    const tga = await fetchFred('WDTGAL', start);
+    status.textContent = '⏳ 拉取 RRPONTSYD (ON RRP, 日度→周平均)...';
+    const rrp = await fetchFred('RRPONTSYD', start);
+    status.textContent = '⏳ 拉取 WRESBAL (准备金)...';
+    const wres = await fetchFred('WRESBAL', start);
+
+    const dates = Object.keys(wres).sort();
+    const labels = [], wresData = [], calcData = [], diffData = [];
+
+    for (const d of dates) {
+      const WR = wres[d];
+      const W = nearestVal(walcl, d);
+      const C = nearestVal(curr, d);
+      const T = nearestVal(tga, d);
+      const R = nearestVal(rrp, d) || 0;
+      if (!W || !C || !T || !WR) continue;
+
+      const calc = W - C - T - R;
+      const diff = WR - calc;
+      labels.push(d);
+      wresData.push(+(WR / 1000).toFixed(3));
+      calcData.push(+(calc / 1000).toFixed(3));
+      diffData.push(+(diff / 1000).toFixed(3));
+    }
+
+    status.textContent = `✅ 加载完成 — ${labels.length} 个数据点（${labels[0]} → ${labels[labels.length-1]}）`;
+
+    const lW = wresData[wresData.length-1];
+    const lC = calcData[calcData.length-1];
+    const lD = diffData[diffData.length-1];
+    document.getElementById('d-wresbal').textContent = lW.toFixed(3) + ' T';
+    document.getElementById('d-calc').textContent = lC.toFixed(3) + ' T';
+    document.getElementById('d-diff').textContent = (lD >= 0 ? '+' : '') + lD.toFixed(3) + ' T';
+    document.getElementById('d-pct').textContent = ((lD / lW) * 100).toFixed(1) + '%';
+    document.getElementById('diff-box').style.display = 'block';
+
+    const ctx = document.getElementById('chart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'WRESBAL',
+            data: wresData,
+            borderColor: '#4da6ff',
+            backgroundColor: 'rgba(77,166,255,0.06)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y',
+          },
+          {
+            label: '自算准备金',
+            data: calcData,
+            borderColor: '#ff9900',
+            borderDash: [7, 4],
+            borderWidth: 2,
+            pointRadius: 0,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'y',
+          },
+          {
+            label: '差值 (Other Liabilities)',
+            data: diffData,
+            borderColor: '#ef4444',
+            backgroundColor: 'rgba(239,68,68,0.12)',
+            borderWidth: 1.5,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.3,
+            yAxisID: 'y2',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { labels: { color: '#aaa', font: { size: 11 }, boxWidth: 20, padding: 16 } },
+          tooltip: {
+            backgroundColor: '#1e1e1e',
+            titleColor: '#ff9900',
+            bodyColor: '#ccc',
+            borderColor: '#444',
+            borderWidth: 1,
+            callbacks: { label: c => ` ${c.dataset.label}: ${c.parsed.y.toFixed(3)} T` }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#555', maxTicksLimit: 14, font: { size: 10 } },
+            grid: { color: '#222' }
+          },
+          y: {
+            position: 'left',
+            ticks: { color: '#aaa', font: { size: 10 }, callback: v => v.toFixed(1) + 'T' },
+            grid: { color: '#222' },
+            title: { display: true, text: '准备金 (T USD)', color: '#666', font: { size: 10 } }
+          },
+          y2: {
+            position: 'right',
+            ticks: { color: '#ef4444', font: { size: 10 }, callback: v => v.toFixed(2) + 'T' },
+            grid: { drawOnChartArea: false },
+            title: { display: true, text: 'Other Liabilities (T USD)', color: '#ef4444', font: { size: 10 } }
+          }
+        }
+      }
+    });
+
+  } catch(e) {
+    status.textContent = '❌ 错误：' + e.message;
+    console.error(e);
+  }
+}
+main();
+</script>
+</body>
+</html>
