@@ -211,11 +211,11 @@ async function main() {
     allSeries = { reserves: [], currency: [], tga: [], rrp: [], other: [] };
 
     for (const d of dates) {
-      const W  = (nearestVal(walcl, d) || 0) / 1000;   // M→T
-      const WR = (nearestVal(wres,  d) || 0) / 1000;
-      const C  = (nearestVal(curr,  d) || 0) / 1000;   // B→T  (WCURRNS is Billions)
-      const T  = (nearestVal(tga,   d) || 0) / 1000;
-      const R  = (nearestVal(rrp,   d) || 0) / 1000;   // B→T
+      const W  = (nearestVal(walcl, d) || 0) / 1e6;    // Millions → Trillions
+      const WR = (nearestVal(wres,  d) || 0) / 1e6;    // Millions → Trillions
+      const C  = (nearestVal(curr,  d) || 0) / 1e3;    // Billions → Trillions
+      const T  = (nearestVal(tga,   d) || 0) / 1e6;    // Millions → Trillions
+      const R  = (nearestVal(rrp,   d) || 0) / 1e3;    // Billions → Trillions
       const other = Math.max(0, W - WR - C - T - R);
 
       allSeries.reserves.push(+WR.toFixed(3));

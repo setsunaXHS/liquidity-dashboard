@@ -112,19 +112,26 @@ async function main() {
     const labels = [], wresData = [], calcData = [], diffData = [];
 
     for (const d of dates) {
-      const WR = wres[d];
-      const W = nearestVal(walcl, d);
-      const C = nearestVal(curr, d);
-      const T = nearestVal(tga, d);
-      const R = nearestVal(rrp, d) || 0;
-      if (!W || !C || !T || !WR) continue;
+      const WR_raw = wres[d];
+      const W_raw  = nearestVal(walcl, d);
+      const C_raw  = nearestVal(curr, d);
+      const T_raw  = nearestVal(tga, d);
+      const R_raw  = nearestVal(rrp, d) || 0;
+      if (!W_raw || !C_raw || !T_raw || !WR_raw) continue;
+
+      // Units: WALCL/WRESBAL/WDTGAL = Millions, WCURRNS/RRPONTSYD = Billions
+      const W  = W_raw  / 1e6;   // → Trillions
+      const WR = WR_raw / 1e6;
+      const C  = C_raw  / 1e3;
+      const T  = T_raw  / 1e6;
+      const R  = R_raw  / 1e3;
 
       const calc = W - C - T - R;
       const diff = WR - calc;
       labels.push(d);
-      wresData.push(+(WR / 1000).toFixed(3));
-      calcData.push(+(calc / 1000).toFixed(3));
-      diffData.push(+(diff / 1000).toFixed(3));
+      wresData.push(+WR.toFixed(3));
+      calcData.push(+calc.toFixed(3));
+      diffData.push(+diff.toFixed(3));
     }
 
     status.textContent = `✅ 加载完成 — ${labels.length} 个数据点（${labels[0]} → ${labels[labels.length-1]}）`;
