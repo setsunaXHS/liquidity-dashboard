@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>美元流动性看板 v2</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+:root {
+  --bg:       #1a1a1a;
+  --surface:  #111111;
+  --surface2: #1e1e1e;
+  --border:   #2a2a2a;
+  --text:     #e0e0e0;
+  --muted:    #666666;
+  --orange:   #ff9900;
+  --blue:     #4da6ff;
+  --red:      #f87171;
+  --green:    #00d4aa;
+  --purple:   #b370ff;
+  --yellow:   #f5a623;
+  --gray:     #6b7280;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -apple-system, sans-serif; font-size: 14px; }
+
+/* ── Header ── */
+.header {
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-left h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+.header-left h1 span { color: var(--orange); }
+.header-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.header-right { display: flex; align-items: center; gap: 12px; }
+.api-input {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+  font-size: 11px; padding: 6px 10px; border-radius: 4px; width: 260px; font-family: monospace;
+}
+.btn-load {
+  background: var(--orange); color: #000; font-size: 11px; font-weight: 700;
+  padding: 6px 16px; border-radius: 4px; border: none; cursor: pointer; letter-spacing: 0.5px;
+}
+.btn-load:hover { opacity: 0.85; }
+.btn-load:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── Status ── */
+.status-bar {
+  padding: 8px 32px; font-size: 11px; font-family: monospace;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
+.dot.ok { background: var(--green); }
+.dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
+.dot.err { background: var(--red); }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── Range Tabs ── */
+.range-bar {
+  padding: 12px 32px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 6px;
+}
+.range-bar span { font-size: 11px; color: var(--muted); margin-right: 4px; }
+.rtab {
+  background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+  font-size: 11px; padding: 4px 14px; border-radius: 3px; cursor: pointer;
+}
+.rtab:hover { border-color: var(--orange); color: var(--orange); }
+.rtab.active { background: rgba(255,153,0,0.12); border-color: var(--orange); color: var(--orange); }
+
+/* ── Main Layout ── */
+.main { padding: 28px 32px; }
+
+/* ── Section ── */
+.section-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--orange); border-left: 3px solid var(--orange); padding-left: 10px;
+  margin-bottom: 20px;
+}
+
+/* ── KPI Row ── */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.kpi {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 16px 18px; border-top: 2px solid;
+}
+.kpi.kpi-tga   { border-top-color: var(--red); }
+.kpi.kpi-rrp   { border-top-color: var(--purple); }
+.kpi.kpi-res   { border-top-color: var(--blue); }
+.kpi.kpi-nl    { border-top-color: var(--green); }
+.kpi-label { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+.kpi-val   { font-size: 22px; font-weight: 700; font-family: monospace; }
+.kpi-chg   { font-size: 11px; margin-top: 5px; }
+.kpi-date  { font-size: 10px; color: var(--muted); margin-top: 3px; }
+.up   { color: var(--green); }
+.down { color: var(--red); }
+.neu  { color: var(--muted); }
+
+/* ── Charts Grid ── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.chart-full { grid-column: 1 / -1; }
+
+.chart-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 20px 22px;
+}
+.chart-card-title {
+  font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 4px;
+}
+.chart-card-sub {
+  font-size: 10px; color: #444; margin-bottom: 16px;
+}
+.warn-badge {
+  display: inline-block; font-size: 10px; color: var(--red);
+  background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
+  border-radius: 3px; padding: 1px 7px; margin-left: 8px; vertical-align: middle;
+}
+
+canvas { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-left">
+    <h1>美元流动性看板 <span>v2</span></h1>
+    <div class="header-sub">Fed Balance Sheet · TGA · ON RRP · Reserves · Net Liquidity</div>
+  </div>
+  <div class="header-right">
+    <input class="api-input" id="apiKey" type="password" placeholder="FRED API Key" value="cd80bce065d6d311df574fbe558929f6"/>
+    <button class="btn-load" id="btnLoad" onclick="loadData()">加载数据</button>
+  </div>
+</div>
+
+<!-- Status -->
+<div class="status-bar">
+  <div class="dot" id="dot"></div>
+  <span id="statusText">等待加载</span>
+</div>
+
+<!-- Range Tabs -->
+<div class="range-bar">
+  <span>时间范围：</span>
+  <button class="rtab" data-days="90"  onclick="setRange(90)">3M</button>
+  <button class="rtab active" data-days="365" onclick="setRange(365)">1Y</button>
+  <button class="rtab" data-days="730"  onclick="setRange(730)">2Y</button>
+  <button class="rtab" data-days="1825" onclick="setRange(1825)">5Y</button>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Section: Fed Balance Sheet -->
+  <div class="section-title">Part I · 美联储资产负债表</div>
+
+  <!-- KPI Row -->
+  <div class="kpi-row">
+    <div class="kpi kpi-tga">
+      <div class="kpi-label">TGA 财政部账户</div>
+      <div class="kpi-val" id="kv-tga" style="color:var(--red)">—</div>
+      <div class="kpi-chg neu" id="kc-tga">—</div>
+      <div class="kpi-date" id="kd-tga"></div>
+    </div>
+    <div class="kpi kpi-rrp">
+      <div class="kpi-label">ON RRP 隔夜逆回购</div>
+      <div class="kpi-val" id="kv-rrp" style="color:var(--purple)">—</div>
+      <div class="kpi-chg neu" id="kc-rrp">—</div>
+      <div class="kpi-date" id="kd-rrp"></div>
+    </div>
+    <div class="kpi kpi-res">
+      <div class="kpi-label">准备金 Reserves</div>
+      <div class="kpi-val" id="kv-res" style="color:var(--blue)">—</div>
+      <div class="kpi-chg neu" id="kc-res">—</div>
+      <div class="kpi-date" id="kd-res"></div>
+    </div>
+    <div class="kpi kpi-nl">
+      <div class="kpi-label">净流动性 Net Liquidity</div>
+      <div class="kpi-val" id="kv-nl" style="color:var(--green)">—</div>
+      <div class="kpi-chg neu" id="kc-nl">—</div>
+      <div class="kpi-date" id="kd-nl"></div>
+    </div>
+  </div>
+
+  <!-- Charts Row 1: TGA + ON RRP -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-title">① TGA — 财政部一般账户</div>
+      <div class="chart-card-sub">WDTGAL · 周度 · 万亿美元 ｜ TGA↑ 抽走流动性，TGA↓ 释放流动性</div>
+      <canvas id="c-tga" height="130"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">② ON RRP — 隔夜逆回购</div>
+      <div class="chart-card-sub">RRPONTSYD · 日度→周均 · 万亿美元 ｜ RRP↑ 流动性淤积 Fed，RRP↓ 资金流入市场</div>
+      <canvas id="c-rrp" height="130"></canvas>
+    </div>
+  </div>
+
+  <!-- Charts Row 2: Reserves + Net Liquidity -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-card-title">
+        ③ 准备金 — Bank Reserves
+        <span class="warn-badge" id="res-warn"></span>
+      </div>
+      <div class="chart-card-sub">WRESBAL · 周度 · 万亿美元 ｜ 红色虚线 = $3T 警戒线（低于此值 QT 大概率终止）</div>
+      <canvas id="c-res" height="130"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-title">④ 净流动性 — Net Liquidity</div>
+      <div class="chart-card-sub">WALCL − WDTGAL − RRPONTSYD · 周度 · 万亿美元</div>
+      <canvas id="c-nl" height="130"></canvas>
+    </div>
+  </div>
+
+  <!-- Chart Row 3: Liability Stack (full width) -->
+  <div class="charts-grid">
+    <div class="chart-card chart-full">
+      <div class="chart-card-title">⑤ Fed 负债端结构演变 — Liability Breakdown</div>
+      <div class="chart-card-sub">WRESBAL · WCURRNS · WDTGAL · RRPONTSYD · Other ｜ 堆叠柱状图 · 周度 · 万亿美元</div>
+      <canvas id="c-stack" height="55"></canvas>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<script>
+// ── Config ──────────────────────────────────────────────────────────────────
+const PROXY = '/api/fred';
+const API_KEY_DEFAULT = 'cd80bce065d6d311df574fbe558929f6';
+
+// FRED 系列单位
+const UNIT = {
+  WALCL:     1e6,  // Millions → Trillions
+  WDTGAL:    1e6,
+  WRESBAL:   1e6,
+  WCURRNS:   1e3,  // Billions → Trillions
+  RRPONTSYD: 1e3,
+};
+
+const COLORS = {
+  tga:  '#f87171',
+  rrp:  '#b370ff',
+  res:  '#4da6ff',
+  nl:   '#00d4aa',
+  fed:  '#58a6ff',
+  curr: '#a78bfa',
+  other:'#6b7280',
+};
+
+let activeDays = 365;
+let cachedRaw  = {};   // raw FRED data maps {date→value in T}
+let charts     = {};
+
+// ── Utils ────────────────────────────────────────────────────────────────────
+function apiKey() { return document.getElementById('apiKey').value.trim() || API_KEY_DEFAULT; }
+
+function fmtT(v) {
+  if (v === null || v === undefined || isNaN(v)) return '—';
+  if (Math.abs(v) < 0.005) return (v * 1000).toFixed(1) + ' B';
+  return v.toFixed(3) + ' T';
+}
+
+function fmtChg(delta) {
+  if (delta === null || isNaN(delta)) return { txt: '—', cls: 'neu' };
+  const sign = delta >= 0 ? '+' : '';
+  const cls  = delta > 0 ? 'up' : delta < 0 ? 'down' : 'neu';
+  return { txt: sign + fmtT(delta) + ' (7d)', cls };
+}
+
+function startDate() {
+  const d = new Date();
+  d.setDate(d.getDate() - activeDays);
+  return d.toISOString().slice(0, 10);
+}
+
+function nearest(map, date, maxDays = 9) {
+  if (map[date] !== undefined) return map[date];
+  const t = new Date(date).getTime();
+  let best = null, bestDiff = Infinity;
+  for (const k of Object.keys(map)) {
+    const diff = Math.abs(new Date(k).getTime() - t);
+    if (diff < bestDiff && diff <= maxDays * 86400000) { bestDiff = diff; best = map[k]; }
+  }
+  return best;
+}
+
+function setStatus(state, msg) {
+  document.getElementById('dot').className = 'dot ' + state;
+  document.getElementById('statusText').textContent = msg;
+}
+
+// ── FRED Fetch ────────────────────────────────────────────────────────────────
+async function fetchFred(series) {
+  const params = new URLSearchParams({
+    series_id: series, api_key: apiKey(), file_type: 'json',
+    observation_start: '2019-01-01',   // always fetch full history, filter client-side
+    frequency: 'w', aggregation_method: 'avg', sort_order: 'asc'
+  });
+  const r = await fetch(`${PROXY}?${params}`);
+  const d = await r.json();
+  if (d.error_message) throw new Error(d.error_message);
+  const divisor = UNIT[series] ?? 1e6;
+  const out = {};
+  for (const o of d.observations) {
+    if (o.value !== '.') out[o.date] = parseFloat(o.value) / divisor;
+  }
+  return out;
+}
+
+// ── Chart Builder ─────────────────────────────────────────────────────────────
+function timeUnit() {
+  if (activeDays <= 90)   return 'week';
+  if (activeDays <= 365)  return 'month';
+  if (activeDays <= 730)  return 'quarter';
+  return 'quarter';
+}
+
+function filterDates(dates) {
+  const cut = new Date();
+  cut.setDate(cut.getDate() - activeDays);
+  const cutStr = cut.toISOString().slice(0, 10);
+  return dates.filter(d => d >= cutStr);
+}
+
+function buildLine(canvasId, datasets, yLabel = 'Trillion USD', extra = {}) {
+  const ctx = document.getElementById(canvasId);
+  if (charts[canvasId]) charts[canvasId].destroy();
+  charts[canvasId] = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: datasets.length > 1, labels: { color: '#777', font: { size: 10 }, boxWidth: 14, padding: 12 } },
+        tooltip: {
+          backgroundColor: '#1e1e1e', titleColor: '#ff9900', bodyColor: '#ccc',
+          borderColor: '#333', borderWidth: 1,
+          callbacks: { label: c => ` ${c.dataset.label}: ${fmtT(c.parsed.y)}` }
+        },
+        ...extra.plugins,
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: timeUnit(), displayFormats: { week: 'MM-dd', month: "yy-MM", quarter: "yy-'Q'Q" } },
+          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 12 },
+          grid: { color: '#1e1e1e' },
+        },
+        y: {
+          ticks: { color: '#888', font: { size: 10 }, callback: v => v.toFixed(2) + 'T' },
+          grid: { color: '#222' },
+          title: { display: false },
+          ...extra.yScale,
+        }
+      }
+    }
+  });
+}
+
+// ── KPI Update ────────────────────────────────────────────────────────────────
+function setKPI(id, val, prev, date) {
+  document.getElementById('kv-' + id).textContent = fmtT(val);
+  const { txt, cls } = fmtChg(val - prev);
+  const el = document.getElementById('kc-' + id);
+  el.textContent = txt; el.className = 'kpi-chg ' + cls;
+  document.getElementById('kd-' + id).textContent = date ?? '';
+}
+
+// ── Reserves Warning ──────────────────────────────────────────────────────────
+function updateResWarn(resVal) {
+  const el = document.getElementById('res-warn');
+  const diff = resVal - 3.0;
+  if (diff < 0)      el.textContent = '⚠️ 已破 3T 警戒线';
+  else if (diff < 0.2) el.textContent = `⚠️ 距警戒线 ${(diff*1000).toFixed(0)}B`;
+  else               el.textContent = `距警戒线 ${diff.toFixed(3)}T`;
+}
+
+// ── Chart: single line ────────────────────────────────────────────────────────
+function drawSimple(canvasId, map, color, label) {
+  const dates = filterDates(Object.keys(map).sort());
+  const data  = dates.map(d => ({ x: d, y: map[d] }));
+  buildLine(canvasId, [{
+    label, data,
+    borderColor: color, backgroundColor: color + '15',
+    borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true,
+  }]);
+}
+
+// ── Chart: Reserves with 3T line ──────────────────────────────────────────────
+function drawReserves(map) {
+  const dates = filterDates(Object.keys(map).sort());
+  const data  = dates.map(d => ({ x: d, y: map[d] }));
+
+  const ctx = document.getElementById('c-res');
+  if (charts['c-res']) charts['c-res'].destroy();
+
+  // 3T 警戒线 plugin
+  const warningLinePlugin = {
+    id: 'warningLine',
+    afterDraw(chart) {
+      const { ctx: c, scales: { x, y } } = chart;
+      const yVal = y.getPixelForValue(3.0);
+      c.save();
+      c.setLineDash([8, 5]);
+      c.strokeStyle = '#f87171';
+      c.lineWidth = 1.5;
+      c.globalAlpha = 0.8;
+      c.beginPath();
+      c.moveTo(x.left, yVal);
+      c.lineTo(x.right, yVal);
+      c.stroke();
+      c.setLineDash([]);
+      c.globalAlpha = 1;
+      // Label
+      c.font = '10px monospace';
+      c.fillStyle = '#f87171';
+      c.fillText('$3.0T 警戒线', x.right - 88, yVal - 5);
+      c.restore();
+    }
+  };
+
+  charts['c-res'] = new Chart(ctx, {
+    type: 'line',
+    data: { datasets: [{
+      label: '准备金 WRESBAL',
+      data,
+      borderColor: COLORS.res,
+      backgroundColor: COLORS.res + '15',
+      borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true,
+    }]},
+    plugins: [warningLinePlugin],
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1e1e1e', titleColor: '#ff9900', bodyColor: '#ccc',
+          borderColor: '#333', borderWidth: 1,
+          callbacks: { label: c => ` 准备金: ${fmtT(c.parsed.y)}` }
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: timeUnit(), displayFormats: { week: 'MM-dd', month: "yy-MM", quarter: "yy-'Q'Q" } },
+          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 12 },
+          grid: { color: '#1e1e1e' },
+        },
+        y: {
+          ticks: { color: '#888', font: { size: 10 }, callback: v => v.toFixed(2) + 'T' },
+          grid: { color: '#222' },
+          suggestedMin: 2.0,
+        }
+      }
+    }
+  });
+}
+
+// ── Chart: Net Liquidity ──────────────────────────────────────────────────────
+function drawNetLiquidity(walcl, tga, rrp) {
+  const dates = filterDates(Object.keys(walcl).sort());
+  const data  = dates.map(d => {
+    const W = walcl[d] ?? nearest(walcl, d);
+    const T = tga[d]   ?? nearest(tga,   d);
+    const R = rrp[d]   ?? nearest(rrp,   d) ?? 0;
+    if (!W || !T) return { x: d, y: null };
+    return { x: d, y: W - T - R };
+  }).filter(p => p.y !== null);
+
+  buildLine('c-nl', [{
+    label: '净流动性',
+    data,
+    borderColor: COLORS.nl, backgroundColor: COLORS.nl + '15',
+    borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true,
+  }]);
+}
+
+// ── Chart: Liability Stack ────────────────────────────────────────────────────
+function drawStack(walcl, wres, curr, tga, rrp) {
+  const dates = filterDates(Object.keys(wres).sort());
+
+  const mk = (label, color, vals) => ({
+    label, data: vals,
+    backgroundColor: color,
+    borderWidth: 0,
+    stack: 'fed',
+  });
+
+  const resV  = [], currV = [], tgaV = [], rrpV = [], otherV = [];
+  const labels = [];
+
+  for (const d of dates) {
+    const W  = walcl[d] ?? nearest(walcl, d);
+    const WR = wres[d]  ?? nearest(wres,  d);
+    const C  = curr[d]  ?? nearest(curr,  d);
+    const T  = tga[d]   ?? nearest(tga,   d);
+    const R  = rrp[d]   ?? nearest(rrp,   d) ?? 0;
+    if (!W || !WR || !C || !T) continue;
+
+    const other = Math.max(0, W - WR - C - T - R);
+    labels.push(d);
+    resV.push(+WR.toFixed(4));
+    currV.push(+C.toFixed(4));
+    tgaV.push(+T.toFixed(4));
+    rrpV.push(+R.toFixed(4));
+    otherV.push(+other.toFixed(4));
+  }
+
+  const ctx = document.getElementById('c-stack');
+  if (charts['c-stack']) charts['c-stack'].destroy();
+  charts['c-stack'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        mk('Reserves (WRESBAL)',    COLORS.res  + 'cc', resV),
+        mk('Currency (WCURRNS)',    COLORS.curr + 'cc', currV),
+        mk('TGA (WDTGAL)',          COLORS.tga  + 'cc', tgaV),
+        mk('ON RRP (RRPONTSYD)',    COLORS.rrp  + 'cc', rrpV),
+        mk('Other Liabilities',    COLORS.other+ 'cc', otherV),
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#888', font: { size: 10 }, boxWidth: 12, padding: 14 } },
+        tooltip: {
+          backgroundColor: '#1e1e1e', titleColor: '#ff9900', bodyColor: '#ccc',
+          borderColor: '#333', borderWidth: 1,
+          callbacks: {
+            label: c => ` ${c.dataset.label}: ${fmtT(c.parsed.y)}`,
+            footer: items => {
+              const total = items.reduce((s, i) => s + i.parsed.y, 0);
+              return `Total: ${fmtT(total)}`;
+            }
+          }
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+          stacked: true,
+          time: { unit: timeUnit(), displayFormats: { week: 'MM-dd', month: "yy-MM", quarter: "yy-'Q'Q" } },
+          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 14 },
+          grid: { color: '#1e1e1e' },
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
+        },
+        y: {
+          stacked: true,
+          ticks: { color: '#888', font: { size: 10 }, callback: v => v.toFixed(1) + 'T' },
+          grid: { color: '#222' },
+        }
+      }
+    }
+  });
+}
+
+// ── Render All ─────────────────────────────────────────────────────────────────
+function renderAll() {
+  const { walcl, wres, curr, tga, rrp } = cachedRaw;
+
+  // KPIs — latest values
+  const resDates = Object.keys(wres).sort();
+  const last = resDates[resDates.length - 1];
+  const prev = resDates[resDates.length - 2];
+
+  const resLast = wres[last], resPrev = wres[prev];
+  const tgaLast = tga[last] ?? nearest(tga, last), tgaPrev = tga[prev] ?? nearest(tga, prev);
+  const rrpLast = rrp[last] ?? nearest(rrp, last) ?? 0, rrpPrev = rrp[prev] ?? nearest(rrp, prev) ?? 0;
+  const walclLast = walcl[last] ?? nearest(walcl, last), walclPrev = walcl[prev] ?? nearest(walcl, prev);
+  const nlLast = walclLast - tgaLast - rrpLast;
+  const nlPrev = walclPrev - (tgaPrev ?? tgaLast) - rrpPrev;
+
+  setKPI('tga', tgaLast, tgaPrev, last);
+  setKPI('rrp', rrpLast, rrpPrev, last);
+  setKPI('res', resLast, resPrev, last);
+  setKPI('nl',  nlLast,  nlPrev,  last);
+  updateResWarn(resLast);
+
+  // Charts
+  drawSimple('c-tga', tga, COLORS.tga, 'TGA');
+  drawSimple('c-rrp', rrp, COLORS.rrp, 'ON RRP');
+  drawReserves(wres);
+  drawNetLiquidity(walcl, tga, rrp);
+  drawStack(walcl, wres, curr, tga, rrp);
+}
+
+// ── Range Switch ──────────────────────────────────────────────────────────────
+function setRange(days) {
+  activeDays = days;
+  document.querySelectorAll('.rtab').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.days) === days);
+  });
+  if (Object.keys(cachedRaw).length > 0) renderAll();
+}
+
+// ── Load ──────────────────────────────────────────────────────────────────────
+async function loadData() {
+  const btn = document.getElementById('btnLoad');
+  btn.disabled = true; btn.textContent = '加载中…';
+  setStatus('loading', '正在从 FRED 拉取数据…');
+
+  try {
+    const [walcl, wres, curr, tga, rrp] = await Promise.all([
+      fetchFred('WALCL'),
+      fetchFred('WRESBAL'),
+      fetchFred('WCURRNS'),
+      fetchFred('WDTGAL'),
+      fetchFred('RRPONTSYD'),
+    ]);
+
+    cachedRaw = { walcl, wres, curr, tga, rrp };
+    renderAll();
+
+    const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+    setStatus('ok', `数据已更新 · ${now} CST`);
+  } catch(e) {
+    setStatus('err', '加载失败：' + e.message);
+    console.error(e);
+  } finally {
+    btn.disabled = false; btn.textContent = '加载数据';
+  }
+}
+
+// Auto-load on page open
+window.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>
