@@ -120,6 +120,15 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
   background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 20px 22px;
 }
+.chart-card.clickable {
+  cursor: pointer; transition: border-color 0.2s;
+}
+.chart-card.clickable:hover {
+  border-color: #444;
+}
+.chart-card.clickable .chart-card-title::after {
+  content: ' ↗'; font-size: 9px; color: #444; margin-left: 4px;
+}
 .chart-card-title {
   font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase;
   letter-spacing: 1px; margin-bottom: 4px;
@@ -373,32 +382,32 @@ canvas { display: block; }
 
   <!-- Charts Row 2: TGA + ON RRP -->
   <div class="charts-grid">
-    <div class="chart-card">
+    <div class="chart-card clickable" onclick="openPanel('tga')">
       <div class="chart-card-title">② TGA — 财政部一般账户</div>
       <div class="chart-card-sub">WDTGAL · 周度 · 万亿美元 ｜ TGA↑ 抽走流动性，TGA↓ 释放流动性</div>
-      <canvas id="c-tga" height="130"></canvas>
+      <canvas id="c-tga" height="130" onclick="openPanel('tga')"></canvas>
     </div>
-    <div class="chart-card">
+    <div class="chart-card clickable" onclick="openPanel('rrp')">
       <div class="chart-card-title">③ ON RRP — 隔夜逆回购</div>
       <div class="chart-card-sub">RRPONTSYD · 日度→周均 · 万亿美元 ｜ RRP↑ 流动性淤积 Fed，RRP↓ 资金流入市场</div>
-      <canvas id="c-rrp" height="130"></canvas>
+      <canvas id="c-rrp" height="130" onclick="openPanel('rrp')"></canvas>
     </div>
   </div>
 
   <!-- Charts Row 3: Reserves + Net Liquidity -->
   <div class="charts-grid">
-    <div class="chart-card">
+    <div class="chart-card clickable" onclick="openPanel('res')">
       <div class="chart-card-title">
         ④ 准备金 — Bank Reserves
         <span class="warn-badge" id="res-warn"></span>
       </div>
       <div class="chart-card-sub">WRESBAL · 周度 · 万亿美元 ｜ 红色虚线 = $3T 警戒线（低于此值 QT 大概率终止）</div>
-      <canvas id="c-res" height="130"></canvas>
+      <canvas id="c-res" height="130" onclick="openPanel('res')"></canvas>
     </div>
-    <div class="chart-card">
+    <div class="chart-card clickable" onclick="openPanel('nl')">
       <div class="chart-card-title">⑤ 净流动性 — Net Liquidity</div>
       <div class="chart-card-sub">WALCL − WDTGAL − RRPONTSYD · 周度 · 万亿美元</div>
-      <canvas id="c-nl" height="130"></canvas>
+      <canvas id="c-nl" height="130" onclick="openPanel('nl')"></canvas>
     </div>
   </div>
 
