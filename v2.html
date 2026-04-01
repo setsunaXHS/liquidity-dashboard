@@ -411,6 +411,22 @@ canvas { display: block; }
     </div>
   </div>
 
+  <!-- Section 2: Interest Rates -->
+  <div class="section-header" style="margin-top: 36px;">
+    <div class="section-title">Part II · 利率指标</div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card chart-full">
+      <div class="chart-card-title">① 政策利率与货币市场利率</div>
+      <div class="chart-card-sub">
+        Fed Funds Target（上下沿）· EFFR · IORB · SOFR ｜ 日度 · %
+        <span id="rate-loading" style="color:#555;margin-left:8px;">⏳ 加载中...</span>
+      </div>
+      <canvas id="c-rates" height="60"></canvas>
+    </div>
+  </div>
+
 </div><!-- /main -->
 
 <!-- Side Panel -->
@@ -539,6 +555,154 @@ async function fetchFred(series) {
     if (o.value !== '.') out[o.date] = parseFloat(o.value) / divisor;
   }
   return out;
+}
+
+// 利率系列：日度，单位 %，不需要单位换算
+async function fetchRate(series) {
+  const params = new URLSearchParams({
+    series_id: series, api_key: apiKey(), file_type: 'json',
+    observation_start: '2019-01-01', sort_order: 'asc'
+  });
+  const r = await fetch(`${PROXY}?${params}`);
+  const d = await r.json();
+  if (d.error_message) throw new Error(d.error_message);
+  const out = {};
+  for (const o of d.observations) {
+    if (o.value !== '.') out[o.date] = parseFloat(o.value);
+  }
+  return out;
+}
+
+function filterRateDates(map) {
+  if (activeDays >= 9999) return Object.keys(map).sort();
+  const cut = new Date();
+  cut.setDate(cut.getDate() - activeDays);
+  const cutStr = cut.toISOString().slice(0, 10);
+  return Object.keys(map).sort().filter(d => d >= cutStr);
+}
+
+function drawRates(rateData) {
+  const { upper, lower, effr, iorb, sofr } = rateData;
+
+  // 以 EFFR 日期为主轴
+  const dates = filterRateDates(effr);
+
+  const mkData = (map) => dates.map(d => ({ x: d, y: map[d] ?? null }));
+
+  const ctx = document.getElementById('c-rates');
+  if (charts['c-rates']) charts['c-rates'].destroy();
+
+  charts['c-rates'] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        // 上下沿 band — 先画填充区域
+        {
+          label: 'FFR 目标区间上沿',
+          data: mkData(upper),
+          borderColor: 'rgba(255,153,0,0.5)',
+          backgroundColor: 'rgba(255,153,0,0.08)',
+          borderWidth: 1.5,
+          borderDash: [4, 3],
+          pointRadius: 0,
+          tension: 0,
+          fill: '+1',   // 填充到下一个 dataset（下沿）
+          spanGaps: true,
+          order: 4,
+        },
+        {
+          label: 'FFR 目标区间下沿',
+          data: mkData(lower),
+          borderColor: 'rgba(255,153,0,0.5)',
+          backgroundColor: 'rgba(255,153,0,0.08)',
+          borderWidth: 1.5,
+          borderDash: [4, 3],
+          pointRadius: 0,
+          tension: 0,
+          fill: false,
+          spanGaps: true,
+          order: 4,
+        },
+        // EFFR
+        {
+          label: 'EFFR',
+          data: mkData(effr),
+          borderColor: '#f5a623',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2,
+          fill: false,
+          spanGaps: true,
+          order: 3,
+        },
+        // IORB
+        {
+          label: 'IORB',
+          data: mkData(iorb),
+          borderColor: '#4da6ff',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2,
+          fill: false,
+          spanGaps: true,
+          order: 2,
+        },
+        // SOFR
+        {
+          label: 'SOFR',
+          data: mkData(sofr),
+          borderColor: '#00d4aa',
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.2,
+          fill: false,
+          spanGaps: true,
+          order: 1,
+        },
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            color: '#888', font: { size: 10 }, boxWidth: 20, padding: 14,
+            filter: item => item.text !== 'FFR 目标区间下沿', // 只显示上沿的 legend
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1e1e1e', titleColor: '#ff9900', bodyColor: '#ccc',
+          borderColor: '#333', borderWidth: 1,
+          callbacks: {
+            label: c => c.parsed.y !== null ? ` ${c.dataset.label}: ${c.parsed.y.toFixed(2)}%` : null,
+          }
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: timeUnit(), displayFormats: { week: 'MM-dd', month: "yy-MM", quarter: "yy-'Q'Q" } },
+          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 14 },
+          grid: { color: '#1e1e1e' },
+        },
+        y: {
+          ticks: {
+            color: '#888', font: { size: 10 },
+            callback: v => v.toFixed(2) + '%'
+          },
+          grid: { color: '#222' },
+          title: { display: true, text: 'Rate (%)', color: '#555', font: { size: 10 } },
+        }
+      }
+    }
+  });
+
+  document.getElementById('rate-loading').textContent = '';
 }
 
 // ── Chart Builder ─────────────────────────────────────────────────────────────
@@ -1384,6 +1548,10 @@ function renderAll() {
   };
   const composite = compositeScore(scores);
   updateScores(scores, composite);
+
+  // Part II: Rates
+  const { upper, lower, effr, iorb, sofr } = cachedRaw;
+  if (upper) drawRates({ upper, lower, effr, iorb, sofr });
 }
 
 // ── Range Switch ──────────────────────────────────────────────────────────────
@@ -1402,15 +1570,20 @@ async function loadData() {
   setStatus('loading', '正在从 FRED 拉取数据…');
 
   try {
-    const [walcl, wres, curr, tga, rrp] = await Promise.all([
+    const [walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr] = await Promise.all([
       fetchFred('WALCL'),
       fetchFred('WRESBAL'),
       fetchFred('WCURRNS'),
       fetchFred('WDTGAL'),
       fetchFred('RRPONTSYD'),
+      fetchRate('DFEDTARU'),
+      fetchRate('DFEDTARL'),
+      fetchRate('EFFR'),
+      fetchRate('IORB'),
+      fetchRate('SOFR'),
     ]);
 
-    cachedRaw = { walcl, wres, curr, tga, rrp };
+    cachedRaw = { walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr };
     renderAll();
 
     const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
