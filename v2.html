@@ -1656,7 +1656,7 @@ const PANEL_META = {
         const s2    = _effrIorbAbs(avg5);
         const s3    = _effrIorbTrend(sp.vals, i);
         return Math.round(s1*0.40 + s2*0.35 + s3*0.25);
-      }, 10);
+      }, 1);  // 日度：每天都算
       return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'EFFR−IORB (bp)', metricColor: '#4da6ff' };
     },
   },
@@ -1724,7 +1724,7 @@ const PANEL_META = {
         const s2    = _sofrEffrAbs(avg5);
         const s3    = _sofrEffrTrend(sp.vals, i);
         return Math.round(s1*0.40 + s2*0.35 + s3*0.25);
-      }, 10);
+      }, 1);  // 日度：每天都算
       return { dates: sp.dates, metricVals: sp.vals, scoreVals, metricLabel: 'SOFR−EFFR (bp)', metricColor: '#00d4aa' };
     },
   },
@@ -1832,18 +1832,21 @@ function openPanel(key) {
         {
           label: '评分',
           data: sVals,
-          borderColor: '#ff9900',
+          borderColor: ctx => {
+            const v = ctx.p1?.parsed?.y;
+            return v ? (SCORE_COLORS[Math.round(v)] ?? '#ff9900') : '#ff9900';
+          },
+          segment: { borderColor: ctx => SCORE_COLORS[Math.round(ctx.p1.parsed.y)] ?? '#ff9900' },
           backgroundColor: 'transparent',
-          borderWidth: 2.5,
-          pointRadius: sVals.map(v => v !== null ? 4 : 0),
-          pointBackgroundColor: sVals.map(v => v ? SCORE_COLORS[Math.round(v)] : 'transparent'),
-          pointBorderColor: '#fff',
-          pointBorderWidth: 1,
-          pointHoverRadius: 6,
-          tension: 0.2,
+          borderWidth: 2,
+          pointRadius: 0,           // 日度数据点太密，不画点
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: ctx => SCORE_COLORS[Math.round(ctx.parsed.y)] ?? '#ff9900',
+          pointHoverBorderColor: '#fff',
+          tension: 0,
           spanGaps: true,
           yAxisID: 'yR',
-          order: 1,   // 上层
+          order: 1,
         },
       ]
     },
