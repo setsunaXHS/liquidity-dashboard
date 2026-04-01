@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>EFFR−IORB 评分历史预览</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+body { background:#1a1a1a; color:#e0e0e0; font-family:monospace; padding:24px; }
+h2   { color:#ff9900; }
+.note { color:#888; font-size:12px; margin-bottom:24px; }
+canvas { max-height: 340px; }
+.legend { display:flex; gap:20px; margin-top:12px; font-size:11px; color:#888; }
+.leg { display:flex; align-items:center; gap:6px; }
+.dot { width:10px;height:10px;border-radius:50%; }
+</style>
+</head>
+<body>
+<h2>EFFR − IORB 利差 · 三维度评分历史</h2>
+<div class="note">
+  评分档位：1=极宽松(绿) 2=偏宽(黄绿) 3=中性(黄) 4=偏紧(橙) 5=极紧(红)<br>
+  权重：当日绝对值×40% + 5日均值×35% + 趋势×25%
+</div>
+<canvas id="c"></canvas>
+<div class="legend">
+  <div class="leg"><div class="dot" style="background:#4da6ff"></div>利差 (bp，左轴)</div>
+  <div class="leg"><div class="dot" style="background:#ff9900"></div>综合评分 (右轴)</div>
+</div>
+
+<script>
+// 月度数据（从上面的输出整理）
+const monthly = [
+  ['2021-08-31',-9,1],['2021-09-30',-9,1],['2021-10-29',-8,2],['2021-11-30',-8,2],
+  ['2021-12-31',-8,2],['2022-01-31',-7,2],['2022-02-28',-7,2],['2022-03-31',-7,2],
+  ['2022-04-29',-7,2],['2022-05-31',-7,2],['2022-06-30',-7,2],['2022-07-29',-8,2],
+  ['2022-08-31',-7,2],['2022-09-30',-7,2],['2022-10-31',-7,2],['2022-11-30',-7,2],
+  ['2022-12-30',-7,2],['2023-01-31',-7,2],['2023-02-28',-8,1],['2023-03-31',-7,2],
+  ['2023-04-28',-7,2],['2023-05-31',-7,2],['2023-06-30',-7,1],['2023-07-31',-7,2],
+  ['2023-08-31',-7,2],['2023-09-29',-7,2],['2023-10-31',-7,2],['2023-11-30',-7,2],
+  ['2023-12-29',-7,2],['2024-01-31',-7,2],['2024-02-29',-7,2],['2024-03-29',-7,2],
+  ['2024-04-30',-7,2],['2024-05-31',-7,2],['2024-06-28',-7,2],['2024-07-31',-7,2],
+  ['2024-08-30',-7,2],['2024-09-30',-7,2],['2024-10-31',-7,2],['2024-11-29',-7,2],
+  ['2024-12-31',-7,2],['2025-01-31',-7,2],['2025-02-28',-7,2],['2025-03-31',-7,2],
+  ['2025-04-30',-7,2],['2025-05-30',-7,2],['2025-06-30',-7,2],['2025-07-31',-7,2],
+  ['2025-08-29',-7,2],['2025-09-30',-6,3],['2025-10-31',-4,3],['2025-11-28',-1,3],
+  ['2025-12-31',-1,3],['2026-01-30',-1,3],['2026-02-27',-1,3],['2026-03-30',-1,3],
+];
+
+const SCORE_COLORS = { 1:'#22c55e', 2:'#84cc16', 3:'#eab308', 4:'#f97316', 5:'#ef4444' };
+
+const dates      = monthly.map(r => r[0]);
+const spreadVals = monthly.map(r => r[1]);
+const scoreVals  = monthly.map(r => r[2]);
+
+new Chart(document.getElementById('c'), {
+  data: {
+    datasets: [
+      {
+        type: 'bar',
+        label: '利差 (bp)',
+        data: dates.map((d,i) => ({ x: d, y: spreadVals[i] })),
+        backgroundColor: spreadVals.map(v => v >= -4 ? '#4da6ff88' : '#4da6ff44'),
+        borderColor:     '#4da6ff',
+        borderWidth: 1,
+        yAxisID: 'yLeft',
+        order: 2,
+      },
+      {
+        type: 'line',
+        label: '综合评分',
+        data: dates.map((d,i) => ({ x: d, y: scoreVals[i] })),
+        borderColor: scoreVals.map(v => SCORE_COLORS[v]),
+        segment: { borderColor: ctx => SCORE_COLORS[ctx.p1.parsed.y] ?? '#888' },
+        backgroundColor: 'transparent',
+        borderWidth: 3,
+        pointRadius: 6,
+        pointBackgroundColor: scoreVals.map(v => SCORE_COLORS[v]),
+        pointBorderColor: '#fff',
+        pointBorderWidth: 1.5,
+        tension: 0,
+        yAxisID: 'yRight',
+        order: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1e1e1e', titleColor:'#ff9900', bodyColor:'#ccc',
+        borderColor:'#333', borderWidth:1,
+        callbacks: {
+          label: c => c.dataset.yAxisID === 'yLeft'
+            ? ` 利差：${c.parsed.y} bp`
+            : ` 评分：${c.parsed.y} (${['','极宽松','偏宽松','中性','偏紧','极紧'][c.parsed.y]})`
+        }
+      }
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: { unit: 'month', displayFormats: { month: "yy-MM" } },
+        ticks: { color:'#555', font:{ size:10 } },
+        grid:  { color:'#1e1e1e' },
+      },
+      yLeft: {
+        position: 'left',
+        ticks: { color:'#4da6ff', font:{ size:10 }, callback: v => v + ' bp' },
+        grid:  { color:'#222' },
+        title: { display:true, text:'利差 (bp)', color:'#4da6ff', font:{size:10} },
+      },
+      yRight: {
+        position: 'right',
+        min: 0, max: 6,
+        ticks: {
+          color:'#888', font:{ size:10 }, stepSize:1,
+          callback: v => ['','宽松','偏宽','中性','偏紧','极紧',''][v] ?? ''
+        },
+        grid: { drawOnChartArea: false },
+        title: { display:true, text:'评分', color:'#888', font:{size:10} },
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
