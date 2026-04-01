@@ -717,7 +717,7 @@ function scoreRRP(rrpMap) {
   return 5;                                         // 清零：缓冲消失
 }
 
-// 准备金评分：绝对水位 + 占 WALCL 比例
+// 准备金评分：绝对水位 + 占 WALCL 比例，各自打分取更保守的（max）
 function scoreReserves(resMap, walclMap) {
   const dates = Object.keys(resMap).sort();
   const cur   = resMap[dates[dates.length - 1]];
@@ -725,11 +725,22 @@ function scoreReserves(resMap, walclMap) {
   const walcl = walclMap[walclDates[walclDates.length - 1]];
   const ratio = walcl ? cur / walcl : 0.45;
 
-  if (cur > 3.5 || ratio > 0.52)       return 1;
-  if (cur > 3.2 || ratio > 0.48)       return 2;
-  if (cur > 3.0 || ratio > 0.44)       return 3;
-  if (cur > 2.7 || ratio > 0.40)       return 4;
-  return 5;
+  // 绝对水位评分
+  const absScore = cur > 3.5 ? 1
+                 : cur > 3.2 ? 2
+                 : cur > 3.0 ? 3
+                 : cur > 2.7 ? 4
+                 : 5;
+
+  // 比例评分
+  const ratioScore = ratio > 0.52 ? 1
+                   : ratio > 0.48 ? 2
+                   : ratio > 0.44 ? 3
+                   : ratio > 0.40 ? 4
+                   : 5;
+
+  // 取更保守的（更差的那个）
+  return Math.max(absScore, ratioScore);
 }
 
 // 净流动性评分：2年百分位 + 12周动量
