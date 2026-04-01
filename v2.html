@@ -75,10 +75,18 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
 .main { padding: 28px 32px; }
 
 /* ── Section ── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
 .section-title {
   font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
   color: var(--orange); border-left: 3px solid var(--orange); padding-left: 10px;
-  margin-bottom: 20px;
+}
+.section-composite {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 6px; padding: 7px 14px;
 }
 
 /* ── KPI Row ── */
@@ -158,7 +166,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
 .composite-score-wrap { display: flex; align-items: center; gap: 8px; }
 .composite-pips { display: flex; gap: 4px; }
 .composite-pip {
-  width: 28px; height: 28px; border-radius: 4px;
+  width: 16px; height: 16px; border-radius: 3px;
   background: #2a2a2a; border: 1px solid #333; transition: background 0.3s;
 }
 .composite-pip.s1 { background: #22c55e; border-color: #22c55e; box-shadow: 0 0 8px #22c55e88; }
@@ -208,7 +216,25 @@ canvas { display: block; }
 <div class="main">
 
   <!-- Section: Fed Balance Sheet -->
-  <div class="section-title">Part I · 美联储资产负债表</div>
+  <div class="section-header">
+    <div class="section-title">Part I · 美联储资产负债表</div>
+    <div class="section-composite">
+      <span class="composite-label">综合流动性松紧</span>
+      <div class="composite-pips" id="cp-pips">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span class="composite-desc" id="cp-text">—</span>
+      <span style="color:var(--border);margin:0 4px;">|</span>
+      <span style="font-size:10px;color:var(--muted);">TGA</span><span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp-tga">—</span>
+      <span style="font-size:10px;color:var(--muted);">RRP</span><span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp-rrp">—</span>
+      <span style="font-size:10px;color:var(--muted);">准备金</span><span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp-res">—</span>
+      <span style="font-size:10px;color:var(--muted);">净流动性</span><span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp-nl">—</span>
+      <span style="color:var(--border);margin:0 4px;">|</span>
+      <span style="font-size:10px;color:var(--muted);">加权</span><span style="font-size:13px;font-weight:700;margin-left:4px;" id="cp-total">—</span>
+    </div>
+  </div>
 
   <!-- KPI Row -->
   <div class="kpi-row">
@@ -263,26 +289,6 @@ canvas { display: block; }
     <div class="chart-card chart-full">
       <div class="chart-card-title">① Fed 负债端结构演变 — Liability Breakdown</div>
       <div class="chart-card-sub">WRESBAL · WCURRNS · WDTGAL · RRPONTSYD · Other ｜ 堆叠柱状图 · 周度 · 万亿美元</div>
-
-      <!-- Composite Score Bar -->
-      <div class="composite-bar" id="composite-bar">
-        <span class="composite-label">综合流动性松紧</span>
-        <div class="composite-score-wrap">
-          <div class="composite-pips" id="cp-pips">
-            <div class="composite-pip"></div><div class="composite-pip"></div>
-            <div class="composite-pip"></div><div class="composite-pip"></div>
-            <div class="composite-pip"></div>
-          </div>
-          <span class="composite-desc" id="cp-text">—</span>
-        </div>
-        <div class="composite-detail">
-          <div class="composite-detail-item">TGA<span id="cp-tga">—</span></div>
-          <div class="composite-detail-item">ON RRP<span id="cp-rrp">—</span></div>
-          <div class="composite-detail-item">准备金<span id="cp-res">—</span></div>
-          <div class="composite-detail-item">净流动性<span id="cp-nl">—</span></div>
-          <div class="composite-detail-item" style="border-left:1px solid #333;padding-left:20px;">加权综合<span id="cp-total">—</span></div>
-        </div>
-      </div>
 
       <canvas id="c-stack" height="55"></canvas>
     </div>
