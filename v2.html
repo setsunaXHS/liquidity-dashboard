@@ -250,11 +250,11 @@ const UNIT = {
 
 const COLORS = {
   tga:  '#f87171',
-  rrp:  '#b370ff',
+  rrp:  '#fb923c',
   res:  '#4da6ff',
-  nl:   '#00d4aa',
+  nl:   '#3fb950',
   fed:  '#58a6ff',
-  curr: '#a78bfa',
+  curr: '#00d4aa',
   other:'#6b7280',
 };
 
@@ -527,11 +527,11 @@ function drawStack(walcl, wres, curr, tga, rrp) {
     data: {
       labels,
       datasets: [
-        mk('Reserves (WRESBAL)',    COLORS.res  + 'cc', resV),
-        mk('Currency (WCURRNS)',    COLORS.curr + 'cc', currV),
-        mk('TGA (WDTGAL)',          COLORS.tga  + 'cc', tgaV),
-        mk('ON RRP (RRPONTSYD)',    COLORS.rrp  + 'cc', rrpV),
-        mk('Other Liabilities',    COLORS.other+ 'cc', otherV),
+        mk('Reserves (WRESBAL)',              COLORS.res  + 'cc', resV),
+        mk('Currency in Circulation (WCURRNS)', COLORS.curr + 'cc', currV),
+        mk('TGA (WDTGAL)',                   COLORS.tga  + 'cc', tgaV),
+        mk('ON RRP (RRPONTSYD)',             COLORS.rrp  + 'cc', rrpV),
+        mk('Other Liabilities',              COLORS.other+ 'cc', otherV),
       ]
     },
     options: {
