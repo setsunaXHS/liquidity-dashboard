@@ -430,28 +430,14 @@ canvas { display: block; }
 
   <!-- Chart 2+3: Spread charts -->
   <div class="charts-grid">
-    <div class="chart-card clickable" onclick="openPanel('effr_iorb')">
+    <div class="chart-card">
       <div class="chart-card-title">② EFFR − IORB 利差</div>
       <div class="chart-card-sub">日度 · bp ｜ 准备金充裕度的早期预警信号</div>
-      <div class="score-row" style="margin-bottom:12px;">
-        <span class="score-label">松紧</span>
-        <div class="score-pips" id="sp-effr_iorb">
-          <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
-        </div>
-        <span class="score-text" id="st-effr_iorb"></span>
-      </div>
       <canvas id="c-effr-iorb" height="130"></canvas>
     </div>
-    <div class="chart-card clickable" onclick="openPanel('sofr_effr')">
+    <div class="chart-card">
       <div class="chart-card-title">③ SOFR − EFFR 利差</div>
       <div class="chart-card-sub">日度 · bp ｜ Repo 市场流动性压力温度计</div>
-      <div class="score-row" style="margin-bottom:12px;">
-        <span class="score-label">松紧</span>
-        <div class="score-pips" id="sp-sofr_effr">
-          <div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div><div class="pip"></div>
-        </div>
-        <span class="score-text" id="st-sofr_effr"></span>
-      </div>
       <canvas id="c-sofr-effr" height="130"></canvas>
     </div>
   </div>
@@ -892,18 +878,10 @@ function drawSpreads() {
   // EFFR − IORB
   const sp1 = buildSpreadSeries(effr, iorb);
   drawSpread('c-effr-iorb', sp1, '#4da6ff');
-  const s1 = scoreEFFR_IORB(effr, iorb);
-  renderPips('sp-effr_iorb', s1);
-  const t1 = document.getElementById('st-effr_iorb');
-  t1.textContent = SCORE_LABELS[s1]; t1.className = 'score-text s' + s1;
 
   // SOFR − EFFR
   const sp2 = buildSpreadSeries(sofr, effr);
   drawSpread('c-sofr-effr', sp2, '#00d4aa');
-  const s2 = scoreSOFR_EFFR(sofr, effr);
-  renderPips('sp-sofr_effr', s2);
-  const t2 = document.getElementById('st-sofr_effr');
-  t2.textContent = SCORE_LABELS[s2]; t2.className = 'score-text s' + s2;
 }
 
 // ── Chart Builder ─────────────────────────────────────────────────────────────
