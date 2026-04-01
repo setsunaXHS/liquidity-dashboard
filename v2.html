@@ -1777,9 +1777,11 @@ function openPanel(key) {
   const validMetric = hist.metricVals.filter(v => v !== null);
   const validScores = hist.scoreVals.filter((v, i) => hist.metricVals[i] !== null);
 
-  // Filter to last 5Y
-  const cutoff = new Date(); cutoff.setFullYear(cutoff.getFullYear() - 5);
-  const cutStr = cutoff.toISOString().slice(0,10);
+  // Filter to match main UI time range (activeDays)
+  const cutStr = activeDays >= 9999 ? '2000-01-01' : (() => {
+    const c = new Date(); c.setDate(c.getDate() - activeDays);
+    return c.toISOString().slice(0, 10);
+  })();
   const idxs = validDates.map((d,i) => d >= cutStr ? i : -1).filter(i => i >= 0);
   const labels  = idxs.map(i => validDates[i]);
   const mVals   = idxs.map(i => validMetric[i]);
