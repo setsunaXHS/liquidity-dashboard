@@ -550,7 +550,7 @@
         </div>
       </span>
     </div>
-    <div class="chart-desc">WALCL — 周度，十亿美元</div>
+    <div class="chart-desc">WALCL — 周度，万亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-fed"></canvas>
     </div>
@@ -569,7 +569,7 @@
         </div>
       </span>
     </div>
-    <div class="chart-desc">WDTGAL — 周度，十亿美元</div>
+    <div class="chart-desc">WDTGAL — 周度，万亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-tga"></canvas>
     </div>
@@ -588,7 +588,7 @@
         </div>
       </span>
     </div>
-    <div class="chart-desc">RRPONTSYD — 日度，十亿美元</div>
+    <div class="chart-desc">RRPONTSYD — 日度，万亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-rrp"></canvas>
     </div>
@@ -607,7 +607,7 @@
         </div>
       </span>
     </div>
-    <div class="chart-desc">WRESBAL — 周度，十亿美元</div>
+    <div class="chart-desc">WRESBAL — 周度，万亿美元</div>
     <div class="chart-wrap">
       <canvas id="chart-res"></canvas>
     </div>
@@ -683,10 +683,22 @@ let cachedData = {};
 let activeDays = 365;
 
 // ─── Utils ────────────────────────────────────────────────────────────────────
-function fmt(bn) {
-  if (bn === null || bn === undefined || isNaN(bn)) return '—';
-  if (Math.abs(bn) >= 1000) return (bn / 1000).toFixed(2) + ' T';
-  return bn.toFixed(0) + ' B';
+// 所有系列统一换算为 Trillions 后进入图表和 KPI
+// WALCL / WDTGAL / WRESBAL → Millions USD  → ÷1e6
+// RRPONTSYD / WCURRNS      → Billions USD  → ÷1e3
+const SERIES_UNIT = {
+  WALCL:     1e6,   // Millions → Trillions
+  WDTGAL:    1e6,
+  WRESBAL:   1e6,
+  RRPONTSYD: 1e3,   // Billions → Trillions
+  WCURRNS:   1e3,
+};
+
+function fmt(t) {
+  if (t === null || t === undefined || isNaN(t)) return '—';
+  // input is already Trillions
+  if (Math.abs(t) < 0.01) return (t * 1000).toFixed(1) + ' B';
+  return t.toFixed(3) + ' T';
 }
 
 function fmtChg(chg) {
@@ -722,9 +734,10 @@ async function fetchSeries(seriesId) {
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const json = await res.json();
   if (json.error_message) throw new Error(json.error_message);
+  const divisor = SERIES_UNIT[seriesId] ?? 1e6; // default: Millions → Trillions
   return json.observations
     .filter(o => o.value !== '.')
-    .map(o => ({ date: o.date, value: parseFloat(o.value) / 1000 })); // → billions
+    .map(o => ({ date: o.date, value: parseFloat(o.value) / divisor })); // → Trillions
 }
 
 // ─── Chart Factory ────────────────────────────────────────────────────────────
