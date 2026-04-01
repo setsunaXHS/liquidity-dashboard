@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Fed Liability Breakdown</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #1a1a1a; font-family: 'Segoe UI', sans-serif; color: #fff; padding: 40px; display: flex; flex-direction: column; align-items: center; }
+h2 { color: #ff9900; font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border-left: 3px solid #ff9900; padding-left: 10px; margin-bottom: 4px; align-self: flex-start; }
+.subtitle { color: #555; font-size: 12px; margin-bottom: 30px; align-self: flex-start; padding-left: 13px; }
+.chart-wrap { background: #111; border-radius: 10px; padding: 30px 40px; width: 100%; max-width: 760px; }
+.total-line { text-align: center; margin-top: 20px; font-size: 12px; color: #666; }
+.total-line span { color: #ff9900; font-weight: 700; font-size: 15px; }
+.table { margin-top: 24px; width: 100%; max-width: 760px; border-radius: 8px; overflow: hidden; }
+.row { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid #222; font-size: 13px; }
+.row:last-child { border-bottom: none; }
+.row:nth-child(even) { background: #181818; }
+.dot { width: 12px; height: 12px; border-radius: 3px; margin-right: 12px; flex-shrink: 0; }
+.name { flex: 1; color: #ccc; }
+.series { color: #555; font-size: 11px; margin-left: 8px; font-family: monospace; }
+.val { width: 90px; text-align: right; color: #fff; font-weight: 600; font-family: monospace; }
+.pct { width: 60px; text-align: right; color: #888; font-size: 12px; }
+.bar-bg { width: 120px; height: 6px; background: #2a2a2a; border-radius: 3px; margin-left: 16px; }
+.bar-fg { height: 6px; border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<h2>Fed 总负债结构分解</h2>
+<div class="subtitle">最新数据：2026-03-25 ｜ 数据来源：FRED</div>
+
+<div class="chart-wrap">
+  <canvas id="chart" height="55"></canvas>
+  <div class="total-line">Fed 总资产 / 总负债 = <span>$6.657 T</span></div>
+</div>
+
+<div class="table" id="table"></div>
+
+<script>
+const data = [
+  { label: 'Reserves',         series: 'WRESBAL',    val: 2993.955, color: '#4da6ff' },
+  { label: 'Currency in Circ.', series: 'WCURRNS',   val: 2349.7,   color: '#a78bfa' },
+  { label: 'TGA',              series: 'WDTGAL',     val: 837.412,  color: '#f87171' },
+  { label: 'ON RRP',           series: 'RRPONTSYD',  val: 15.782,   color: '#fb923c' },
+  { label: 'Other Liabilities',series: '—',          val: 460.312,  color: '#6b7280' },
+];
+
+const total = data.reduce((s, d) => s + d.val, 0);
+
+// 横向堆叠柱状图
+const ctx = document.getElementById('chart').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: ['Fed 负债端'],
+    datasets: data.map(d => ({
+      label: d.label,
+      data: [+(d.val / 1000).toFixed(3)],
+      backgroundColor: d.color,
+      borderRadius: 3,
+      borderSkipped: false,
+    }))
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { color: '#aaa', font: { size: 11 }, boxWidth: 14, padding: 16 }
+      },
+      tooltip: {
+        backgroundColor: '#1e1e1e',
+        titleColor: '#ff9900',
+        bodyColor: '#ccc',
+        borderColor: '#444',
+        borderWidth: 1,
+        callbacks: {
+          label: c => {
+            const v = c.parsed.x;
+            const pct = ((v / (total/1000)) * 100).toFixed(1);
+            return ` ${c.dataset.label}: $${v.toFixed(3)} T  (${pct}%)`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        ticks: { color: '#666', font: { size: 10 }, callback: v => '$' + v.toFixed(1) + 'T' },
+        grid: { color: '#222' },
+        max: 7,
+      },
+      y: {
+        stacked: true,
+        ticks: { color: '#aaa', font: { size: 11 } },
+        grid: { display: false },
+      }
+    }
+  }
+});
+
+// 明细表格
+const table = document.getElementById('table');
+const sorted = [...data].sort((a,b) => b.val - a.val);
+sorted.forEach(d => {
+  const pct = ((d.val / total) * 100).toFixed(1);
+  const barW = Math.round((d.val / total) * 120);
+  table.innerHTML += `
+    <div class="row">
+      <div class="dot" style="background:${d.color}"></div>
+      <div class="name">${d.label} <span class="series">${d.series}</span></div>
+      <div class="bar-bg"><div class="bar-fg" style="width:${barW}px;background:${d.color}"></div></div>
+      <div class="val">$${(d.val/1000).toFixed(3)}T</div>
+      <div class="pct">${pct}%</div>
+    </div>`;
+});
+</script>
+</body>
+</html>
