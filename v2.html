@@ -586,12 +586,15 @@ async function fetchFred(series) {
   return out;
 }
 
-// 利率系列：用周度聚合降低数据量（日度→周均，~370条 vs 1800条）
+// 利率系列：日度，起始时间根据 activeDays 动态计算，避免拉太多历史数据
 async function fetchRate(series) {
+  // 最多拉 5Y+buffer，日度约 1300 条，可接受
+  const start = new Date();
+  start.setFullYear(start.getFullYear() - 6);
+  const startStr = start.toISOString().slice(0, 10);
   const params = new URLSearchParams({
     series_id: series, api_key: apiKey(), file_type: 'json',
-    observation_start: '2019-01-01', sort_order: 'asc',
-    frequency: 'w', aggregation_method: 'avg',
+    observation_start: startStr, sort_order: 'asc',
   });
   const r = await fetch(`${PROXY}?${params}`);
   const d = await r.json();
@@ -785,20 +788,16 @@ function buildSpreadSeries(mapA, mapB, scale = 100) {
   return result;
 }
 
-function drawSpread(canvasId, spread, color, zeroLine = true) {
+function drawSpread(canvasId, spread, color) {
   const { dates, vals } = spread;
-  const cutDates = activeDays >= 9999 ? dates : (() => {
-    const cut = new Date(); cut.setDate(cut.getDate() - activeDays);
-    const cs = cut.toISOString().slice(0,10);
-    return dates.filter(d => d >= cs);
+  const cut = activeDays >= 9999 ? '2000-01-01' : (() => {
+    const d = new Date(); d.setDate(d.getDate() - activeDays);
+    return d.toISOString().slice(0, 10);
   })();
-  const data = cutDates.map(d => {
-    const i = dates.indexOf(d);
-    return { x: d, y: i >= 0 ? vals[i] : null };
-  });
 
-  const positiveColor = color + 'cc';
-  const negativeColor = '#ef444488';
+  const data = dates
+    .filter(d => d >= cut)
+    .map(d => ({ x: d, y: vals[dates.indexOf(d)] }));
 
   const ctx = document.getElementById(canvasId);
   if (charts[canvasId]) charts[canvasId].destroy();
@@ -806,27 +805,55 @@ function drawSpread(canvasId, spread, color, zeroLine = true) {
   const zeroPlugin = {
     id: 'zeroLine',
     afterDraw(chart) {
-      if (!zeroLine) return;
       const { ctx: c, scales: { x, y } } = chart;
       const yPx = y.getPixelForValue(0);
       c.save();
-      c.strokeStyle = '#444'; c.lineWidth = 1; c.setLineDash([4,3]);
+      c.strokeStyle = '#555'; c.lineWidth = 1; c.setLineDash([5, 4]);
       c.beginPath(); c.moveTo(x.left, yPx); c.lineTo(x.right, yPx); c.stroke();
       c.setLineDash([]); c.restore();
     }
   };
 
+  // 正负区域双色填充
+  const gradPlugin = {
+    id: 'splitFill',
+    beforeDatasetDraw(chart, args) {
+      const { ctx: c, scales: { y }, chartArea: { left, right } } = chart;
+      const yZero = y.getPixelForValue(0);
+      const top   = chart.chartArea.top;
+      const bot   = chart.chartArea.bottom;
+
+      // 正值区域（宽松）= 绿色
+      const gradPos = c.createLinearGradient(0, top, 0, yZero);
+      gradPos.addColorStop(0,   color + '55');
+      gradPos.addColorStop(1,   color + '00');
+
+      // 负值区域（收紧）= 红色
+      const gradNeg = c.createLinearGradient(0, yZero, 0, bot);
+      gradNeg.addColorStop(0, '#ef444400');
+      gradNeg.addColorStop(1, '#ef444430');
+
+      args.meta.dataset.options.backgroundColor = (ctx) => {
+        const val = ctx.parsed?.y ?? 0;
+        return val >= 0 ? gradPos : gradNeg;
+      };
+    }
+  };
+
   charts[canvasId] = new Chart(ctx, {
-    type: 'bar',
+    type: 'line',
     plugins: [zeroPlugin],
     data: {
       datasets: [{
         label: '利差 (bp)',
         data,
-        backgroundColor: data.map(p => (p.y ?? 0) >= 0 ? positiveColor : negativeColor),
-        borderWidth: 0,
-        barPercentage: 1.0,
-        categoryPercentage: 1.0,
+        borderColor: color,
+        backgroundColor: color + '20',
+        borderWidth: 1.8,
+        pointRadius: 0,
+        tension: 0.2,
+        fill: true,
+        spanGaps: true,
       }]
     },
     options: {
@@ -843,8 +870,8 @@ function drawSpread(canvasId, spread, color, zeroLine = true) {
       scales: {
         x: {
           type: 'time',
-          time: { unit: timeUnit(), displayFormats: { week:'MM-dd', month:"yy-MM", quarter:"yy-'Q'Q" } },
-          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 12 },
+          time: { unit: 'month', displayFormats: { week:'MM-dd', month:"yy-MM", quarter:"yy-'Q'Q", day:'MM-dd' } },
+          ticks: { color: '#555', font: { size: 10 }, maxTicksLimit: 14 },
           grid: { color: '#1e1e1e' },
         },
         y: {
