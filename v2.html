@@ -413,7 +413,7 @@ canvas { display: block; }
 
   <!-- Section 2: Interest Rates -->
   <div class="section-header" style="margin-top: 36px;">
-    <div class="section-title">Part II · 利率指标</div>
+    <div class="section-title">Part II · 政策及货币市场利率</div>
   </div>
 
   <!-- Chart 1: Rate overview (full width) -->
@@ -631,7 +631,7 @@ function drawRates(rateData) {
       datasets: [
         // 上下沿 band — 先画填充区域
         {
-          label: 'FFR 目标区间上沿',
+          label: 'FFR 目标区间',
           data: mkData(upper),
           borderColor: 'rgba(255,153,0,0.5)',
           backgroundColor: 'rgba(255,153,0,0.08)',
@@ -705,7 +705,7 @@ function drawRates(rateData) {
           position: 'top',
           labels: {
             color: '#888', font: { size: 10 }, boxWidth: 20, padding: 14,
-            filter: item => item.text !== 'FFR 目标区间下沿', // 只显示上沿的 legend
+            filter: item => item.text !== 'FFR 目标区间下沿', // 只显示一条 legend
           }
         },
         tooltip: {
