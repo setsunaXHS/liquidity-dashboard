@@ -436,35 +436,41 @@ canvas { display: block; }
 
     <!-- ── 雷达图 + 时间轴 ── -->
     <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
-      <!-- 雷达 + 评分面板 两栏 -->
+      <!-- 雷达（左）+ 右侧面板（评分 + 时间轴）-->
       <div style="display:flex;gap:24px;align-items:flex-start;">
-        <!-- 左：雷达图（放大） -->
-        <div style="flex:0 0 420px;">
+
+        <!-- 左：雷达图 -->
+        <div style="flex:0 0 500px;">
           <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 5年滚动分位</div>
-          <canvas id="gcpRadarCanvas" height="340" style="width:100%;max-width:420px;"></canvas>
+          <canvas id="gcpRadarCanvas" style="width:100%;height:420px;"></canvas>
         </div>
 
-        <!-- 右：维度评分条 -->
-        <div style="flex:1;min-width:0;padding-top:20px;" id="gcpDimBars">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>
-          <div style="font-size:11px;color:var(--muted);">加载中…</div>
-        </div>
-      </div>
+        <!-- 右：评分条 + 时间轴 -->
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:0;">
 
-      <!-- 时间轴 slider -->
-      <div style="margin-top:16px;" id="gcpTimelineWrap">
-        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;" id="gcpCurrentDate">拖动时间轴查看历史</div>
-        <div style="position:relative;margin-bottom:4px;height:20px;" id="gcpMarkersRow"></div>
-        <input type="range" id="gcpSlider" min="0" max="0" value="0" step="1" style="
-          width:100%;-webkit-appearance:none;appearance:none;
-          height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;
-        ">
-        <div style="position:relative;height:16px;margin-top:4px;" id="gcpYearTicks"></div>
-        <!-- 备注说明 -->
-        <div style="margin-top:10px;font-size:10px;color:#aaa;line-height:1.7;">
-          雷达图各维度评分基于5年滚动历史分位：<b>形状越向外鼓，当前压力相对历史越紧</b>；向内收缩表示流动性宽松。
-          注：美联储准备金框架经历了"稀缺→充裕→紧张"多次转变，ON RRP、SRF 等工具箱也在动态演进，
-          各维度的历史分位基准随之漂移，<b>本雷达图仅供参考，不构成跨周期的绝对比较</b>。
+          <!-- 维度评分条 -->
+          <div id="gcpDimBars" style="padding-top:20px;">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>
+            <div style="font-size:11px;color:var(--muted);">加载中…</div>
+          </div>
+
+          <!-- 时间轴 slider -->
+          <div style="margin-top:20px;" id="gcpTimelineWrap">
+            <div style="font-size:10px;color:var(--muted);margin-bottom:10px;" id="gcpCurrentDate">拖动时间轴查看历史</div>
+            <div style="position:relative;margin-bottom:4px;height:22px;" id="gcpMarkersRow"></div>
+            <input type="range" id="gcpSlider" min="0" max="0" value="0" step="1" style="
+              width:100%;-webkit-appearance:none;appearance:none;
+              height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+            ">
+            <div style="position:relative;height:16px;margin-top:4px;" id="gcpYearTicks"></div>
+            <!-- 备注说明 -->
+            <div style="margin-top:10px;font-size:10px;color:#aaa;line-height:1.7;">
+              各维度基于5年滚动历史分位评分，<b>形状越外鼓压力越大</b>，向内收缩表示宽松。
+              注：美联储准备金框架经历"稀缺→充裕→紧张"多次转变，ON RRP、SRF 等工具的引入也改变了各指标的历史分布，
+              <b>本雷达图仅供参考，不构成跨周期绝对比较</b>。
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
