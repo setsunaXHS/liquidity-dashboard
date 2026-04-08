@@ -1,6 +1,6 @@
 {
-  "outputDirectory": ".",
   "rewrites": [
-    { "source": "/fred", "destination": "/api/fred" }
+    { "source": "/fred", "destination": "/api/fred" },
+    { "source": "/api/news", "destination": "/api/news" }
   ]
 }
