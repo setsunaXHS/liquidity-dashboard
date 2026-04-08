@@ -1,0 +1,7 @@
+{
+  "name": "liquidity-dashboard",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "mkdir -p dist && cp *.html dist/ && cp *.js dist/ 2>/dev/null; cp *.json dist/ 2>/dev/null; cp -r api dist/ 2>/dev/null; true"
+  }
+}

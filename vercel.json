@@ -1,14 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    { "src": "api/*.js", "use": "@vercel/node" },
-    { "src": "*.html", "use": "@vercel/static" },
-    { "src": "*.js", "use": "@vercel/static" },
-    { "src": "*.json", "use": "@vercel/static" }
-  ],
-  "routes": [
-    { "src": "/api/fred", "dest": "/api/fred.js" },
-    { "src": "/api/news", "dest": "/api/news.js" },
-    { "src": "/(.*)", "dest": "/$1" }
+  "buildCommand": "cp *.html dist/ && cp -r api dist/",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/fred", "destination": "/api/fred" },
+    { "source": "/api/news", "destination": "/api/news" }
   ]
 }
