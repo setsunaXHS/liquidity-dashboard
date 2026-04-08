@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Header Preview</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif; background: #F0F0F0; padding: 32px 24px; display: flex; flex-direction: column; gap: 32px; }
+
+.label {
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  color: #888; margin-bottom: 8px;
+}
+
+/* ══════════════════════════════════════
+   方案 A — 极简 Bloomberg Light
+   白底，左侧大字，右侧实时 ticker
+══════════════════════════════════════ */
+.header-a {
+  background: #FFFFFF;
+  border-bottom: 2px solid #E8700A;
+  padding: 18px 36px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.header-a .title {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.3px; color: #1A1A1A;
+}
+.header-a .title em {
+  font-style: normal; color: #E8700A;
+}
+.header-a .meta {
+  font-size: 10px; color: #999; margin-top: 3px; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.header-a .ticker {
+  display: flex; gap: 20px; align-items: center;
+}
+.header-a .tick-item {
+  text-align: right;
+}
+.header-a .tick-label { font-size: 9px; color: #999; letter-spacing: 0.8px; text-transform: uppercase; }
+.header-a .tick-val { font-size: 15px; font-weight: 700; color: #E8700A; font-variant-numeric: tabular-nums; }
+.header-a .tick-sub { font-size: 9px; color: #aaa; }
+.header-a .divider { width: 1px; height: 32px; background: #E0E0E0; }
+
+/* ══════════════════════════════════════
+   方案 B — 深色 Terminal Banner
+   黑底橙字，Bloomberg 终端感
+══════════════════════════════════════ */
+.header-b {
+  background: #0D0D0D;
+  border-bottom: 1px solid #333;
+  padding: 20px 36px;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+}
+.header-b::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: #E8700A;
+}
+.header-b .title {
+  font-size: 26px; font-weight: 900; letter-spacing: 1px;
+  color: #E8700A;
+  font-variant-numeric: tabular-nums;
+  text-transform: uppercase;
+}
+.header-b .subtitle-row {
+  display: flex; align-items: center; gap: 12px; margin-top: 4px;
+}
+.header-b .badge {
+  font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+  background: #1E1E1E; color: #E8700A; border: 1px solid #333;
+  padding: 2px 7px; border-radius: 2px;
+}
+.header-b .meta { font-size: 10px; color: #555; }
+.header-b .right {
+  text-align: right;
+}
+.header-b .score-big { font-size: 40px; font-weight: 900; color: #E8700A; line-height: 1; font-variant-numeric: tabular-nums; }
+.header-b .score-label { font-size: 9px; color: #555; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.header-b .grid-bg {
+  position: absolute; right: 0; top: 0; bottom: 0; width: 180px;
+  background: repeating-linear-gradient(90deg, transparent, transparent 29px, #1a1a1a 29px, #1a1a1a 30px);
+  opacity: 0.4; pointer-events: none;
+}
+
+/* ══════════════════════════════════════
+   方案 C — 左橙竖条 + 综合评分嵌入
+   白底，左侧装饰条，评分右置
+══════════════════════════════════════ */
+.header-c {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 0 36px;
+  display: flex; align-items: stretch; justify-content: space-between;
+}
+.header-c .left {
+  display: flex; align-items: stretch; gap: 0;
+}
+.header-c .accent-bar {
+  width: 4px; background: #E8700A; margin-right: 20px; flex-shrink: 0;
+}
+.header-c .text-block {
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 18px 0;
+}
+.header-c .title {
+  font-size: 20px; font-weight: 800; color: #1A1A1A; letter-spacing: 0.2px;
+}
+.header-c .title em { font-style: normal; color: #E8700A; }
+.header-c .meta {
+  font-size: 10px; color: #bbb; margin-top: 4px; letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.header-c .right {
+  display: flex; align-items: center; gap: 24px; padding: 16px 0;
+}
+.header-c .score-box {
+  border-left: 1px solid #E8E8E8; padding-left: 24px;
+  display: flex; flex-direction: column; align-items: flex-end;
+}
+.header-c .score-num { font-size: 36px; font-weight: 900; color: #E8700A; line-height: 1; }
+.header-c .score-label { font-size: 9px; color: #aaa; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.header-c .pips { display: flex; gap: 4px; margin-top: 5px; }
+.header-c .pip {
+  width: 10px; height: 10px; border-radius: 2px; background: #E0E0E0;
+}
+.header-c .pip.on { background: #E8700A; }
+.header-c .ctrl { display: flex; gap: 8px; align-items: center; }
+.header-c .btn {
+  font-size: 11px; background: #F5F5F5; border: 1px solid #E0E0E0;
+  color: #555; padding: 6px 12px; border-radius: 4px; cursor: pointer;
+}
+
+/* ══════════════════════════════════════
+   方案 D — 居中杂志感
+   白底，大号居中，细线装饰
+══════════════════════════════════════ */
+.header-d {
+  background: #FFFFFF;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 28px 36px 24px;
+  text-align: center;
+  position: relative;
+}
+.header-d .eyebrow {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: #E8700A; margin-bottom: 10px;
+}
+.header-d .title {
+  font-size: 32px; font-weight: 900; color: #1A1A1A; letter-spacing: -1px;
+  line-height: 1;
+}
+.header-d .title em { font-style: normal; color: #E8700A; }
+.header-d .rule {
+  display: flex; align-items: center; gap: 12px; margin: 14px auto 0;
+  max-width: 480px;
+}
+.header-d .rule-line { flex: 1; height: 1px; background: #E0E0E0; }
+.header-d .rule-text { font-size: 9px; color: #bbb; letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
+.header-d .corner-ctrl {
+  position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 10px;
+}
+.header-d .btn {
+  font-size: 11px; background: #F5F5F5; border: 1px solid #E0E0E0;
+  color: #555; padding: 6px 12px; border-radius: 4px;
+}
+.header-d .status-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; }
+</style>
+</head>
+<body>
+
+<div class="label">方案 A — 极简 Bloomberg Light（白底，右侧实时 ticker）</div>
+<div class="header-a">
+  <div>
+    <div class="title">USD Liquidity <em>Watcher</em></div>
+    <div class="meta">Federal Reserve · Real-time FRED Data · Updated Weekly</div>
+  </div>
+  <div class="ticker">
+    <div class="tick-item">
+      <div class="tick-label">Net Liquidity</div>
+      <div class="tick-val">$6.14T</div>
+      <div class="tick-sub">▼ −$0.08T WoW</div>
+    </div>
+    <div class="divider"></div>
+    <div class="tick-item">
+      <div class="tick-label">Reserves</div>
+      <div class="tick-val">$3.24T</div>
+      <div class="tick-sub">Near Warning</div>
+    </div>
+    <div class="divider"></div>
+    <div class="tick-item">
+      <div class="tick-label">Stress Score</div>
+      <div class="tick-val">3.6</div>
+      <div class="tick-sub">Moderately Tight</div>
+    </div>
+  </div>
+</div>
+
+<div class="label">方案 B — 深色 Terminal Banner（Bloomberg 终端感，黑底橙字）</div>
+<div class="header-b">
+  <div class="grid-bg"></div>
+  <div>
+    <div class="title">USD Liquidity Watcher</div>
+    <div class="subtitle-row">
+      <span class="badge">FRED Live</span>
+      <span class="badge">Weekly</span>
+      <span class="meta">Federal Reserve Balance Sheet Monitor</span>
+    </div>
+  </div>
+  <div class="right">
+    <div class="score-big">3.6</div>
+    <div class="score-label">Stress Score</div>
+  </div>
+</div>
+
+<div class="label">方案 C — 左橙竖条 + 综合评分嵌入（白底，专业感最强）</div>
+<div class="header-c">
+  <div class="left">
+    <div class="accent-bar"></div>
+    <div class="text-block">
+      <div class="title">USD Liquidity <em>Watcher</em></div>
+      <div class="meta">Federal Reserve · FRED · Weekly Data</div>
+    </div>
+  </div>
+  <div class="right">
+    <div class="ctrl">
+      <button class="btn">Load Data</button>
+      <button class="btn">5Y</button>
+    </div>
+    <div class="score-box">
+      <div class="score-num">3.6</div>
+      <div class="pips">
+        <div class="pip on"></div>
+        <div class="pip on"></div>
+        <div class="pip on"></div>
+        <div class="pip on"></div>
+        <div class="pip"></div>
+      </div>
+      <div class="score-label">Composite Stress</div>
+    </div>
+  </div>
+</div>
+
+<div class="label">方案 D — 居中大字，杂志封面感</div>
+<div class="header-d">
+  <div class="eyebrow">Federal Reserve Liquidity Monitor</div>
+  <div class="title">USD Liquidity <em>Watcher</em></div>
+  <div class="rule">
+    <div class="rule-line"></div>
+    <div class="rule-text">FRED · Real-time · Weekly</div>
+    <div class="rule-line"></div>
+  </div>
+  <div class="corner-ctrl">
+    <div class="status-dot"></div>
+    <button class="btn">Load Data</button>
+  </div>
+</div>
+
+</body>
+</html>
