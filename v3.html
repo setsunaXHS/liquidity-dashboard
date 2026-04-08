@@ -1652,7 +1652,6 @@ function buildCommentary(score, raw) {
   if (effrIorbVal != null && effrIorbVal > -2) pressures.push(`EFFR-IORB 利差收窄至 <b>${fmtBp(effrIorbVal)}</b>，货币市场压力上升`);
   if (nlPct != null && nlPct < 30) pressures.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏紧`);
   if (nl4wChg != null && nl4wChg < -0.05) pressures.push(`净流动性近4周收缩 <b>${fmt(nl4wChg)}</b>`);
-  if (pressures.length) parts.push(`主要压力：${pressures.join('；')}。`);
 
   // 句2：缓冲/支撑因素
   const supports = [];
@@ -1662,9 +1661,8 @@ function buildCommentary(score, raw) {
   if (res4wChg != null && res4wChg > 0.05) supports.push(`准备金近4周改善 +${fmt(res4wChg)}`);
   if (nlPct != null && nlPct >= 50) supports.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏宽松`);
   if (nl4wChg != null && nl4wChg > 0.05) supports.push(`净流动性近4周扩张 +${fmt(nl4wChg)}`);
-  if (supports.length) parts.push(`支撑因素：${supports.join('；')}。`);
 
-  // 句4：一句话结论
+  // 句3：一句话结论
   const conclusions = {
     1: '整体流动性充裕，金融条件宽松，风险资产有利。',
     2: '流动性偏宽松但已有收窄迹象，保持关注边际变化。',
@@ -1672,9 +1670,21 @@ function buildCommentary(score, raw) {
     4: '流动性偏紧，货币市场已出现压力信号，需关注准备金与 TGA 拐点。',
     5: '流动性明显收紧，多项指标处于警戒区域，市场对进一步收缩较为敏感。',
   };
-  parts.push(`<b style="color:${['','#22c55e','#84cc16','#b45309','#ea580c','#dc2626'][score]}">综合判断：${conclusions[score]}</b>`);
+  const scoreColor = ['','#22c55e','#84cc16','#b45309','#ea580c','#dc2626'][score];
 
-  el.innerHTML = parts.join(' ');
+  // 组装三行
+  const lines = [];
+  if (pressures.length) lines.push(`<b>主要压力：</b>${pressures.join('；')}。`);
+  if (supports.length)  lines.push(`<b>支撑因素：</b>${supports.join('；')}。`);
+  lines.push(`<b style="color:${scoreColor}">综合判断：</b><span style="color:${scoreColor}">${conclusions[score]}</span>`);
+
+  el.innerHTML = lines.join('<br>') + `
+    <br><br>
+    <b>市场新闻</b><br>
+    · <b>2026-04-02</b> &nbsp;美国财政部完成 $150亿国债回购，为史上单次最大规模，主动向市场注入流动性（来源：Treasury / Binance Square）<br>
+    · <b>2025-12-01</b> &nbsp;美联储正式停止 QT（缩表），资产负债表进入稳定期；多位官员认为停止时机已偏晚，准备金被过度消耗（来源：Reuters / BNP Paribas Research）<br>
+    · <b>2026-04-07</b> &nbsp;纽约联储发布报告：去年4月关税冲击后国债市场流动性已快速恢复，但新一轮关税不确定性仍对市场造成压力（来源：Liberty Street Economics）
+  `;
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
