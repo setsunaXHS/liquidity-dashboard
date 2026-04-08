@@ -479,9 +479,72 @@ canvas { display: block; }
     </div>
   </div>
 
+  <!-- ── 全局综合评分 Banner ── -->
+  <div id="global-composite-bar" style="
+    margin: 32px 0 8px; padding: 14px 20px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--orange);
+    border-radius: 8px; display: flex; align-items: center; gap: 16px;
+  ">
+    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);white-space:nowrap;">
+      综合流动性评分
+    </div>
+    <div style="width:1px;height:28px;background:var(--border);"></div>
+    <!-- Part I -->
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="font-size:10px;color:var(--muted);white-space:nowrap;">Part I 资产负债表</span>
+      <div class="composite-pips" id="gcp-p1">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;" id="gcp-p1-val">—</span>
+    </div>
+    <span style="font-size:14px;color:var(--border);">×60%</span>
+    <!-- Part II -->
+    <div style="display:flex;align-items:center;gap:6px;">
+      <span style="font-size:10px;color:var(--muted);white-space:nowrap;">Part II 货币市场</span>
+      <div class="composite-pips" id="gcp-p2">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span style="font-size:12px;font-weight:700;" id="gcp-p2-val">—</span>
+    </div>
+    <span style="font-size:14px;color:var(--border);">×40%</span>
+    <div style="width:1px;height:28px;background:var(--border);"></div>
+    <!-- 总评 -->
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="composite-pips" id="gcp-total-pips">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span style="font-size:15px;font-weight:800;" id="gcp-total-val">—</span>
+      <span style="font-size:13px;font-weight:600;" id="gcp-total-label">—</span>
+    </div>
+  </div>
+
   <!-- Section 2: Interest Rates -->
-  <div class="section-header" style="margin-top: 36px;">
+  <div class="section-header" style="margin-top: 24px;">
     <div class="section-title">Part II · 政策及货币市场利率</div>
+    <div class="section-composite">
+      <span class="composite-label">货币市场压力</span>
+      <div class="composite-pips" id="cp2-pips">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span class="composite-desc" id="cp2-text">—</span>
+      <span style="color:var(--border);margin:0 4px;">|</span>
+      <span style="font-size:10px;color:var(--muted);">EFFR-IORB</span>
+      <span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp2-effr">—</span>
+      <span style="font-size:10px;color:var(--muted);">SOFR-EFFR</span>
+      <span class="composite-detail-item" style="font-size:12px;font-weight:700;margin-right:8px;" id="cp2-sofr">—</span>
+      <span style="color:var(--border);margin:0 4px;">|</span>
+      <span style="font-size:10px;color:var(--muted);">加权</span>
+      <span style="font-size:13px;font-weight:700;margin-left:4px;" id="cp2-total">—</span>
+    </div>
   </div>
 
   <!-- Chart 1: Rate overview (full width) -->
@@ -1056,6 +1119,28 @@ function drawSpreads() {
     if (c2) { c2.textContent = (chg2 >= 0 ? '+' : '') + chg2.toFixed(2) + ' bp 5d'; c2.className = 'kpi-chg ' + (chg2 > 0 ? 'down' : chg2 < 0 ? 'up' : 'neu'); }
     if (d2) d2.textContent = sp2.dates[sp2.dates.length - 1];
   }
+
+  // ── Part II 综合评分（EFFR-IORB 70% + SOFR-EFFR 30%）──
+  const p2raw  = s1 * 0.70 + s2 * 0.30;
+  const p2score = Math.round(p2raw);
+  const SCOLORS = ['','#22c55e','#84cc16','#eab308','#f97316','#ef4444'];
+
+  renderPips('cp2-pips', p2score);
+  const cp2text = document.getElementById('cp2-text');
+  if (cp2text) {
+    cp2text.textContent = `${SCORE_LABELS[p2score]}  (${p2raw.toFixed(1)} / 5)`;
+    cp2text.style.color = SCOLORS[p2score];
+  }
+  const cp2effr = document.getElementById('cp2-effr');
+  if (cp2effr) { cp2effr.textContent = s1; cp2effr.style.color = SCOLORS[s1]; }
+  const cp2sofr = document.getElementById('cp2-sofr');
+  if (cp2sofr) { cp2sofr.textContent = s2; cp2sofr.style.color = SCOLORS[s2]; }
+  const cp2total = document.getElementById('cp2-total');
+  if (cp2total) { cp2total.textContent = p2raw.toFixed(1); cp2total.style.color = SCOLORS[p2score]; }
+
+  // ── 存储 Part II 评分供全局计算使用 ──
+  window._p2Score = p2raw;
+  updateGlobalComposite();
 }
 
 // ── Chart Builder ─────────────────────────────────────────────────────────────
@@ -1471,6 +1556,40 @@ function updateScores(scores, composite) {
   const totalEl = document.getElementById('cp-total');
   totalEl.textContent = composite.toFixed(1);
   totalEl.style.color = ['','#22c55e','#84cc16','#eab308','#f97316','#ef4444'][cs];
+
+  // 存储 Part I 评分供全局计算使用
+  window._p1Score = composite;
+  updateGlobalComposite();
+}
+
+// ── 全局综合评分：Part I 60% + Part II 40% ────────────────────────────────
+function updateGlobalComposite() {
+  const p1 = window._p1Score;
+  const p2 = window._p2Score;
+  if (p1 == null || p2 == null) return;  // 两个 Part 都算完才更新
+
+  const SCOLORS = ['','#22c55e','#84cc16','#eab308','#f97316','#ef4444'];
+  const raw   = p1 * 0.60 + p2 * 0.40;
+  const score = Math.round(raw);
+
+  // Part I pips + val
+  const p1score = Math.round(p1);
+  renderPips('gcp-p1', p1score);
+  const gp1v = document.getElementById('gcp-p1-val');
+  if (gp1v) { gp1v.textContent = p1.toFixed(1); gp1v.style.color = SCOLORS[p1score]; }
+
+  // Part II pips + val
+  const p2score = Math.round(p2);
+  renderPips('gcp-p2', p2score);
+  const gp2v = document.getElementById('gcp-p2-val');
+  if (gp2v) { gp2v.textContent = p2.toFixed(1); gp2v.style.color = SCOLORS[p2score]; }
+
+  // 总评
+  renderPips('gcp-total-pips', score);
+  const gtv = document.getElementById('gcp-total-val');
+  if (gtv) { gtv.textContent = raw.toFixed(1); gtv.style.color = SCOLORS[score]; }
+  const gtl = document.getElementById('gcp-total-label');
+  if (gtl) { gtl.textContent = SCORE_LABELS[score]; gtl.style.color = SCOLORS[score]; }
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
