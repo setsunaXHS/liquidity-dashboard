@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>历史事件标注 Demo — 美元流动性看板</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+:root {
+  --bg: #FFFFFF;
+  --surface: #F5F5F5;
+  --border: #E0E0E0;
+  --text: #1A1A1A;
+  --muted: #757575;
+  --orange: #E8700A;
+  --blue: #1565C0;
+  --green: #2E7D32;
+  --red: #C62828;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 24px;
+}
+h1 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.subtitle { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+
+.demo-note {
+  background: #FFF8F0;
+  border-left: 3px solid var(--orange);
+  padding: 10px 14px;
+  font-size: 12px;
+  color: #5D3A00;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.card-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.chart-wrap { position: relative; }
+
+/* 事件图例 */
+.legend-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: background 0.15s;
+}
+.legend-item:hover { background: #EBEBEB; }
+.legend-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-item.active { border-color: var(--border); background: #fff; }
+
+/* 事件 tooltip */
+.event-popup {
+  position: fixed;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 13px;
+  font-size: 12px;
+  line-height: 1.55;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  max-width: 280px;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.event-popup.show { opacity: 1; }
+.event-popup .ep-date { font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+.event-popup .ep-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
+.event-popup .ep-body { color: #444; }
+
+/* 控制栏 */
+.controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+.controls label { font-size: 12px; color: var(--muted); }
+.rtab {
+  padding: 4px 12px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--muted);
+}
+.rtab.active, .rtab:hover {
+  background: var(--orange);
+  color: #fff;
+  border-color: var(--orange);
+}
+.category-btn {
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.15s;
+}
+.category-btn.active {
+  color: #fff;
+  border-color: transparent;
+}
+</style>
+</head>
+<body>
+
+<h1>历史事件标注 Demo</h1>
+<p class="subtitle">在净流动性图表上标注关键历史事件，给当前读数提供参照系</p>
+
+<div class="demo-note">
+  📌 <b>这是一个独立 Demo，数据来自 FRED API（实时加载）。</b>
+  竖线 = 历史关键事件；将鼠标悬停在竖线（或图例标签）上查看事件详情。
+  点击图例可切换事件分类的显示/隐藏。
+</div>
+
+<!-- 时间范围控制 -->
+<div class="controls">
+  <label>时间范围：</label>
+  <button class="rtab" data-days="365" onclick="setRange(365)">1Y</button>
+  <button class="rtab" data-days="730" onclick="setRange(730)">2Y</button>
+  <button class="rtab active" data-days="1825" onclick="setRange(1825)">5Y</button>
+  <button class="rtab" data-days="9999" onclick="setRange(9999)">ALL</button>
+
+  <span style="width:16px;"></span>
+  <label>事件分类：</label>
+</div>
+
+<!-- 事件分类筛选 -->
+<div class="controls" id="cat-btns" style="margin-top:-10px;">
+</div>
+
+<!-- 图表卡片 -->
+<div class="card">
+  <div class="card-title">净流动性（Net Liquidity）+ 历史事件标注</div>
+  <div class="card-sub">WALCL − TGA − RRP ｜ 万亿美元 ｜ 周度</div>
+  <div class="chart-wrap">
+    <canvas id="c-nl" height="130"></canvas>
+  </div>
+  <div class="legend-wrap" id="event-legend"></div>
+</div>
+
+<!-- 事件弹窗 -->
+<div class="event-popup" id="event-popup">
+  <div class="ep-date" id="ep-date"></div>
+  <div class="ep-title" id="ep-title"></div>
+  <div class="ep-body" id="ep-body"></div>
+</div>
+
+<script>
+// ── 历史事件数据库 ──────────────────────────────────────────────
+// 分类: fed=央行政策  fiscal=财政/债务  crisis=市场危机  macro=宏观拐点
+const EVENTS = [
+  // Fed 政策
+  {
+    date: '2020-03-15', cat: 'fed', label: 'QE∞',
+    title: 'Fed 宣布无限量 QE',
+    body: '应对 COVID-19，Fed 宣布无上限购债，联邦基金利率降至 0-0.25%。资产负债表从 $4.2T 开始快速扩张。',
+  },
+  {
+    date: '2022-03-16', cat: 'fed', label: '首次加息',
+    title: 'Fed 开始加息周期（+25bp）',
+    body: '2018年以来首次加息，标志着紧缩周期开始，净流动性开始见顶回落。随后以史上最快速度加息至 5.25-5.50%。',
+  },
+  {
+    date: '2022-06-01', cat: 'fed', label: 'QT开始',
+    title: 'Fed 开始缩表（QT）',
+    body: '每月上限缩减 $475亿（国债$300亿 + MBS$175亿），9月加速至 $950亿/月。准备金和净流动性持续下行。',
+  },
+  {
+    date: '2023-07-26', cat: 'fed', label: '最后加息',
+    title: 'Fed 最后一次加息至 5.25-5.50%',
+    body: '本轮加息周期终点。此后进入"higher for longer"阶段，市场开始押注降息时点。',
+  },
+  {
+    date: '2024-09-18', cat: 'fed', label: '首次降息',
+    title: 'Fed 开始降息（−50bp）',
+    body: '以超预期的 50bp 幅度开启降息周期，就业市场软化担忧优先于通胀。市场风险偏好回升。',
+  },
+  {
+    date: '2025-01-29', cat: 'fed', label: 'QT放缓',
+    title: 'Fed 宣布放缓 QT 节奏',
+    body: '国债缩减上限从 $250亿/月降至 $50亿/月，MBS 维持 $350亿/月不变。为保护准备金充裕度提前减速。',
+  },
+  {
+    date: '2025-12-01', cat: 'fed', label: 'QT停止',
+    title: 'Fed 正式停止 QT',
+    body: '资产负债表结束缩减进入稳定期。准备金跌破 $3T 是触发因素之一。净流动性下行压力解除。',
+  },
+
+  // 财政/债务上限
+  {
+    date: '2021-07-31', cat: 'fiscal', label: '债务上限',
+    title: '债务上限暂停到期',
+    body: 'TCJA 设置的暂停期到期，财政部无法发债，开始消耗 TGA 存量向市场被动注入流动性，ON RRP 激增。',
+  },
+  {
+    date: '2023-01-19', cat: 'fiscal', label: '触及上限',
+    title: '债务上限再次触及',
+    body: '财政部开启"非常措施"，停止向部分养老基金投资。TGA 消耗加速，流动性出现短暂改善。',
+  },
+  {
+    date: '2023-06-03', cat: 'fiscal', label: '上限解除',
+    title: '债务上限暂停协议通过',
+    body: '两党达成协议，债务上限暂停至2025年初。财政部随后快速重建 TGA（发债约 $1T），大量抽走流动性，是2023年下半年流动性收紧的主因。',
+  },
+  {
+    date: '2025-01-02', cat: 'fiscal', label: '上限恢复',
+    title: '新债务上限生效',
+    body: '$36.1T 上限重新生效，财政部再次被迫消耗 TGA，向市场被动注入流动性。',
+  },
+  {
+    date: '2025-07-15', cat: 'fiscal', label: '关税谈判',
+    title: '美国关税政策冲击市场',
+    body: '对等关税宣布，全球贸易政策不确定性激增，国债市场流动性受到冲击，Safe Haven 需求激增。',
+  },
+
+  // 市场危机
+  {
+    date: '2020-03-09', cat: 'crisis', label: 'COVID崩盘',
+    title: 'COVID-19 市场崩盘',
+    body: '股市熔断，国债市场出现严重功能失调，美元流动性极度紧缺。SOFR 一度飙升，Fed 被迫紧急降息并启动购债。',
+  },
+  {
+    date: '2022-09-23', cat: 'crisis', label: '英国养老金',
+    title: '英国养老金危机 / 英镑暴跌',
+    body: '英国迷你预算引发吉尔特债券崩溃，养老金 LDI 策略爆仓。全球避险情绪急升，美元指数飙至 20 年高点 114。',
+  },
+  {
+    date: '2023-03-10', cat: 'crisis', label: 'SVB危机',
+    title: '硅谷银行倒闭',
+    body: 'SVB 因持有大量长久期国债亏损引发挤兑，随后 Signature Bank 倒闭。Fed 紧急推出 BTFP（银行定期融资计划），向市场注入约 $400亿。净流动性短暂反弹。',
+  },
+  {
+    date: '2019-09-17', cat: 'crisis', label: 'Repo危机',
+    title: '回购市场危机',
+    body: '季末税款缴纳 + 国债结算叠加，SOFR 单日从 2.43% 飙至 5.25%，EFFR 超出目标区间上沿。Fed 紧急注入 $750亿流动性，并在随后数月重启扩表（"Not QE"）。',
+  },
+
+  // 宏观拐点
+  {
+    date: '2021-11-03', cat: 'macro', label: 'Taper宣布',
+    title: 'Fed 宣布开始 Taper（缩减购债）',
+    body: '正式宣布从每月 $1200亿购债开始缩减。标志着 COVID 流动性最宽松阶段结束。净流动性在 RRP 激增对冲下仍维持高位。',
+  },
+  {
+    date: '2022-11-30', cat: 'macro', label: '通胀见顶',
+    title: 'CPI 通胀见顶（9.1%→7.1%）',
+    body: '11月 CPI 超预期回落，加息预期开始缓和，市场开始定价"pivot"。风险资产短暂反弹，净流动性同期处于相对低点。',
+  },
+  {
+    date: '2024-07-11', cat: 'macro', label: 'CPI超预期',
+    title: 'CPI 大幅低于预期',
+    body: '6月 CPI 3.0%，低于预期 3.1%，市场首次明确定价9月降息。债券收益率大跌，流动性预期迅速宽松。',
+  },
+];
+
+// ── 分类配置 ──────────────────────────────────────────────────
+const CATEGORIES = {
+  fed:    { label: 'Fed 政策',  color: '#1565C0' },
+  fiscal: { label: '财政/债务', color: '#E8700A' },
+  crisis: { label: '市场危机',  color: '#C62828' },
+  macro:  { label: '宏观拐点',  color: '#6A1B9A' },
+};
+
+// ── 状态 ─────────────────────────────────────────────────────
+let chart = null;
+let allData = [];
+let currentDays = 1825;
+let hiddenCats = new Set();
+const popup = document.getElementById('event-popup');
+
+// ── FRED 数据获取 ─────────────────────────────────────────────
+const FRED_PROXY = '/fred';
+const FRED_SERIES = {
+  WALCL:    'WALCL',
+  WDTGAL:   'WDTGAL',
+  RRPONTSYD:'RRPONTSYD',
+};
+
+async function fetchFred(series) {
+  const url = `${FRED_PROXY}?series_id=${series}&observation_start=2018-01-01&frequency=w`;
+  const r = await fetch(url);
+  const d = await r.json();
+  return (d.observations || []).map(o => ({
+    date: o.date,
+    value: parseFloat(o.value),
+  })).filter(o => !isNaN(o.value));
+}
+
+async function loadData() {
+  document.getElementById('c-nl').parentElement.innerHTML +=
+    '<div id="loading" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#999;font-size:13px;">数据加载中…</div>';
+
+  const [walcl, tga, rrp] = await Promise.all([
+    fetchFred('WALCL'),
+    fetchFred('WDTGAL'),
+    fetchFred('RRPONTSYD'),
+  ]);
+
+  // 对齐日期，计算净流动性
+  const tgaMap  = Object.fromEntries(tga.map(o  => [o.date, o.value]));
+  const rrpMap  = Object.fromEntries(rrp.map(o  => [o.date, o.value]));
+
+  allData = walcl.map(o => {
+    const t = tgaMap[o.date] ?? null;
+    const r = rrpMap[o.date] ?? null;
+    if (t === null || r === null) return null;
+    return {
+      x: o.date,
+      y: parseFloat(((o.value - t - r) / 1e6).toFixed(3)),
+    };
+  }).filter(Boolean);
+
+  const el = document.getElementById('loading');
+  if (el) el.remove();
+
+  buildChart();
+  buildLegend();
+  buildCategoryBtns();
+}
+
+// ── 事件竖线 Plugin ───────────────────────────────────────────
+const eventLinesPlugin = {
+  id: 'eventLines',
+  afterDraw(chart) {
+    const { ctx, chartArea: { top, bottom }, scales: { x } } = chart;
+    const visibleEvents = EVENTS.filter(e => !hiddenCats.has(e.cat));
+
+    visibleEvents.forEach(ev => {
+      const xPx = x.getPixelForValue(ev.date);
+      if (xPx < x.left || xPx > x.right) return;
+
+      const cat = CATEGORIES[ev.cat];
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = cat.color;
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 3]);
+      ctx.globalAlpha = 0.7;
+      ctx.moveTo(xPx, top);
+      ctx.lineTo(xPx, bottom - 16);
+      ctx.stroke();
+
+      // 小标签
+      ctx.globalAlpha = 0.9;
+      ctx.fillStyle = cat.color;
+      ctx.font = '9px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ev.label, xPx, bottom - 4);
+      ctx.restore();
+    });
+  },
+};
+
+// ── 构建图表 ─────────────────────────────────────────────────
+function buildChart() {
+  const cutoff = currentDays === 9999
+    ? '2018-01-01'
+    : new Date(Date.now() - currentDays * 86400000).toISOString().slice(0, 10);
+
+  const data = allData.filter(d => d.x >= cutoff);
+
+  const ctx = document.getElementById('c-nl');
+  if (chart) chart.destroy();
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    plugins: [eventLinesPlugin],
+    data: {
+      datasets: [{
+        label: '净流动性 (T USD)',
+        data: data,
+        borderColor: '#2E7D32',
+        backgroundColor: 'rgba(46,125,50,0.07)',
+        borderWidth: 2,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.2,
+      }],
+    },
+    options: {
+      animation: false,
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: 'month', displayFormats: { month: 'yy-MM' } },
+          grid: { color: '#EBEBEB' },
+          ticks: { color: '#999', font: { size: 10 }, maxTicksLimit: 12 },
+        },
+        y: {
+          grid: { color: '#EBEBEB' },
+          ticks: {
+            color: '#999',
+            font: { size: 10 },
+            callback: v => `$${v.toFixed(1)}T`,
+          },
+        },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#fff',
+          titleColor: '#333',
+          bodyColor: '#555',
+          borderColor: '#ddd',
+          borderWidth: 1,
+          callbacks: {
+            title: items => items[0].raw.x,
+            label: item => `净流动性: $${item.raw.y.toFixed(2)}T`,
+          },
+        },
+      },
+      onClick(evt, elements, ch) {
+        // 点击图表区域检测附近事件
+        const xScale = ch.scales.x;
+        const xVal = xScale.getValueForPixel(evt.x);
+        const xDate = new Date(xVal).toISOString().slice(0, 10);
+        // 找最近事件（±30天内）
+        const nearby = EVENTS
+          .filter(e => !hiddenCats.has(e.cat))
+          .map(e => ({ ...e, diff: Math.abs(new Date(e.date) - new Date(xDate)) }))
+          .filter(e => e.diff < 30 * 86400000)
+          .sort((a, b) => a.diff - b.diff);
+        if (nearby.length > 0) showPopup(nearby[0], evt.native);
+      },
+    },
+  });
+
+  // 鼠标移动检测事件标注竖线
+  ctx.addEventListener('mousemove', evt => {
+    const rect = ctx.getBoundingClientRect();
+    const x = evt.clientX - rect.left;
+    if (!chart) return;
+    const xScale = chart.scales.x;
+    if (!xScale) return;
+    const xVal = xScale.getValueForPixel(x);
+    const xDate = new Date(xVal).toISOString().slice(0, 10);
+
+    const nearby = EVENTS
+      .filter(e => !hiddenCats.has(e.cat))
+      .map(e => ({ ...e, diff: Math.abs(new Date(e.date) - new Date(xDate)) }))
+      .filter(e => e.diff < 20 * 86400000)
+      .sort((a, b) => a.diff - b.diff);
+
+    if (nearby.length > 0) {
+      showPopup(nearby[0], evt);
+      ctx.style.cursor = 'pointer';
+    } else {
+      hidePopup();
+      ctx.style.cursor = 'default';
+    }
+  });
+
+  ctx.addEventListener('mouseleave', hidePopup);
+}
+
+function showPopup(ev, mouseEvt) {
+  document.getElementById('ep-date').textContent = ev.date;
+  document.getElementById('ep-title').textContent = ev.title;
+  document.getElementById('ep-body').textContent = ev.body;
+
+  const x = mouseEvt.clientX + 16;
+  const y = mouseEvt.clientY - 10;
+  popup.style.left = Math.min(x, window.innerWidth - 300) + 'px';
+  popup.style.top  = y + 'px';
+  popup.classList.add('show');
+}
+
+function hidePopup() {
+  popup.classList.remove('show');
+}
+
+// ── 图例 ─────────────────────────────────────────────────────
+function buildLegend() {
+  const wrap = document.getElementById('event-legend');
+  wrap.innerHTML = '';
+
+  const grouped = {};
+  EVENTS.forEach(e => {
+    if (!grouped[e.cat]) grouped[e.cat] = [];
+    grouped[e.cat].push(e);
+  });
+
+  Object.entries(CATEGORIES).forEach(([cat, cfg]) => {
+    const events = grouped[cat] || [];
+    if (!events.length) return;
+
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.flexWrap = 'wrap';
+    div.style.gap = '6px';
+    div.style.width = '100%';
+    div.style.marginBottom = '4px';
+
+    const catLabel = document.createElement('span');
+    catLabel.style.cssText = `font-size:11px;font-weight:700;color:${cfg.color};width:70px;flex-shrink:0;padding-top:3px;`;
+    catLabel.textContent = cfg.label;
+    div.appendChild(catLabel);
+
+    const eventsWrap = document.createElement('div');
+    eventsWrap.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+
+    events.forEach(ev => {
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `<div class="legend-dot" style="background:${cfg.color}"></div>${ev.label} <span style="color:#bbb;font-size:10px;">${ev.date.slice(0,7)}</span>`;
+      item.title = ev.title;
+      item.addEventListener('mouseenter', e => showPopup(ev, e));
+      item.addEventListener('mouseleave', hidePopup);
+      eventsWrap.appendChild(item);
+    });
+
+    div.appendChild(eventsWrap);
+    wrap.appendChild(div);
+  });
+}
+
+// ── 分类筛选按钮 ──────────────────────────────────────────────
+function buildCategoryBtns() {
+  const wrap = document.getElementById('cat-btns');
+  wrap.innerHTML = '';
+
+  Object.entries(CATEGORIES).forEach(([cat, cfg]) => {
+    const btn = document.createElement('button');
+    btn.className = 'category-btn active';
+    btn.textContent = cfg.label;
+    btn.style.background = cfg.color;
+    btn.dataset.cat = cat;
+    btn.addEventListener('click', () => {
+      if (hiddenCats.has(cat)) {
+        hiddenCats.delete(cat);
+        btn.classList.add('active');
+        btn.style.background = cfg.color;
+        btn.style.color = '#fff';
+      } else {
+        hiddenCats.add(cat);
+        btn.classList.remove('active');
+        btn.style.background = '';
+        btn.style.color = cfg.color;
+        btn.style.borderColor = cfg.color;
+      }
+      chart && chart.update();
+      buildLegend();
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+// ── 时间范围切换 ──────────────────────────────────────────────
+function setRange(days) {
+  currentDays = days;
+  document.querySelectorAll('.rtab').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.days) === days);
+  });
+  if (allData.length) buildChart();
+}
+
+// ── 启动 ──────────────────────────────────────────────────────
+loadData();
+</script>
+</body>
+</html>
