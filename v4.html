@@ -459,7 +459,7 @@ canvas { display: block; }
 
         <!-- 左：雷达图 -->
         <div style="flex:0 0 500px;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 相对历史分位（与下方绝对评分互补）</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 与下方评分同源</div>
           <canvas id="gcpRadarCanvas" style="width:100%;height:420px;"></canvas>
         </div>
 
@@ -468,7 +468,7 @@ canvas { display: block; }
 
           <!-- 维度评分条 -->
           <div id="gcpDimBars" style="padding-top:20px;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分 · 5年历史分位</div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>
             <div style="font-size:11px;color:var(--muted);">加载中…</div>
           </div>
 
@@ -2379,8 +2379,6 @@ async function loadData() {
 (function() {
   const RADAR_OBS_START    = '2019-01-01';
   const RADAR_DISPLAY_START= '2020-01-01';
-  const RADAR_ROLLING      = 260; // 5yr weekly
-
   const RADAR_CRISIS = [
     { date:'2020-03-09', label:'COVID崩盘' },
     { date:'2022-06-01', label:'QT开始' },
@@ -2392,32 +2390,7 @@ async function loadData() {
 
   const DIM_KEYS   = ['nl','tga','reserves','effrIorb','sofrEffr','rrp'];
   const DIM_LABELS = ['净流动性','TGA','准备金','EFFR−IORB','SOFR−EFFR','ON RRP'];
-  const WEIGHTS    = { nl:0.25, tga:0.18, reserves:0.22, effrIorb:0.20, sofrEffr:0.10, rrp:0.05 };
   const SCOLORS    = { 1:'#2E7D32', 2:'#00838F', 3:'#757575', 4:'#E8700A', 5:'#C62828' };
-
-  // Scoring helpers
-  function rollingPct(vals, i, w) {
-    const slice = vals.slice(Math.max(0, i-w+1), i+1);
-    const v = vals[i]; let below=0;
-    for (const x of slice) if (x<=v) below++;
-    return below/slice.length;
-  }
-  function fromPct(p)    { return p>=.70?1:p>=.50?2:p>=.35?3:p>=.20?4:5; }
-  function fromPctTGA(p) { return p<=.30?1:p<=.50?2:p<=.65?3:p<=.80?4:5; }
-  function scoreEI(bp)   { return bp<=-7?1:bp<=-5?2:bp<=-2?3:bp<=3?4:5; }
-  function scoreSE(bp)   { return bp<=0?1:bp<=3?2:bp<=8?3:bp<=15?4:5; }
-  function composite(s)  { return DIM_KEYS.reduce((a,k)=>a+s[k]*WEIGHTS[k],0); }
-
-  // Daily map helper
-  function buildDailyMap(obs) {
-    const m={}; obs.forEach(o=>{ m[o.date]=o.value; }); return m;
-  }
-  function dailyMean(map, weekDate, n=5) {
-    const keys = Object.keys(map).filter(d=>d<=weekDate).sort().slice(-n);
-    if (!keys.length) return NaN;
-    const vals = keys.map(d=>map[d]).filter(v=>!isNaN(v));
-    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : NaN;
-  }
 
   // Chart instance
   let radarChart = null;
@@ -2462,7 +2435,7 @@ async function loadData() {
   function buildDimBars() {
     const el = document.getElementById('gcpDimBars');
     if (!el) return;
-    el.innerHTML = '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分 · 5年历史分位</div>';
+    el.innerHTML = '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>';
     DIM_KEYS.forEach((k,i)=>{
       const row = document.createElement('div');
       row.className = 'gcp-dim-row';
@@ -2544,33 +2517,35 @@ async function loadData() {
 
       const allDates = Object.keys(walclMap).sort();
 
-      // Build value arrays for rolling pct
-      const nlArr=[],tgaArr=[],rrpArr=[],resArr=[];
-      allDates.forEach(d=>{
-        const w=walclMap[d]??NaN, t=tgaMap[d]??NaN, r=rrpMap[d]??0, rs=resMap[d]??NaN;
-        nlArr.push(w-t-r); tgaArr.push(t); rrpArr.push(r); resArr.push(rs);
-      });
+      // Pre-compute scores using main dashboard scoring functions (same logic as panels below)
+      const allCache = allDates.map((d, i) => {
+        // Build maps truncated to date d (for historical replay)
+        const wSlice = {}, tSlice = {}, rSlice = {}, rsSlice = {};
+        const efSlice = {}, ioSlice = {}, soSlice = {};
+        allDates.slice(0, i + 1).forEach(dd => {
+          if (walclMap[dd] != null) wSlice[dd]  = walclMap[dd];
+          if (tgaMap[dd]   != null) tSlice[dd]  = tgaMap[dd];
+          if (rrpMap[dd]   != null) rSlice[dd]  = rrpMap[dd];
+          if (resMap[dd]   != null) rsSlice[dd] = resMap[dd];
+        });
+        // effr/iorb/sofr are daily maps — include all days up to d
+        Object.keys(effrMap).filter(dd => dd <= d).forEach(dd => efSlice[dd] = effrMap[dd]);
+        Object.keys(iorbMap).filter(dd => dd <= d).forEach(dd => ioSlice[dd] = iorbMap[dd]);
+        Object.keys(sofrMap).filter(dd => dd <= d).forEach(dd => soSlice[dd] = sofrMap[dd]);
 
-      // Pre-compute scores for every date
-      const allCache = allDates.map((d,i)=>{
-        const nlPct  = isNaN(nlArr[i])  ? 0.5 : rollingPct(nlArr, i, RADAR_ROLLING);
-        const tgaPct = isNaN(tgaArr[i]) ? 0.5 : rollingPct(tgaArr,i, RADAR_ROLLING);
-        const resPct = isNaN(resArr[i]) ? 0.5 : rollingPct(resArr,i, RADAR_ROLLING);
-        const rrpPct = isNaN(rrpArr[i]) ? 0.5 : rollingPct(rrpArr,i, RADAR_ROLLING);
-        const effrBp = dailyMean(effrMap,d)*100;
-        const iorbBp = dailyMean(iorbMap,d)*100;
-        const sofrBp = dailyMean(sofrMap,d)*100;
-        const eiMean = isNaN(effrBp)||isNaN(iorbBp) ? 3 : effrBp-iorbBp;
-        const seMean = isNaN(sofrBp)||isNaN(effrBp) ? 1 : sofrBp-effrBp;
-        const scores = {
-          nl:       fromPct(nlPct),
-          tga:      fromPctTGA(tgaPct),
-          reserves: fromPct(resPct),
-          effrIorb: scoreEI(eiMean),
-          sofrEffr: scoreSE(seMean),
-          rrp:      fromPct(rrpPct),
-        };
-        return { date:d, scores, composite:composite(scores) };
+        const sTGA  = scoreTGA(tSlice);
+        const sRRP  = scoreRRP(rSlice);
+        const sRes  = scoreReserves(rsSlice, wSlice);
+        const sNL   = scoreNetLiquidity(wSlice, tSlice, rSlice);
+        const sEI   = (Object.keys(efSlice).length && Object.keys(ioSlice).length)
+                        ? scoreEFFR_IORB(efSlice, ioSlice) : 3;
+        const sSE   = (Object.keys(soSlice).length && Object.keys(efSlice).length)
+                        ? scoreSOFR_EFFR(soSlice, efSlice) : 3;
+
+        const scores = { nl: sNL, tga: sTGA, reserves: sRes, effrIorb: sEI, sofrEffr: sSE, rrp: sRRP };
+        // Use main dashboard compositeScore (Part I: res×35% + nl×30% + tga×25% + rrp×10%)
+        const comp = compositeScore({ tga: sTGA, rrp: sRRP, res: sRes, nl: sNL });
+        return { date: d, scores, composite: comp };
       });
 
       // Display slice
