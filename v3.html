@@ -1689,7 +1689,7 @@ async function fetchNews() {
   const el = document.getElementById('news-content');
   if (!el) return;
   try {
-    const resp = await fetch('/api/news');
+    const resp = await fetch('/public/news.json');
     const data = await resp.json();
     if (!data.ok || !data.news || data.news.length === 0) {
       el.innerHTML = '<span style="color:var(--muted);font-size:11px;">暂无最新新闻</span>';
