@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Radar Preview</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #FFFFFF;
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 32px;
+}
+.card {
+  background: #F5F5F5;
+  border: 1px solid #E0E0E0;
+  border-radius: 12px;
+  padding: 28px 32px;
+  width: 520px;
+}
+.card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.card-title { font-size: 14px; font-weight: 700; color: #1A1A1A; }
+.card-sub   { font-size: 11px; color: #999; margin-top: 3px; }
+
+.score-badge {
+  text-align: right;
+}
+.score-num {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1;
+  color: #E8700A;
+}
+.score-label {
+  font-size: 11px;
+  color: #E8700A;
+  margin-top: 2px;
+}
+
+.chart-wrap { position: relative; width: 100%; }
+
+.legend {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #666;
+}
+.legend-line {
+  width: 24px;
+  height: 2px;
+  border-radius: 1px;
+}
+.legend-line.dashed {
+  background: repeating-linear-gradient(90deg, #aaa 0, #aaa 4px, transparent 4px, transparent 8px);
+  height: 2px;
+}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">流动性压力雷达</div>
+      <div class="card-sub">各维度评分 1–5，越向外压力越大</div>
+    </div>
+    <div class="score-badge">
+      <div class="score-num">3.8</div>
+      <div class="score-label">偏紧 · 综合评分</div>
+    </div>
+  </div>
+
+  <div class="chart-wrap">
+    <canvas id="radar" height="300"></canvas>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-line" style="background:#E8700A;height:2.5px;"></div>
+      当前（2026-04）
+    </div>
+    <div class="legend-item">
+      <div class="legend-line dashed"></div>
+      1年前（2025-04）
+    </div>
+    <div class="legend-item">
+      <div class="legend-line" style="background:#C62828;height:1.5px;opacity:0.6;"></div>
+      2019-09 危机参考
+    </div>
+  </div>
+</div>
+
+<script>
+const LABELS = [
+  '净流动性',
+  'TGA',
+  '准备金',
+  'EFFR−IORB',
+  'SOFR−EFFR',
+  'ON RRP',
+];
+
+// 当前读数（模拟，接近当前真实情况）
+const current  = [3.8, 4.2, 4.0, 3.5, 2.0, 4.5];
+// 1年前（相对宽松）
+const yearAgo  = [2.5, 3.0, 2.8, 2.5, 1.5, 3.0];
+// 2019-09 Repo危机（极紧）
+const crisis19 = [4.5, 3.5, 4.8, 5.0, 5.0, 2.5];
+
+new Chart(document.getElementById('radar'), {
+  type: 'radar',
+  data: {
+    labels: LABELS,
+    datasets: [
+      {
+        label: '当前 2026-04',
+        data: current,
+        borderColor: '#E8700A',
+        backgroundColor: 'rgba(232,112,10,0.12)',
+        borderWidth: 2.5,
+        pointBackgroundColor: '#E8700A',
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        order: 1,
+      },
+      {
+        label: '1年前 2025-04',
+        data: yearAgo,
+        borderColor: '#AAAAAA',
+        backgroundColor: 'rgba(170,170,170,0.06)',
+        borderWidth: 1.5,
+        borderDash: [5, 4],
+        pointBackgroundColor: '#AAAAAA',
+        pointRadius: 3,
+        pointHoverRadius: 5,
+        order: 2,
+      },
+      {
+        label: '2019-09 危机',
+        data: crisis19,
+        borderColor: '#C62828',
+        backgroundColor: 'rgba(198,40,40,0.05)',
+        borderWidth: 1.5,
+        borderDash: [2, 3],
+        pointBackgroundColor: '#C62828',
+        pointRadius: 2.5,
+        pointHoverRadius: 4,
+        order: 3,
+      },
+    ],
+  },
+  options: {
+    responsive: true,
+    animation: false,
+    scales: {
+      r: {
+        min: 0,
+        max: 5,
+        ticks: {
+          stepSize: 1,
+          display: true,
+          font: { size: 9 },
+          color: '#BBBBBB',
+          backdropColor: 'transparent',
+          callback: v => v === 0 ? '' : ['','宽松','偏宽','中性','偏紧','紧缩'][v] ?? v,
+        },
+        grid: {
+          color: ctx => {
+            // 最外圈（5=危机）加深颜色
+            return ctx.tick?.value === 5 ? 'rgba(198,40,40,0.25)' : '#E0E0E0';
+          },
+          lineWidth: ctx => ctx.tick?.value === 5 ? 1.5 : 1,
+        },
+        angleLines: { color: '#E0E0E0', lineWidth: 1 },
+        pointLabels: {
+          font: { size: 12, weight: '600' },
+          color: ctx => {
+            // 当前得分 >= 4 的维度标签变红
+            return current[ctx.index] >= 4 ? '#C62828' : '#333333';
+          },
+        },
+      },
+    },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff',
+        titleColor: '#333',
+        bodyColor: '#555',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        callbacks: {
+          label: ctx => {
+            const labels = ['宽松','偏宽','中性','偏紧','紧缩'];
+            const v = ctx.parsed.r;
+            return ` ${ctx.dataset.label}：${v} (${labels[Math.round(v)-1] ?? '—'})`;
+          }
+        }
+      },
+    },
+  },
+});
+</script>
+</body>
+</html>
