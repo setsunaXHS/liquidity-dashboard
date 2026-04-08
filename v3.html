@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>美元流动性看板 v3</title>
+<title>USD Liquidity Watcher</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
 <script>
@@ -96,14 +96,34 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
 
 /* ── Header ── */
 .header {
-  padding: 20px 32px;
+  padding: 28px 36px 22px;
   border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
+  text-align: center;
+  position: relative;
+  background: #FFFFFF;
 }
-.header-left h1 { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
-.header-left h1 span { color: var(--orange); }
-.header-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
-.header-right { display: flex; align-items: center; gap: 12px; }
+.header-eyebrow {
+  font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--orange); margin-bottom: 10px;
+}
+.header-left h1 {
+  font-size: 30px; font-weight: 900; color: #1A1A1A;
+  letter-spacing: -0.8px; line-height: 1;
+}
+.header-left h1 em { font-style: normal; color: var(--orange); }
+.header-rule {
+  display: flex; align-items: center; gap: 12px;
+  max-width: 440px; margin: 12px auto 0;
+}
+.header-rule-line { flex: 1; height: 1px; background: var(--border); }
+.header-rule-text {
+  font-size: 9px; color: var(--muted); letter-spacing: 1.2px;
+  text-transform: uppercase; white-space: nowrap;
+}
+.header-right {
+  position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
+  display: flex; align-items: center; gap: 10px;
+}
 .api-input {
   background: var(--surface2); border: 1px solid var(--border); color: var(--text);
   font-size: 11px; padding: 6px 10px; border-radius: 4px; width: 260px; font-family: monospace;
@@ -364,9 +384,14 @@ canvas { display: block; }
 
 <!-- Header -->
 <div class="header">
+  <div class="header-eyebrow">Liquidity panorama, in one view</div>
   <div class="header-left">
-    <h1>美元流动性看板 <span>v3</span></h1>
-    <div class="header-sub">Fed Balance Sheet · TGA · ON RRP · Reserves · Net Liquidity</div>
+    <h1>USD Liquidity <em>Watcher</em></h1>
+  </div>
+  <div class="header-rule">
+    <div class="header-rule-line"></div>
+    <div class="header-rule-text" id="headerUpdateTime">Loading data…</div>
+    <div class="header-rule-line"></div>
   </div>
   <div class="header-right">
     <input class="api-input" id="apiKey" type="password" placeholder="FRED API Key" value="cd80bce065d6d311df574fbe558929f6"/>
@@ -2341,6 +2366,8 @@ async function loadData() {
 
     const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     setStatus('ok', `数据已更新 · ${now} CST`);
+    const headerTime = document.getElementById('headerUpdateTime');
+    if (headerTime) headerTime.textContent = `数据已更新 · ${now} CST`;
 
     // 雷达时间轴（独立数据请求，异步不阻塞主流程）
     if (typeof window.initRadarTimeline === 'function') {
