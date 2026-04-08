@@ -117,8 +117,8 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
 }
 .header-rule-line { flex: 1; height: 1px; background: var(--border); }
 .header-rule-text {
-  font-size: 9px; color: var(--muted); letter-spacing: 1.2px;
-  text-transform: uppercase; white-space: nowrap;
+  font-size: 9px; color: var(--muted); letter-spacing: 0.5px;
+  white-space: nowrap;
 }
 .header-right {
   position: absolute; right: 32px; top: 50%; transform: translateY(-50%);
@@ -398,12 +398,6 @@ canvas { display: block; }
   </div>
 </div>
 
-<!-- Status -->
-<div class="status-bar">
-  <div class="dot" id="dot"></div>
-  <span id="statusText">等待加载</span>
-</div>
-
 <!-- Range Tabs -->
 <div class="range-bar">
   <span>时间范围：</span>
@@ -465,7 +459,7 @@ canvas { display: block; }
 
         <!-- 左：雷达图 -->
         <div style="flex:0 0 500px;">
-          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 5年滚动分位</div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 相对历史分位（与下方绝对评分互补）</div>
           <canvas id="gcpRadarCanvas" style="width:100%;height:420px;"></canvas>
         </div>
 
@@ -474,7 +468,7 @@ canvas { display: block; }
 
           <!-- 维度评分条 -->
           <div id="gcpDimBars" style="padding-top:20px;">
-            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>
+            <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分 · 5年历史分位</div>
             <div style="font-size:11px;color:var(--muted);">加载中…</div>
           </div>
 
@@ -785,7 +779,6 @@ function nearest(map, date, maxDays = 9) {
 
 function setStatus(state, msg) {
   document.getElementById('dot').className = 'dot ' + state;
-  document.getElementById('statusText').textContent = msg;
   const ht = document.getElementById('headerUpdateTime');
   if (ht) ht.textContent = msg;
 }
@@ -1807,11 +1800,12 @@ const PANEL_META = {
     color: '#C62828',
     description: DESCRIPTIONS['tga'],
     logicRows: [
-      { cond: '< 0.3T',                          trend: '任意',    score: 1, note: '财政几乎弹尽，被动释放流动性' },
-      { cond: '0.3T – 0.6T',                     trend: '下降 ↓', score: 2, note: '财政花钱，流动性持续注入' },
-      { cond: '0.6T – 1.0T',                     trend: '平稳 →', score: 3, note: '中性' },
-      { cond: '0.6T – 1.0T',                     trend: '上升 ↑', score: 4, note: '财政融资补仓，抽走流动性' },
-      { cond: '> 1.0T',                           trend: '上升 ↑', score: 5, note: '大规模发债积累，强力抽水' },
+      { cond: '< 0.3T',                          trend: '任意',       score: 1, note: '财政几乎弹尽，被动释放流动性' },
+      { cond: '0.3T – 0.6T',                     trend: '下降 ↓',    score: 2, note: '财政花钱，流动性持续注入' },
+      { cond: '0.6T – 1.0T',                     trend: '平稳 →',    score: 3, note: '中性' },
+      { cond: '0.6T – 1.0T',                     trend: '上升 ↑',    score: 4, note: '财政融资补仓，抽走流动性' },
+      { cond: '> 1.0T',                           trend: '平稳/下降 ↓', score: 4, note: '高位但趋势企稳，仍有抽水压力' },
+      { cond: '> 1.0T',                           trend: '上升 ↑',    score: 5, note: '大规模发债积累，强力抽水' },
     ],
     calcFn: (raw) => {
       const { tga } = raw;
@@ -1897,11 +1891,11 @@ const PANEL_META = {
     color: '#1565C0',
     description: DESCRIPTIONS['res'],
     logicRows: [
-      { cond: '> 3.5T  或  占比 > 52%', trend: '—', score: 1, note: '极度充裕' },
-      { cond: '> 3.2T  或  占比 > 48%', trend: '—', score: 2, note: '充裕' },
-      { cond: '> 3.0T  或  占比 > 44%', trend: '—', score: 3, note: '适度，接近警戒' },
-      { cond: '> 2.7T  或  占比 > 40%', trend: '—', score: 4, note: '紧张，QT 应停止' },
-      { cond: '≤ 2.7T  且  占比 ≤ 40%', trend: '—', score: 5, note: '危险，repo 市场风险' },
+      { cond: '绝对值 > 3.5T 且 占比 > 52%', trend: '—', score: 1, note: '两项均极度充裕（取保守值）' },
+      { cond: '绝对值 > 3.2T 且 占比 > 48%', trend: '—', score: 2, note: '两项均充裕' },
+      { cond: '绝对值 > 3.0T 且 占比 > 44%', trend: '—', score: 3, note: '适度，接近警戒' },
+      { cond: '绝对值 > 2.7T 且 占比 > 40%', trend: '—', score: 4, note: '紧张，QT 应停止' },
+      { cond: '绝对值 ≤ 2.7T 或 占比 ≤ 40%', trend: '—', score: 5, note: '任一项触底：危险，repo 市场风险' },
     ],
     calcFn: (raw) => {
       const { wres, walcl } = raw;
@@ -1949,11 +1943,12 @@ const PANEL_META = {
     color: '#2E7D32',
     description: DESCRIPTIONS['nl'],
     logicRows: [
-      { cond: '2Y 百分位 > P75',          trend: '任意',    score: 1, note: '历史高位，极度充裕' },
-      { cond: 'P50 – P75',                trend: '上升/平稳', score: 2, note: '偏高且稳，偏宽松' },
-      { cond: 'P50 – P75',                trend: '下降 ↓',  score: 3, note: '偏高但趋势走弱' },
-      { cond: 'P25 – P50',                trend: '任意',    score: 4, note: '偏低，流动性收缩中' },
-      { cond: '< P25  且  动量 < 0',       trend: '下降 ↓',  score: 5, note: '历史低位且仍在下行' },
+      { cond: '2Y 百分位 > P75',          trend: '任意',       score: 1, note: '历史高位，极度充裕' },
+      { cond: 'P50 – P75',                trend: '上升/平稳 ↑', score: 2, note: '偏高且稳，偏宽松' },
+      { cond: 'P25 – P75',                trend: '下降 ↓',     score: 3, note: '偏高或中位但趋势走弱' },
+      { cond: 'P25 – P50',                trend: '上升/平稳 ↑', score: 3, note: '中位但动量尚正，未恶化' },
+      { cond: 'P25 – P50',                trend: '下降 ↓',     score: 4, note: '中低位且动量转负，收缩中' },
+      { cond: '< P25',                    trend: '下降 ↓',     score: 5, note: '历史低位且仍在下行' },
     ],
     calcFn: (raw) => {
       const { walcl, tga, rrp } = raw;
@@ -2368,9 +2363,9 @@ async function loadData() {
     const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     setStatus('ok', `数据已更新 · ${now} CST`);
 
-    // 雷达时间轴（独立数据请求，异步不阻塞主流程）
+    // 雷达时间轴（复用已加载数据，传入 cachedRaw）
     if (typeof window.initRadarTimeline === 'function') {
-      window.initRadarTimeline().catch(e => console.warn('Radar init:', e));
+      window.initRadarTimeline(cachedRaw).catch(e => console.warn('Radar init:', e));
     }
   } catch(e) {
     setStatus('err', '加载失败：' + e.message);
@@ -2393,7 +2388,7 @@ async function loadData() {
     { date:'2023-06-03', label:'TGA重建' },
     { date:'2025-12-01', label:'QT停止' },
   ];
-  const COVID_REF = '2020-03-09';
+
 
   const DIM_KEYS   = ['nl','tga','reserves','effrIorb','sofrEffr','rrp'];
   const DIM_LABELS = ['净流动性','TGA','准备金','EFFR−IORB','SOFR−EFFR','ON RRP'];
@@ -2422,17 +2417,6 @@ async function loadData() {
     if (!keys.length) return NaN;
     const vals = keys.map(d=>map[d]).filter(v=>!isNaN(v));
     return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : NaN;
-  }
-
-  // FRED fetch (reuse v3 proxy, add api_key)
-  const RADAR_API_KEY = document.getElementById('apiKey')?.value || 'cd80bce065d6d311df574fbe558929f6';
-  async function rFetch(series, freq) {
-    let url = `/fred?series_id=${series}&observation_start=${RADAR_OBS_START}&api_key=${RADAR_API_KEY}&file_type=json`;
-    if (freq) url += `&frequency=${freq}`;
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(`FRED ${series} ${r.status}`);
-    const j = await r.json();
-    return (j.observations||[]).filter(o=>o.value!=='.'&&o.value!='').map(o=>({date:o.date,value:parseFloat(o.value)}));
   }
 
   // Chart instance
@@ -2478,7 +2462,7 @@ async function loadData() {
   function buildDimBars() {
     const el = document.getElementById('gcpDimBars');
     if (!el) return;
-    el.innerHTML = '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>';
+    el.innerHTML = '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分 · 5年历史分位</div>';
     DIM_KEYS.forEach((k,i)=>{
       const row = document.createElement('div');
       row.className = 'gcp-dim-row';
@@ -2546,26 +2530,17 @@ async function loadData() {
 
   // Main init — called after v3 data loads
   let radarCache = []; // [{date, scores, composite}]
-  let refScores  = {};
-
-  window.initRadarTimeline = async function() {
+  window.initRadarTimeline = async function(raw) {
     try {
-      // Fetch data independently (different time window from v3)
-      const [walcl,tga,rrp,res,effrD,iorbD,sofrD] = await Promise.all([
-        rFetch('WALCL','w'), rFetch('WDTGAL','w'), rFetch('RRPONTSYD','w'),
-        rFetch('WRESBAL','w'), rFetch('EFFR'), rFetch('IORB'), rFetch('SOFR'),
-      ]);
-
-      const effrMap = buildDailyMap(effrD);
-      const iorbMap = buildDailyMap(iorbD);
-      const sofrMap = buildDailyMap(sofrD);
-
-      // Align on WALCL dates
-      const walclMap={}, tgaMap={}, rrpMap={}, resMap={};
-      walcl.forEach(o=>walclMap[o.date]=o.value);
-      tga.forEach(o=>tgaMap[o.date]=o.value);
-      rrp.forEach(o=>rrpMap[o.date]=o.value);
-      res.forEach(o=>resMap[o.date]=o.value);
+      // 复用主看板已加载的数据（单位：T，需 ×1e6 换算为百万供分位计算用，或直接用T做分位）
+      // v3 cachedRaw 的值已经是 T（除以了 UNIT），雷达分位计算只需相对大小，用T直接算即可
+      const walclMap = raw.walcl;   // {date -> T}
+      const tgaMap   = raw.tga;
+      const rrpMap   = raw.rrp;
+      const resMap   = raw.wres;
+      const effrMap  = raw.effr;    // {date -> %}  (日度)
+      const iorbMap  = raw.iorb;
+      const sofrMap  = raw.sofr;
 
       const allDates = Object.keys(walclMap).sort();
 
@@ -2597,10 +2572,6 @@ async function loadData() {
         };
         return { date:d, scores, composite:composite(scores) };
       });
-
-      // COVID reference
-      const covidEntry = allCache.find(e=>e.date>=COVID_REF) || allCache[0];
-      refScores = covidEntry.scores;
 
       // Display slice
       radarCache = allCache.filter(e=>e.date>=RADAR_DISPLAY_START);
