@@ -136,11 +136,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
 .btn-load:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ── Status ── */
-.status-bar {
-  padding: 8px 32px; font-size: 11px; font-family: monospace;
-  background: var(--surface); border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 8px;
-}
+.status-bar { display: none; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); }
 .dot.ok { background: var(--green); }
 .dot.loading { background: var(--yellow); animation: pulse 1s infinite; }
@@ -390,7 +386,10 @@ canvas { display: block; }
   </div>
   <div class="header-rule">
     <div class="header-rule-line"></div>
-    <div class="header-rule-text" id="headerUpdateTime">Loading data…</div>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <div class="dot" id="dot" style="flex-shrink:0;"></div>
+      <div class="header-rule-text" id="headerUpdateTime">等待加载</div>
+    </div>
     <div class="header-rule-line"></div>
   </div>
   <div class="header-right">
@@ -787,6 +786,8 @@ function nearest(map, date, maxDays = 9) {
 function setStatus(state, msg) {
   document.getElementById('dot').className = 'dot ' + state;
   document.getElementById('statusText').textContent = msg;
+  const ht = document.getElementById('headerUpdateTime');
+  if (ht) ht.textContent = msg;
 }
 
 // ── FRED Fetch ────────────────────────────────────────────────────────────────
@@ -2366,8 +2367,6 @@ async function loadData() {
 
     const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     setStatus('ok', `数据已更新 · ${now} CST`);
-    const headerTime = document.getElementById('headerUpdateTime');
-    if (headerTime) headerTime.textContent = `数据已更新 · ${now} CST`;
 
     // 雷达时间轴（独立数据请求，异步不阻塞主流程）
     if (typeof window.initRadarTimeline === 'function') {
