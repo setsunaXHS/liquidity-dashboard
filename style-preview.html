@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>风格预览</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; padding: 20px; background: #e8e8e8; }
+
+h1 { text-align: center; color: #333; margin-bottom: 24px; font-size: 18px; letter-spacing: 1px; }
+
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1200px; margin: 0 auto; }
+
+.card { border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+.card-label { text-align: center; padding: 8px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+
+/* ── A: Bloomberg Light ── */
+.theme-a { background: #FFFFFF; padding: 16px; }
+.theme-a .label { background: #1A1A1A; color: #FF6B35; }
+.theme-a .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.theme-a .kpi { background: #F5F5F5; border: 1px solid #E0E0E0; border-left: 3px solid #FF6B35; border-radius: 6px; padding: 10px 14px; flex: 1; }
+.theme-a .kpi-title { font-size: 9px; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.theme-a .kpi-val { font-size: 20px; font-weight: 700; color: #1A1A1A; font-variant-numeric: tabular-nums; }
+.theme-a .kpi-change.pos { color: #2E7D32; font-size: 11px; }
+.theme-a .kpi-change.neg { color: #C62828; font-size: 11px; }
+.theme-a .chart-mock { background: #F5F5F5; border: 1px solid #E8E8E8; border-radius: 6px; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.theme-a .chart-mock svg { width: 100%; height: 100%; }
+.theme-a .section-title { font-size: 10px; color: #666; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #E8E8E8; }
+.theme-a .pip-row { display: flex; gap: 6px; margin-top: 10px; }
+.theme-a .pip { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white; }
+
+/* ── B: FT Salmon ── */
+.theme-b { background: #FFF1E5; padding: 16px; }
+.theme-b .label { background: #33302E; color: #FFF1E5; }
+.theme-b .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.theme-b .kpi { background: #FFFFFF; border: 1px solid #E8D5C4; border-left: 3px solid #990F3D; border-radius: 6px; padding: 10px 14px; flex: 1; }
+.theme-b .kpi-title { font-size: 9px; color: #8A7060; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-family: Georgia, serif; }
+.theme-b .kpi-val { font-size: 20px; font-weight: 700; color: #33302E; font-variant-numeric: tabular-nums; font-family: Georgia, serif; }
+.theme-b .kpi-change.pos { color: #2E7D32; font-size: 11px; font-family: Georgia, serif; }
+.theme-b .kpi-change.neg { color: #990F3D; font-size: 11px; font-family: Georgia, serif; }
+.theme-b .chart-mock { background: #FDEBD8; border: 1px solid #E8D5C4; border-radius: 6px; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.theme-b .chart-mock svg { width: 100%; height: 100%; }
+.theme-b .section-title { font-size: 10px; color: #8A7060; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #E8D5C4; font-family: Georgia, serif; }
+.theme-b .pip-row { display: flex; gap: 6px; margin-top: 10px; }
+.theme-b .pip { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white; }
+
+/* ── C: Research Paper ── */
+.theme-c { background: #FAFAF7; padding: 16px; }
+.theme-c .label { background: #1C2B2B; color: #B5883A; }
+.theme-c .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.theme-c .kpi { background: #F0EFE9; border: 1px solid #DDD8CC; border-left: 3px solid #B5883A; border-radius: 6px; padding: 10px 14px; flex: 1; }
+.theme-c .kpi-title { font-size: 9px; color: #7A7060; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; font-family: 'Times New Roman', serif; }
+.theme-c .kpi-val { font-size: 20px; font-weight: 700; color: #1C2B2B; font-variant-numeric: tabular-nums; }
+.theme-c .kpi-change.pos { color: #3B6B35; font-size: 11px; }
+.theme-c .kpi-change.neg { color: #8B3020; font-size: 11px; }
+.theme-c .chart-mock { background: #F0EFE9; border: 1px solid #DDD8CC; border-radius: 6px; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.theme-c .chart-mock svg { width: 100%; height: 100%; }
+.theme-c .section-title { font-size: 10px; color: #7A7060; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #DDD8CC; font-family: 'Times New Roman', serif; }
+.theme-c .pip-row { display: flex; gap: 6px; margin-top: 10px; }
+.theme-c .pip { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white; }
+
+/* ── D: Clean SaaS ── */
+.theme-d { background: #FFFFFF; padding: 16px; }
+.theme-d .label { background: #2D3748; color: #63B3ED; }
+.theme-d .kpi-row { display: flex; gap: 10px; margin-bottom: 14px; }
+.theme-d .kpi { background: #F0F4F8; border: 1px solid #CBD5E0; border-left: 3px solid #3182CE; border-radius: 6px; padding: 10px 14px; flex: 1; }
+.theme-d .kpi-title { font-size: 9px; color: #718096; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+.theme-d .kpi-val { font-size: 20px; font-weight: 700; color: #2D3748; font-variant-numeric: tabular-nums; }
+.theme-d .kpi-change.pos { color: #276749; font-size: 11px; }
+.theme-d .kpi-change.neg { color: #C53030; font-size: 11px; }
+.theme-d .chart-mock { background: #F0F4F8; border: 1px solid #CBD5E0; border-radius: 6px; height: 120px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+.theme-d .chart-mock svg { width: 100%; height: 100%; }
+.theme-d .section-title { font-size: 10px; color: #718096; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #E2E8F0; }
+.theme-d .pip-row { display: flex; gap: 6px; margin-top: 10px; }
+.theme-d .pip { width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 700; color: white; }
+
+.pip-1 { background: #43A047; }
+.pip-2 { background: #8BC34A; }
+.pip-3 { background: #FDD835; color: #333 !important; }
+.pip-4 { background: #FB8C00; }
+.pip-5 { background: #E53935; }
+</style>
+</head>
+<body>
+<h1>LIQUIDITY DASHBOARD · LIGHT THEME PREVIEW</h1>
+<div class="grid">
+
+  <!-- A: Bloomberg Light -->
+  <div class="card">
+    <div class="card-label label theme-a" style="background:#1A1A1A;color:#FF6B35;">A · Bloomberg Terminal Light</div>
+    <div class="theme-a">
+      <div class="section-title">KPI Overview</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-title">Net Liquidity</div>
+          <div class="kpi-val">$5.82T</div>
+          <div class="kpi-change neg">▼ −$0.12T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Fed Balance</div>
+          <div class="kpi-val">$6.73T</div>
+          <div class="kpi-change neg">▼ −$0.03T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">TGA</div>
+          <div class="kpi-val">$0.71T</div>
+          <div class="kpi-change pos">▲ +$0.05T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">ON RRP</div>
+          <div class="kpi-val">$0.08T</div>
+          <div class="kpi-change neg">▼ −$0.02T (7d)</div>
+        </div>
+      </div>
+      <div class="chart-mock">
+        <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="ga" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4CAF50" stop-opacity="0.25"/>
+              <stop offset="100%" stop-color="#4CAF50" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48" stroke="#2E7D32" stroke-width="2" fill="none"/>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48 L400,120 L0,120 Z" fill="url(#ga)"/>
+          <line x1="0" y1="62" x2="400" y2="62" stroke="#E53935" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="8" y="59" font-size="8" fill="#E53935" opacity="0.7">$3T RESERVE FLOOR</text>
+        </svg>
+      </div>
+      <div class="pip-row">
+        <span style="font-size:10px;color:#666;margin-right:4px;">评分</span>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3">3</div>
+        <div class="pip pip-4">4</div>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3" style="width:26px;border-radius:10px;font-size:9px;">综 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- B: FT Salmon -->
+  <div class="card">
+    <div class="card-label" style="background:#33302E;color:#FFF1E5;">B · Financial Times Salmon</div>
+    <div class="theme-b">
+      <div class="section-title">KPI Overview</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-title">Net Liquidity</div>
+          <div class="kpi-val">$5.82T</div>
+          <div class="kpi-change neg">▼ −$0.12T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Fed Balance</div>
+          <div class="kpi-val">$6.73T</div>
+          <div class="kpi-change neg">▼ −$0.03T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">TGA</div>
+          <div class="kpi-val">$0.71T</div>
+          <div class="kpi-change pos">▲ +$0.05T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">ON RRP</div>
+          <div class="kpi-val">$0.08T</div>
+          <div class="kpi-change neg">▼ −$0.02T (7d)</div>
+        </div>
+      </div>
+      <div class="chart-mock">
+        <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#990F3D" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#990F3D" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48" stroke="#990F3D" stroke-width="2" fill="none"/>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48 L400,120 L0,120 Z" fill="url(#gb)"/>
+          <line x1="0" y1="62" x2="400" y2="62" stroke="#990F3D" stroke-width="1" stroke-dasharray="4,4" opacity="0.4"/>
+          <text x="8" y="59" font-size="8" fill="#990F3D" opacity="0.6">$3T RESERVE FLOOR</text>
+        </svg>
+      </div>
+      <div class="pip-row">
+        <span style="font-size:10px;color:#8A7060;margin-right:4px;font-family:Georgia,serif;">评分</span>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3">3</div>
+        <div class="pip pip-4">4</div>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3" style="width:26px;border-radius:10px;font-size:9px;">综 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- C: Research Paper -->
+  <div class="card">
+    <div class="card-label" style="background:#1C2B2B;color:#B5883A;">C · Macro Research Paper</div>
+    <div class="theme-c">
+      <div class="section-title">KPI Overview</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-title">Net Liquidity</div>
+          <div class="kpi-val">$5.82T</div>
+          <div class="kpi-change neg">▼ −$0.12T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Fed Balance</div>
+          <div class="kpi-val">$6.73T</div>
+          <div class="kpi-change neg">▼ −$0.03T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">TGA</div>
+          <div class="kpi-val">$0.71T</div>
+          <div class="kpi-change pos">▲ +$0.05T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">ON RRP</div>
+          <div class="kpi-val">$0.08T</div>
+          <div class="kpi-change neg">▼ −$0.02T (7d)</div>
+        </div>
+      </div>
+      <div class="chart-mock">
+        <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gc" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#B5883A" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#B5883A" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48" stroke="#B5883A" stroke-width="2" fill="none"/>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48 L400,120 L0,120 Z" fill="url(#gc)"/>
+          <line x1="0" y1="62" x2="400" y2="62" stroke="#8B3020" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="8" y="59" font-size="8" fill="#8B3020" opacity="0.7">$3T RESERVE FLOOR</text>
+        </svg>
+      </div>
+      <div class="pip-row">
+        <span style="font-size:10px;color:#7A7060;margin-right:4px;">评分</span>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3">3</div>
+        <div class="pip pip-4">4</div>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3" style="width:26px;border-radius:10px;font-size:9px;">综 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- D: Clean SaaS -->
+  <div class="card">
+    <div class="card-label" style="background:#2D3748;color:#63B3ED;">D · Clean Dashboard (Notion-style)</div>
+    <div class="theme-d">
+      <div class="section-title">KPI Overview</div>
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-title">Net Liquidity</div>
+          <div class="kpi-val">$5.82T</div>
+          <div class="kpi-change neg">▼ −$0.12T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">Fed Balance</div>
+          <div class="kpi-val">$6.73T</div>
+          <div class="kpi-change neg">▼ −$0.03T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">TGA</div>
+          <div class="kpi-val">$0.71T</div>
+          <div class="kpi-change pos">▲ +$0.05T (7d)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-title">ON RRP</div>
+          <div class="kpi-val">$0.08T</div>
+          <div class="kpi-change neg">▼ −$0.02T (7d)</div>
+        </div>
+      </div>
+      <div class="chart-mock">
+        <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="gd" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3182CE" stop-opacity="0.2"/>
+              <stop offset="100%" stop-color="#3182CE" stop-opacity="0.02"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48" stroke="#3182CE" stroke-width="2" fill="none"/>
+          <path d="M0,85 C30,80 60,75 90,70 S150,60 180,65 S240,75 270,60 S330,40 360,45 S390,50 400,48 L400,120 L0,120 Z" fill="url(#gd)"/>
+          <line x1="0" y1="62" x2="400" y2="62" stroke="#C53030" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+          <text x="8" y="59" font-size="8" fill="#C53030" opacity="0.7">$3T RESERVE FLOOR</text>
+        </svg>
+      </div>
+      <div class="pip-row">
+        <span style="font-size:10px;color:#718096;margin-right:4px;">评分</span>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3">3</div>
+        <div class="pip pip-4">4</div>
+        <div class="pip pip-2">2</div>
+        <div class="pip pip-3" style="width:26px;border-radius:10px;font-size:9px;">综 3</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

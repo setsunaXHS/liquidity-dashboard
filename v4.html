@@ -2334,38 +2334,47 @@ function setRange(days) {
 async function loadData() {
   const btn = document.getElementById('btnLoad');
   btn.disabled = true; btn.textContent = '加载中…';
-  setStatus('loading', '正在从 FRED 拉取数据…');
+  setStatus('loading', '正在加载数据…');
 
   try {
-    setStatus('loading', '正在拉取流动性数据（第 1/2 批）…');
-    // 第一批：流动性系列（周度）
-    const [walcl, wres, curr, tga, rrp] = await Promise.all([
-      fetchFred('WALCL'),
-      fetchFred('WRESBAL'),
-      fetchFred('WCURRNS'),
-      fetchFred('WDTGAL'),
-      fetchFred('RRPONTSYD'),
-    ]);
+    // 优先读预缓存的 data.json（静态文件，极快）
+    let dataJson = null;
+    try {
+      const r = await fetch('/data.json');
+      if (r.ok) dataJson = await r.json();
+    } catch(_) {}
 
-    setStatus('loading', '正在拉取利率数据（第 2/2 批）…');
-    // 第二批：利率系列（周度聚合）
-    const [upper, lower, effr, iorb, sofr] = await Promise.all([
-      fetchRate('DFEDTARU'),
-      fetchRate('DFEDTARL'),
-      fetchRate('EFFR'),
-      fetchRate('IORB'),
-      fetchRate('SOFR'),
-    ]);
-
-    cachedRaw = { walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr };
-    renderAll();
-
-    const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
-    setStatus('ok', `数据已更新 · ${now} CST`);
-
-    // 雷达时间轴（复用已加载数据，传入 cachedRaw）
-    if (typeof window.initRadarTimeline === 'function') {
-      window.initRadarTimeline(cachedRaw).catch(e => console.warn('Radar init:', e));
+    if (dataJson && dataJson.series) {
+      // ── 读取预缓存数据 ──
+      const { walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr } = dataJson.series;
+      cachedRaw = { walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr };
+      renderAll();
+      const fetchedAt = dataJson.fetchedAt
+        ? new Date(dataJson.fetchedAt).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })
+        : '—';
+      setStatus('ok', `数据已更新 · ${fetchedAt} CST`);
+      if (typeof window.initRadarTimeline === 'function') {
+        window.initRadarTimeline(cachedRaw, dataJson.radarHistory).catch(e => console.warn('Radar init:', e));
+      }
+    } else {
+      // ── Fallback：直接拉 FRED ──
+      setStatus('loading', '正在拉取流动性数据（第 1/2 批）…');
+      const [walcl, wres, curr, tga, rrp] = await Promise.all([
+        fetchFred('WALCL'), fetchFred('WRESBAL'), fetchFred('WCURRNS'),
+        fetchFred('WDTGAL'), fetchFred('RRPONTSYD'),
+      ]);
+      setStatus('loading', '正在拉取利率数据（第 2/2 批）…');
+      const [upper, lower, effr, iorb, sofr] = await Promise.all([
+        fetchRate('DFEDTARU'), fetchRate('DFEDTARL'),
+        fetchRate('EFFR'), fetchRate('IORB'), fetchRate('SOFR'),
+      ]);
+      cachedRaw = { walcl, wres, curr, tga, rrp, upper, lower, effr, iorb, sofr };
+      renderAll();
+      const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
+      setStatus('ok', `数据已更新 · ${now} CST`);
+      if (typeof window.initRadarTimeline === 'function') {
+        window.initRadarTimeline(cachedRaw, null).catch(e => console.warn('Radar init:', e));
+      }
     }
   } catch(e) {
     setStatus('err', '加载失败：' + e.message);
@@ -2503,53 +2512,39 @@ async function loadData() {
 
   // Main init — called after v3 data loads
   let radarCache = []; // [{date, scores, composite}]
-  window.initRadarTimeline = async function(raw) {
+  window.initRadarTimeline = async function(raw, precomputedHistory) {
     try {
-      // 复用主看板已加载的数据（单位：T，需 ×1e6 换算为百万供分位计算用，或直接用T做分位）
-      // v3 cachedRaw 的值已经是 T（除以了 UNIT），雷达分位计算只需相对大小，用T直接算即可
-      const walclMap = raw.walcl;   // {date -> T}
-      const tgaMap   = raw.tga;
-      const rrpMap   = raw.rrp;
-      const resMap   = raw.wres;
-      const effrMap  = raw.effr;    // {date -> %}  (日度)
-      const iorbMap  = raw.iorb;
-      const sofrMap  = raw.sofr;
+      let allCache;
 
-      const allDates = Object.keys(walclMap).sort();
-
-      // Pre-compute scores — incremental build to avoid O(n²) map reconstruction
-      // Weekly maps: build incrementally by appending one entry per step
-      const wSlice={}, tSlice={}, rSlice={}, rsSlice={};
-      // Daily maps: pre-sort keys once, use a pointer advancing per weekly date
-      const efKeys = Object.keys(effrMap).sort();
-      const ioKeys = Object.keys(iorbMap).sort();
-      const soKeys = Object.keys(sofrMap).sort();
-      const efSlice={}, ioSlice={}, soSlice={};
-      let efPtr=0, ioPtr=0, soPtr=0;
-
-      const allCache = allDates.map((d, i) => {
-        // Append this week's entries to weekly slices
-        if (walclMap[d] != null) wSlice[d]  = walclMap[d];
-        if (tgaMap[d]   != null) tSlice[d]  = tgaMap[d];
-        if (rrpMap[d]   != null) rSlice[d]  = rrpMap[d];
-        if (resMap[d]   != null) rsSlice[d] = resMap[d];
-
-        // Advance daily pointers up to date d
-        while (efPtr < efKeys.length && efKeys[efPtr] <= d) { efSlice[efKeys[efPtr]] = effrMap[efKeys[efPtr]]; efPtr++; }
-        while (ioPtr < ioKeys.length && ioKeys[ioPtr] <= d) { ioSlice[ioKeys[ioPtr]] = iorbMap[ioKeys[ioPtr]]; ioPtr++; }
-        while (soPtr < soKeys.length && soKeys[soPtr] <= d) { soSlice[soKeys[soPtr]] = sofrMap[soKeys[soPtr]]; soPtr++; }
-
-        const sTGA = scoreTGA(tSlice);
-        const sRRP = scoreRRP(rSlice);
-        const sRes = scoreReserves(rsSlice, wSlice);
-        const sNL  = scoreNetLiquidity(wSlice, tSlice, rSlice);
-        const sEI  = efPtr > 0 && ioPtr > 0 ? scoreEFFR_IORB(efSlice, ioSlice) : 3;
-        const sSE  = soPtr > 0 && efPtr > 0 ? scoreSOFR_EFFR(soSlice, efSlice) : 3;
-
-        const scores = { nl: sNL, tga: sTGA, reserves: sRes, effrIorb: sEI, sofrEffr: sSE, rrp: sRRP };
-        const comp   = compositeScore({ tga: sTGA, rrp: sRRP, res: sRes, nl: sNL });
-        return { date: d, scores, composite: comp };
-      });
+      if (precomputedHistory && precomputedHistory.length > 0) {
+        // ── 直接用预算好的历史数据，零计算 ──
+        allCache = precomputedHistory.map(e => ({
+          date: e.date,
+          scores: { nl: e.nl, tga: e.tga, reserves: e.res, effrIorb: e.effrIorb, sofrEffr: e.sofrEffr, rrp: e.rrp },
+          composite: e.composite,
+        }));
+      } else {
+        // ── Fallback：实时计算（incremental O(n)）──
+        const walclMap = raw.walcl, tgaMap = raw.tga, rrpMap = raw.rrp;
+        const resMap = raw.wres, effrMap = raw.effr, iorbMap = raw.iorb, sofrMap = raw.sofr;
+        const allDates = Object.keys(walclMap).sort();
+        const wSlice={}, tSlice={}, rSlice={}, rsSlice={};
+        const efKeys=Object.keys(effrMap).sort(), ioKeys=Object.keys(iorbMap).sort(), soKeys=Object.keys(sofrMap).sort();
+        const efSlice={}, ioSlice={}, soSlice={};
+        let efPtr=0, ioPtr=0, soPtr=0;
+        allCache = allDates.map((d) => {
+          if (walclMap[d] != null) wSlice[d]  = walclMap[d];
+          if (tgaMap[d]   != null) tSlice[d]  = tgaMap[d];
+          if (rrpMap[d]   != null) rSlice[d]  = rrpMap[d];
+          if (resMap[d]   != null) rsSlice[d] = resMap[d];
+          while (efPtr < efKeys.length && efKeys[efPtr] <= d) { efSlice[efKeys[efPtr]] = effrMap[efKeys[efPtr]]; efPtr++; }
+          while (ioPtr < ioKeys.length && ioKeys[ioPtr] <= d) { ioSlice[ioKeys[ioPtr]] = iorbMap[ioKeys[ioPtr]]; ioPtr++; }
+          while (soPtr < soKeys.length && soKeys[soPtr] <= d) { soSlice[soKeys[soPtr]] = sofrMap[soKeys[soPtr]]; soPtr++; }
+          const sTGA=scoreTGA(tSlice), sRRP=scoreRRP(rSlice), sRes=scoreReserves(rsSlice,wSlice), sNL=scoreNetLiquidity(wSlice,tSlice,rSlice);
+          const sEI=efPtr>0&&ioPtr>0?scoreEFFR_IORB(efSlice,ioSlice):3, sSE=soPtr>0&&efPtr>0?scoreSOFR_EFFR(soSlice,efSlice):3;
+          return { date:d, scores:{nl:sNL,tga:sTGA,reserves:sRes,effrIorb:sEI,sofrEffr:sSE,rrp:sRRP}, composite:compositeScore({tga:sTGA,rrp:sRRP,res:sRes,nl:sNL}) };
+        });
+      }
 
       // Display slice
       radarCache = allCache.filter(e=>e.date>=RADAR_DISPLAY_START);

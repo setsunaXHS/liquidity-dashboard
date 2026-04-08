@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<title>Fund Flow Preview</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root {
+    --bg: #0d1117; --surface: #161b22; --border: #30363d;
+    --text: #e6edf3; --muted: #8b949e;
+    --blue: #58a6ff; --red: #f85149; --purple: #bc8cff;
+    --orange: #ffa657; --green: #3fb950; --yellow: #d29922;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; padding: 24px; }
+  h2 { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .desc { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+  .section { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 24px; }
+  .chart-wrap { position: relative; height: 320px; }
+  .sankey-wrap { height: 360px; }
+
+  /* ── Sankey (手绘 SVG 方式) ── */
+  .sankey-svg { width: 100%; height: 360px; }
+
+  /* legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 14px; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+  /* flow arrows annotation */
+  .flow-note { font-size: 11px; color: var(--muted); margin-top: 10px; line-height: 1.8; }
+  .flow-note span { display: inline-block; padding: 1px 7px; border-radius: 3px; margin-right: 4px; font-size: 10px; font-weight: 600; }
+  .tag-loose { background: rgba(63,185,80,0.15); color: var(--green); }
+  .tag-tight { background: rgba(248,81,73,0.15); color: var(--red); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     方案 B：堆叠面积图
+════════════════════════════════════════════ -->
+<div class="section">
+  <h2>方案 B — 堆叠面积图（Fed 负债端资金分布）</h2>
+  <div class="desc">随时间变化，观察资金在各口袋之间的流动；总高度 = Fed 资产负债表规模</div>
+  <div class="chart-wrap">
+    <canvas id="stackedChart"></canvas>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#bc8cff"></div>ON RRP</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f85149"></div>TGA</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#ffa657"></div>银行准备金</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#58a6ff"></div>其他（货币+其他负债）</div>
+  </div>
+  <div class="flow-note" style="margin-top:14px">
+    <span class="tag-loose">宽松</span> TGA↓ 或 RRP↓ → 准备金↑ &nbsp;|&nbsp;
+    <span class="tag-tight">收紧</span> TGA↑ 或 QT → 准备金↓ &nbsp;|&nbsp;
+    ⚠️ 准备金跌破 ~3T 为流动性压力警戒线
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     方案 A：桑基图（SVG 手绘）
+════════════════════════════════════════════ -->
+<div class="section">
+  <h2>方案 A — 桑基图（当前资金快照）</h2>
+  <div class="desc">Fed 资产负债表负债端的当前结构分解，数值为模拟示意（实际数据加载后替换）</div>
+
+  <svg class="sankey-svg" viewBox="0 0 800 340" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="g-rrp" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#bc8cff" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#bc8cff" stop-opacity="0.3"/>
+      </linearGradient>
+      <linearGradient id="g-tga" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#f85149" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#f85149" stop-opacity="0.3"/>
+      </linearGradient>
+      <linearGradient id="g-res" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#ffa657" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#ffa657" stop-opacity="0.3"/>
+      </linearGradient>
+      <linearGradient id="g-other" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#58a6ff" stop-opacity="0.8"/>
+        <stop offset="100%" stop-color="#58a6ff" stop-opacity="0.3"/>
+      </linearGradient>
+    </defs>
+
+    <!-- 左侧：Fed 资产负债表总量 -->
+    <rect x="30" y="30" width="100" height="280" rx="4" fill="#58a6ff" opacity="0.85"/>
+    <text x="80" y="22" text-anchor="middle" fill="#58a6ff" font-size="11" font-weight="600">Fed 资产负债表</text>
+    <text x="80" y="175" text-anchor="middle" fill="white" font-size="13" font-weight="700">6.66T</text>
+    <text x="80" y="192" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="10">WALCL</text>
+
+    <!-- 流向带 RRP: 30→310, y=30, 高度12 (比例约0.04%) -->
+    <!-- 模拟数据：RRP≈0, TGA≈837B, Reserves≈3200B, Other≈2623B -->
+    <!-- 总=6660, RRP=5(接近0), TGA=837, Res=3200, Other=2618 -->
+    <!-- 占比: RRP=0.07%, TGA=12.6%, Res=48%, Other=39.3% -->
+    <!-- 高度分配(总280px): RRP=2, TGA=35, Res=135, Other=108 -->
+
+    <!-- RRP flow -->
+    <path d="M130,31 C220,31 220,32 310,32 L310,34 C220,34 220,33 130,33 Z"
+          fill="url(#g-rrp)" opacity="0.7"/>
+
+    <!-- TGA flow -->
+    <path d="M130,34 C220,34 220,46 310,46 L310,81 C220,81 220,69 130,69 Z"
+          fill="url(#g-tga)" opacity="0.7"/>
+
+    <!-- Reserves flow -->
+    <path d="M130,69 C220,69 220,84 310,84 L310,219 C220,219 220,204 130,204 Z"
+          fill="url(#g-res)" opacity="0.7"/>
+
+    <!-- Other flow -->
+    <path d="M130,204 C220,204 220,222 310,222 L310,310 C220,310 220,292 130,292 Z"
+          fill="url(#g-other)" opacity="0.7"/>
+
+    <!-- 右侧四个口袋 -->
+    <!-- RRP -->
+    <rect x="310" y="30" width="120" height="4" rx="2" fill="#bc8cff" opacity="0.9"/>
+    <text x="440" y="36" fill="#bc8cff" font-size="11" font-weight="600">ON RRP</text>
+    <text x="440" y="50" fill="var(--muted, #8b949e)" font-size="10">≈ 0 B（已清零）</text>
+
+    <!-- TGA -->
+    <rect x="310" y="46" width="120" height="35" rx="2" fill="#f85149" opacity="0.9"/>
+    <text x="370" y="60" text-anchor="middle" fill="white" font-size="11" font-weight="600">TGA</text>
+    <text x="370" y="74" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">837 B</text>
+    <text x="440" y="60" fill="#f85149" font-size="11" font-weight="600">财政部账户</text>
+    <text x="440" y="74" fill="#8b949e" font-size="10">锁定，未入市场</text>
+
+    <!-- Reserves -->
+    <rect x="310" y="84" width="120" height="135" rx="2" fill="#ffa657" opacity="0.9"/>
+    <text x="370" y="145" text-anchor="middle" fill="white" font-size="13" font-weight="700">准备金</text>
+    <text x="370" y="163" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="11">3,200 B</text>
+    <text x="440" y="138" fill="#ffa657" font-size="11" font-weight="600">银行准备金</text>
+    <text x="440" y="154" fill="#8b949e" font-size="10">流动性核心</text>
+    <text x="440" y="168" fill="#8b949e" font-size="10">⚠️ 警戒线 ~3T</text>
+
+    <!-- Other -->
+    <rect x="310" y="222" width="120" height="88" rx="2" fill="#58a6ff" opacity="0.7"/>
+    <text x="370" y="262" text-anchor="middle" fill="white" font-size="12" font-weight="600">其他</text>
+    <text x="370" y="278" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10">2,620 B</text>
+    <text x="440" y="258" fill="#58a6ff" font-size="11" font-weight="600">流通货币等</text>
+    <text x="440" y="272" fill="#8b949e" font-size="10">基本稳定</text>
+
+    <!-- 底部注释 -->
+    <text x="30" y="330" fill="#8b949e" font-size="10">※ 数据为模拟示意，实际看板接入 FRED 实时数据</text>
+
+    <!-- 箭头标注：资金流动方向 -->
+    <!-- TGA→准备金 -->
+    <line x1="580" y1="63" x2="640" y2="63" stroke="#f85149" stroke-width="1" stroke-dasharray="4,2"/>
+    <polygon points="640,60 648,63 640,66" fill="#f85149"/>
+    <text x="652" y="67" fill="#f85149" font-size="10">财政支出→准备金↑</text>
+
+    <line x1="580" y1="151" x2="640" y2="151" stroke="#ffa657" stroke-width="1" stroke-dasharray="4,2"/>
+    <polygon points="640,148 648,151 640,154" fill="#ffa657"/>
+    <text x="652" y="155" fill="#ffa657" font-size="10">驱动风险资产</text>
+
+    <line x1="580" y1="266" x2="640" y2="266" stroke="#8b949e" stroke-width="1" stroke-dasharray="4,2"/>
+    <text x="652" y="270" fill="#8b949e" font-size="10">相对稳定</text>
+  </svg>
+
+  <div class="flow-note">
+    <strong style="color:var(--text)">关键传导路径：</strong><br>
+    <span class="tag-loose">宽松</span> 财政支出 → TGA↓ → 准备金↑ → 净流动性↑<br>
+    <span class="tag-loose">宽松</span> 货币基金买国债 → RRP↓ → 准备金↑ → 净流动性↑<br>
+    <span class="tag-tight">收紧</span> 财政发债 → 准备金↓ → TGA↑ → 净流动性↓<br>
+    <span class="tag-tight">收紧</span> QT到期不续 → 准备金↓ → 净流动性↓
+  </div>
+</div>
+
+<script>
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#30363d';
+
+// 模拟数据：2022年初至今，月度
+const labels = [];
+const d = new Date('2022-01-01');
+while (d <= new Date('2026-03-01')) {
+  labels.push(d.toISOString().split('T')[0]);
+  d.setMonth(d.getMonth() + 1);
+}
+
+// 模拟各项数据（十亿美元）
+// Fed总量从9000降到6660
+// RRP从0升到2500再降回0
+// TGA波动
+// 准备金 = Fed - RRP - TGA - Other
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+const n = labels.length; // ~51个月
+const fed = [], rrp = [], tga = [], res = [], other = [];
+const OTHER_BASE = 2500;
+
+for (let i = 0; i < n; i++) {
+  const t = i / (n - 1);
+  // Fed: 9000 → 8700(peak Apr22) → 6660
+  const f = i < 4 ? lerp(8800, 8950, i/4) : lerp(8950, 6660, (i-4)/(n-5));
+  fed.push(f);
+
+  // RRP: 1500 → 2500 → 0
+  let r;
+  if (i < 12) r = lerp(1500, 2500, i/12);
+  else if (i < 36) r = lerp(2500, 400, (i-12)/24);
+  else r = lerp(400, 5, (i-36)/(n-37));
+  rrp.push(Math.max(r, 0));
+
+  // TGA: 随财政周期波动
+  const tgaBase = 400 + 500 * Math.sin(t * Math.PI * 3) + 100 * Math.sin(t * Math.PI * 7);
+  tga.push(Math.max(tgaBase, 50));
+
+  other.push(OTHER_BASE + 80 * Math.sin(t * Math.PI * 2));
+
+  res.push(Math.max(f - rrp[i] - tga[i] - other[i], 0));
+}
+
+const ctx = document.getElementById('stackedChart');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels,
+    datasets: [
+      {
+        label: 'ON RRP',
+        data: rrp,
+        borderColor: '#bc8cff',
+        backgroundColor: '#bc8cff33',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+        stack: 'fed',
+      },
+      {
+        label: 'TGA',
+        data: tga,
+        borderColor: '#f85149',
+        backgroundColor: '#f8514933',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+        stack: 'fed',
+      },
+      {
+        label: '银行准备金',
+        data: res,
+        borderColor: '#ffa657',
+        backgroundColor: '#ffa65733',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+        stack: 'fed',
+      },
+      {
+        label: '其他（货币+其他负债）',
+        data: other,
+        borderColor: '#58a6ff',
+        backgroundColor: '#58a6ff22',
+        borderWidth: 1.5,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.4,
+        stack: 'fed',
+      },
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(0)} B`
+        }
+      },
+      annotation: {},
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: { unit: 'quarter' },
+        grid: { display: false },
+        ticks: { maxTicksLimit: 10 }
+      },
+      y: {
+        stacked: true,
+        grid: { color: '#21262d' },
+        ticks: {
+          callback: v => v >= 1000 ? (v/1000).toFixed(1)+'T' : v+'B'
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

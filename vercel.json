@@ -1,8 +1,9 @@
 {
-  "buildCommand": "cp *.html dist/ && cp -r api dist/",
+  "buildCommand": "cp *.html dist/ && cp -r api dist/ && (cp data.json dist/ 2>/dev/null || true) && (cp news.json dist/ 2>/dev/null || true)",
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/fred", "destination": "/api/fred" },
-    { "source": "/api/news", "destination": "/api/news" }
+    { "source": "/api/news", "destination": "/api/news" },
+    { "source": "/api/fetch-data", "destination": "/api/fetch-data" }
   ]
 }
