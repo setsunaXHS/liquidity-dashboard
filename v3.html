@@ -1678,13 +1678,35 @@ function buildCommentary(score, raw) {
   if (supports.length)  lines.push(`<b>支撑因素：</b>${supports.join('；')}。`);
   lines.push(`<b style="color:${scoreColor}">综合判断：</b><span style="color:${scoreColor}">${conclusions[score]}</span>`);
 
-  el.innerHTML = lines.join('<br>') + `
-    <br><br>
-    <b>市场新闻</b><br>
-    · <b>2026-04-02</b> &nbsp;美国财政部完成 $150亿国债回购，为史上单次最大规模，主动向市场注入流动性（来源：Treasury / Binance Square）<br>
-    · <b>2025-12-01</b> &nbsp;美联储正式停止 QT（缩表），资产负债表进入稳定期；多位官员认为停止时机已偏晚，准备金被过度消耗（来源：Reuters / BNP Paribas Research）<br>
-    · <b>2026-04-07</b> &nbsp;纽约联储发布报告：去年4月关税冲击后国债市场流动性已快速恢复，但新一轮关税不确定性仍对市场造成压力（来源：Liberty Street Economics）
-  `;
+  // 先渲染评分文字，新闻异步加载
+  el.innerHTML = lines.join('<br>') + `<br><br><b>市场新闻</b><br><span id="news-content" style="color:var(--muted)">加载中…</span>`;
+
+  // 异步拉取新闻
+  fetchNews();
+}
+
+async function fetchNews() {
+  const el = document.getElementById('news-content');
+  if (!el) return;
+  try {
+    const resp = await fetch('/api/news');
+    const data = await resp.json();
+    if (!data.ok || !data.news || data.news.length === 0) {
+      el.innerHTML = '<span style="color:var(--muted);font-size:11px;">暂无最新新闻</span>';
+      return;
+    }
+    const dateStr = data.fetchedAt ? `（更新于 ${data.fetchedAt.slice(0,10)}）` : '';
+    el.innerHTML = data.news.map(n => {
+      const date  = n.date ? `<b>${n.date.slice(0,10)}</b> &nbsp;` : '';
+      const title = n.url
+        ? `<a href="${n.url}" target="_blank" style="color:var(--blue);text-decoration:none;">${n.title}</a>`
+        : n.title;
+      const desc  = n.desc ? `<span style="color:var(--muted)"> — ${n.desc}</span>` : '';
+      return `· ${date}${title}${desc}`;
+    }).join('<br>') + `<br><span style="font-size:10px;color:var(--muted);">${dateStr}</span>`;
+  } catch (e) {
+    if (el) el.innerHTML = '<span style="color:var(--muted);font-size:11px;">新闻加载失败</span>';
+  }
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
