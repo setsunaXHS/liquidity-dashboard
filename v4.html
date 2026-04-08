@@ -2517,34 +2517,37 @@ async function loadData() {
 
       const allDates = Object.keys(walclMap).sort();
 
-      // Pre-compute scores using main dashboard scoring functions (same logic as panels below)
-      const allCache = allDates.map((d, i) => {
-        // Build maps truncated to date d (for historical replay)
-        const wSlice = {}, tSlice = {}, rSlice = {}, rsSlice = {};
-        const efSlice = {}, ioSlice = {}, soSlice = {};
-        allDates.slice(0, i + 1).forEach(dd => {
-          if (walclMap[dd] != null) wSlice[dd]  = walclMap[dd];
-          if (tgaMap[dd]   != null) tSlice[dd]  = tgaMap[dd];
-          if (rrpMap[dd]   != null) rSlice[dd]  = rrpMap[dd];
-          if (resMap[dd]   != null) rsSlice[dd] = resMap[dd];
-        });
-        // effr/iorb/sofr are daily maps — include all days up to d
-        Object.keys(effrMap).filter(dd => dd <= d).forEach(dd => efSlice[dd] = effrMap[dd]);
-        Object.keys(iorbMap).filter(dd => dd <= d).forEach(dd => ioSlice[dd] = iorbMap[dd]);
-        Object.keys(sofrMap).filter(dd => dd <= d).forEach(dd => soSlice[dd] = sofrMap[dd]);
+      // Pre-compute scores — incremental build to avoid O(n²) map reconstruction
+      // Weekly maps: build incrementally by appending one entry per step
+      const wSlice={}, tSlice={}, rSlice={}, rsSlice={};
+      // Daily maps: pre-sort keys once, use a pointer advancing per weekly date
+      const efKeys = Object.keys(effrMap).sort();
+      const ioKeys = Object.keys(iorbMap).sort();
+      const soKeys = Object.keys(sofrMap).sort();
+      const efSlice={}, ioSlice={}, soSlice={};
+      let efPtr=0, ioPtr=0, soPtr=0;
 
-        const sTGA  = scoreTGA(tSlice);
-        const sRRP  = scoreRRP(rSlice);
-        const sRes  = scoreReserves(rsSlice, wSlice);
-        const sNL   = scoreNetLiquidity(wSlice, tSlice, rSlice);
-        const sEI   = (Object.keys(efSlice).length && Object.keys(ioSlice).length)
-                        ? scoreEFFR_IORB(efSlice, ioSlice) : 3;
-        const sSE   = (Object.keys(soSlice).length && Object.keys(efSlice).length)
-                        ? scoreSOFR_EFFR(soSlice, efSlice) : 3;
+      const allCache = allDates.map((d, i) => {
+        // Append this week's entries to weekly slices
+        if (walclMap[d] != null) wSlice[d]  = walclMap[d];
+        if (tgaMap[d]   != null) tSlice[d]  = tgaMap[d];
+        if (rrpMap[d]   != null) rSlice[d]  = rrpMap[d];
+        if (resMap[d]   != null) rsSlice[d] = resMap[d];
+
+        // Advance daily pointers up to date d
+        while (efPtr < efKeys.length && efKeys[efPtr] <= d) { efSlice[efKeys[efPtr]] = effrMap[efKeys[efPtr]]; efPtr++; }
+        while (ioPtr < ioKeys.length && ioKeys[ioPtr] <= d) { ioSlice[ioKeys[ioPtr]] = iorbMap[ioKeys[ioPtr]]; ioPtr++; }
+        while (soPtr < soKeys.length && soKeys[soPtr] <= d) { soSlice[soKeys[soPtr]] = sofrMap[soKeys[soPtr]]; soPtr++; }
+
+        const sTGA = scoreTGA(tSlice);
+        const sRRP = scoreRRP(rSlice);
+        const sRes = scoreReserves(rsSlice, wSlice);
+        const sNL  = scoreNetLiquidity(wSlice, tSlice, rSlice);
+        const sEI  = efPtr > 0 && ioPtr > 0 ? scoreEFFR_IORB(efSlice, ioSlice) : 3;
+        const sSE  = soPtr > 0 && efPtr > 0 ? scoreSOFR_EFFR(soSlice, efSlice) : 3;
 
         const scores = { nl: sNL, tga: sTGA, reserves: sRes, effrIorb: sEI, sofrEffr: sSE, rrp: sRRP };
-        // Use main dashboard compositeScore (Part I: res×35% + nl×30% + tga×25% + rrp×10%)
-        const comp = compositeScore({ tga: sTGA, rrp: sRRP, res: sRes, nl: sNL });
+        const comp   = compositeScore({ tga: sTGA, rrp: sRRP, res: sRes, nl: sNL });
         return { date: d, scores, composite: comp };
       });
 
