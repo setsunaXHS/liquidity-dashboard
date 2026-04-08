@@ -377,6 +377,48 @@ canvas { display: block; }
 <!-- Main -->
 <div class="main">
 
+  <!-- ── 全局综合评分 Banner ── -->
+  <div id="global-composite-bar" style="
+    margin-bottom: 28px; padding: 16px 24px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 4px solid var(--orange); border-radius: 8px;
+  ">
+    <!-- 评分主行 -->
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);white-space:nowrap;">
+        综合流动性评分
+      </div>
+      <div style="width:1px;height:26px;background:var(--border);"></div>
+      <div class="composite-pips" id="gcp-total-pips">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span style="font-size:20px;font-weight:800;font-variant-numeric:tabular-nums;" id="gcp-total-val">—</span>
+      <span style="font-size:14px;font-weight:600;" id="gcp-total-label">加载中…</span>
+      <div style="width:1px;height:26px;background:var(--border);margin-left:4px;"></div>
+      <span style="font-size:10px;color:var(--muted);">Part I</span>
+      <span style="font-size:12px;font-weight:700;" id="gcp-p1-val">—</span>
+      <div class="composite-pips" id="gcp-p1" style="gap:2px;">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+      <span style="font-size:10px;color:var(--muted);">Part II</span>
+      <span style="font-size:12px;font-weight:700;" id="gcp-p2-val">—</span>
+      <div class="composite-pips" id="gcp-p2" style="gap:2px;">
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div><div class="composite-pip"></div>
+        <div class="composite-pip"></div>
+      </div>
+    </div>
+    <!-- 文字点评 -->
+    <div id="gcp-commentary" style="
+      margin-top:12px; padding-top:12px; border-top:1px solid var(--border);
+      font-size:12px; color:#555; line-height:1.8; font-family:'Segoe UI',sans-serif;
+    ">正在加载数据…</div>
+  </div>
+
   <!-- Section: Fed Balance Sheet -->
   <div class="section-header">
     <div class="section-title">Part I · 美联储资产负债表</div>
@@ -476,52 +518,6 @@ canvas { display: block; }
         </div>
       </div>
       <canvas id="c-nl" height="120" onclick="openPanel('nl')"></canvas>
-    </div>
-  </div>
-
-  <!-- ── 全局综合评分 Banner ── -->
-  <div id="global-composite-bar" style="
-    margin: 32px 0 8px; padding: 14px 20px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-left: 4px solid var(--orange);
-    border-radius: 8px; display: flex; align-items: center; gap: 16px;
-  ">
-    <div style="font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--orange);white-space:nowrap;">
-      综合流动性评分
-    </div>
-    <div style="width:1px;height:28px;background:var(--border);"></div>
-    <!-- Part I -->
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="font-size:10px;color:var(--muted);white-space:nowrap;">Part I 资产负债表</span>
-      <div class="composite-pips" id="gcp-p1">
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div>
-      </div>
-      <span style="font-size:12px;font-weight:700;" id="gcp-p1-val">—</span>
-    </div>
-    <span style="font-size:14px;color:var(--border);">×60%</span>
-    <!-- Part II -->
-    <div style="display:flex;align-items:center;gap:6px;">
-      <span style="font-size:10px;color:var(--muted);white-space:nowrap;">Part II 货币市场</span>
-      <div class="composite-pips" id="gcp-p2">
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div>
-      </div>
-      <span style="font-size:12px;font-weight:700;" id="gcp-p2-val">—</span>
-    </div>
-    <span style="font-size:14px;color:var(--border);">×40%</span>
-    <div style="width:1px;height:28px;background:var(--border);"></div>
-    <!-- 总评 -->
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div class="composite-pips" id="gcp-total-pips">
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div><div class="composite-pip"></div>
-        <div class="composite-pip"></div>
-      </div>
-      <span style="font-size:15px;font-weight:800;" id="gcp-total-val">—</span>
-      <span style="font-size:13px;font-weight:600;" id="gcp-total-label">—</span>
     </div>
   </div>
 
@@ -1566,7 +1562,7 @@ function updateScores(scores, composite) {
 function updateGlobalComposite() {
   const p1 = window._p1Score;
   const p2 = window._p2Score;
-  if (p1 == null || p2 == null) return;  // 两个 Part 都算完才更新
+  if (p1 == null || p2 == null) return;
 
   const SCOLORS = ['','#22c55e','#84cc16','#eab308','#f97316','#ef4444'];
   const raw   = p1 * 0.60 + p2 * 0.40;
@@ -1584,12 +1580,106 @@ function updateGlobalComposite() {
   const gp2v = document.getElementById('gcp-p2-val');
   if (gp2v) { gp2v.textContent = p2.toFixed(1); gp2v.style.color = SCOLORS[p2score]; }
 
-  // 总评
+  // 总评 pips + 数字 + label
   renderPips('gcp-total-pips', score);
   const gtv = document.getElementById('gcp-total-val');
   if (gtv) { gtv.textContent = raw.toFixed(1); gtv.style.color = SCOLORS[score]; }
   const gtl = document.getElementById('gcp-total-label');
   if (gtl) { gtl.textContent = SCORE_LABELS[score]; gtl.style.color = SCOLORS[score]; }
+
+  // ── 文字点评（基于实时数据自动生成）──
+  buildCommentary(score, raw);
+}
+
+function buildCommentary(score, raw) {
+  const el = document.getElementById('gcp-commentary');
+  if (!el || !cachedRaw.walcl) return;
+
+  const { walcl, wres, tga, rrp, effr, iorb, sofr } = cachedRaw;
+
+  // 取最新值
+  const resDates = Object.keys(wres || {}).sort();
+  const last = resDates[resDates.length - 1];
+  const resVal  = wres[last];
+  const tgaVal  = tga[last] ?? nearest(tga, last);
+  const rrpVal  = rrp[last] ?? nearest(rrp, last) ?? 0;
+  const walclVal = walcl[last] ?? nearest(walcl, last);
+  const nlVal   = walclVal - tgaVal - rrpVal;
+
+  // 净流动性 2yr 百分位（复用 scoreNetLiquidity 同逻辑）
+  const nlDates = Object.keys(walcl).sort();
+  const cut2yr  = new Date(); cut2yr.setDate(cut2yr.getDate() - 730);
+  const cut2str = cut2yr.toISOString().slice(0,10);
+  const nl2yr   = nlDates.filter(d => d >= cut2str).map(d => {
+    const W = walcl[d], T = tga[d] ?? nearest(tga,d), R = rrp[d] ?? nearest(rrp,d) ?? 0;
+    return (W && T) ? W - T - R : null;
+  }).filter(v => v !== null);
+  const nlPct = nl2yr.length > 1
+    ? Math.round(nl2yr.filter(v => v <= nlVal).length / nl2yr.length * 100)
+    : null;
+
+  // EFFR-IORB 最新利差
+  let effrIorbVal = null;
+  if (effr && iorb) {
+    const sp = buildSpreadSeries(effr, iorb);
+    if (sp.vals.length) effrIorbVal = sp.vals[sp.vals.length - 1];
+  }
+
+  // 准备金 4 周变化动量
+  const res4wAgo = resDates.length >= 5 ? wres[resDates[resDates.length - 5]] : null;
+  const res4wChg = (res4wAgo != null) ? resVal - res4wAgo : null;
+
+  // 净流动性 4 周变化
+  const nl4wDates = nlDates.filter(d => d <= last);
+  const nl4wAgoDate = nl4wDates[nl4wDates.length - 5];
+  let nl4wChg = null;
+  if (nl4wAgoDate) {
+    const W4 = walcl[nl4wAgoDate], T4 = tga[nl4wAgoDate] ?? nearest(tga, nl4wAgoDate);
+    const R4 = rrp[nl4wAgoDate] ?? nearest(rrp, nl4wAgoDate) ?? 0;
+    if (W4 && T4) nl4wChg = nlVal - (W4 - T4 - R4);
+  }
+
+  // ── 生成各句子 ──
+  const parts = [];
+  const fmt = v => v != null ? `$${Math.abs(v).toFixed(2)}T` : '—';
+  const fmtBp = v => v != null ? `${v.toFixed(1)}bp` : '—';
+
+  // 句1：净流动性总体定位
+  if (nlVal != null) {
+    const pctStr = nlPct != null ? `，处于近2年第 ${nlPct}% 分位` : '';
+    const momentStr = nl4wChg != null
+      ? (nl4wChg > 0.05 ? `，近4周扩张 +${fmt(nl4wChg)}` : nl4wChg < -0.05 ? `，近4周收缩 ${'-'+fmt(nl4wChg)}` : '，近4周基本持平')
+      : '';
+    parts.push(`净流动性当前 <b>${fmt(nlVal)}</b>${pctStr}${momentStr}。`);
+  }
+
+  // 句2：压力来源
+  const pressures = [];
+  if (resVal != null && resVal < 3.0) pressures.push(`准备金 <b>${fmt(resVal)}</b> 已低于 $3T 警戒线`);
+  if (rrpVal != null && rrpVal < 0.1) pressures.push(`ON RRP 缓冲垫 <b>${fmt(rrpVal)}</b> 基本耗尽`);
+  if (tgaVal != null && tgaVal > 0.8) pressures.push(`TGA <b>${fmt(tgaVal)}</b> 处于较高水位，持续抽水`);
+  if (effrIorbVal != null && effrIorbVal > -2) pressures.push(`EFFR-IORB 利差收窄至 <b>${fmtBp(effrIorbVal)}</b>，货币市场压力上升`);
+  if (pressures.length) parts.push(`主要压力：${pressures.join('；')}。`);
+
+  // 句3：缓冲/支撑因素
+  const supports = [];
+  if (tgaVal != null && tgaVal > 0.5) supports.push(`TGA 余额 ${fmt(tgaVal)} 若债务上限解除，可释放大量流动性`);
+  if (rrpVal != null && rrpVal > 0.3) supports.push(`ON RRP 仍有 ${fmt(rrpVal)} 缓冲垫`);
+  if (resVal != null && resVal >= 3.0) supports.push(`准备金仍在警戒线以上`);
+  if (res4wChg != null && res4wChg > 0.05) supports.push(`准备金近4周改善 +${fmt(res4wChg)}`);
+  if (supports.length) parts.push(`支撑因素：${supports.join('；')}。`);
+
+  // 句4：一句话结论
+  const conclusions = {
+    1: '整体流动性充裕，金融条件宽松，风险资产有利。',
+    2: '流动性偏宽松但已有收窄迹象，保持关注边际变化。',
+    3: '流动性处于中性区间，结构性压力与缓冲并存，方向不明。',
+    4: '流动性偏紧，货币市场已出现压力信号，需关注准备金与 TGA 拐点。',
+    5: '流动性明显收紧，多项指标处于警戒区域，市场对进一步收缩较为敏感。',
+  };
+  parts.push(`<b style="color:${['','#22c55e','#84cc16','#b45309','#ea580c','#dc2626'][score]}">综合判断：${conclusions[score]}</b>`);
+
+  el.innerHTML = parts.join(' ');
 }
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
