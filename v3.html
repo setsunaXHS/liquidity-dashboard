@@ -133,6 +133,22 @@ body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', -appl
   display: flex; align-items: center; gap: 6px;
 }
 .range-bar span { font-size: 11px; color: var(--muted); margin-right: 4px; }
+/* Radar slider thumb */
+#gcpSlider::-webkit-slider-thumb {
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--orange);cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+#gcpSlider::-moz-range-thumb {
+  width:14px;height:14px;border-radius:50%;background:var(--orange);
+  cursor:pointer;border:none;box-shadow:0 1px 4px rgba(0,0,0,0.2);
+}
+/* Dim bars */
+.gcp-dim-row { display:flex;align-items:center;gap:8px;margin-bottom:7px; }
+.gcp-dim-name { font-size:11px;color:var(--muted);width:76px;flex-shrink:0; }
+.gcp-bar-track { flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden; }
+.gcp-bar-fill { height:100%;border-radius:3px;transition:width 0.15s; }
+.gcp-dim-val { font-size:11px;font-weight:700;width:14px;text-align:right; }
+
 .rtab {
   background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
   font-size: 11px; padding: 4px 14px; border-radius: 3px; cursor: pointer;
@@ -417,6 +433,46 @@ canvas { display: block; }
       margin-top:12px; padding-top:12px; border-top:1px solid var(--border);
       font-size:12px; color:#555; line-height:1.8; font-family:'Segoe UI',sans-serif;
     ">正在加载数据…</div>
+
+    <!-- ── 雷达图 + 时间轴 ── -->
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <!-- 雷达 + 评分面板 两栏 -->
+      <div style="display:flex;gap:20px;align-items:flex-start;">
+        <!-- 左：雷达图 -->
+        <div style="flex:0 0 320px;">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:6px;letter-spacing:.5px;">流动性压力雷达 · 5年滚动分位</div>
+          <canvas id="gcpRadarCanvas" height="260" style="width:100%;max-width:320px;"></canvas>
+          <div style="display:flex;gap:14px;margin-top:6px;">
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);">
+              <div style="width:18px;height:2px;background:var(--orange);border-radius:1px;"></div>当前
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);">
+              <div style="width:18px;height:0;border-top:2px dashed #C62828;"></div>COVID崩盘(2020-03)
+            </div>
+          </div>
+        </div>
+
+        <!-- 右：维度评分条 -->
+        <div style="flex:1;min-width:0;" id="gcpDimBars">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>
+          <!-- 由 JS 生成 -->
+          <div style="font-size:11px;color:var(--muted);">加载中…</div>
+        </div>
+      </div>
+
+      <!-- 时间轴 slider -->
+      <div style="margin-top:16px;" id="gcpTimelineWrap">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:10px;" id="gcpCurrentDate">拖动时间轴查看历史</div>
+        <!-- 危机标注层 -->
+        <div style="position:relative;margin-bottom:4px;height:20px;" id="gcpMarkersRow"></div>
+        <input type="range" id="gcpSlider" min="0" max="0" value="0" step="1" style="
+          width:100%;-webkit-appearance:none;appearance:none;
+          height:4px;background:var(--border);border-radius:2px;outline:none;cursor:pointer;
+        ">
+        <!-- 年份刻度 -->
+        <div style="position:relative;height:16px;margin-top:4px;" id="gcpYearTicks"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Section: Fed Balance Sheet -->
@@ -2284,6 +2340,11 @@ async function loadData() {
 
     const now = new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
     setStatus('ok', `数据已更新 · ${now} CST`);
+
+    // 雷达时间轴（独立数据请求，异步不阻塞主流程）
+    if (typeof window.initRadarTimeline === 'function') {
+      window.initRadarTimeline().catch(e => console.warn('Radar init:', e));
+    }
   } catch(e) {
     setStatus('err', '加载失败：' + e.message);
     console.error(e);
@@ -2291,6 +2352,280 @@ async function loadData() {
     btn.disabled = false; btn.textContent = '加载数据';
   }
 }
+
+// ── Radar Timeline Module ──────────────────────────────────────────────────────
+(function() {
+  const RADAR_OBS_START    = '2019-01-01';
+  const RADAR_DISPLAY_START= '2020-01-01';
+  const RADAR_ROLLING      = 260; // 5yr weekly
+
+  const RADAR_CRISIS = [
+    { date:'2020-03-09', label:'COVID崩盘' },
+    { date:'2022-06-01', label:'QT开始' },
+    { date:'2023-03-10', label:'SVB危机' },
+    { date:'2023-06-03', label:'TGA重建' },
+    { date:'2025-12-01', label:'QT停止' },
+  ];
+  const COVID_REF = '2020-03-09';
+
+  const DIM_KEYS   = ['nl','tga','reserves','effrIorb','sofrEffr','rrp'];
+  const DIM_LABELS = ['净流动性','TGA','准备金','EFFR−IORB','SOFR−EFFR','ON RRP'];
+  const WEIGHTS    = { nl:0.25, tga:0.18, reserves:0.22, effrIorb:0.20, sofrEffr:0.10, rrp:0.05 };
+  const SCOLORS    = { 1:'#2E7D32', 2:'#00838F', 3:'#757575', 4:'#E8700A', 5:'#C62828' };
+
+  // Scoring helpers
+  function rollingPct(vals, i, w) {
+    const slice = vals.slice(Math.max(0, i-w+1), i+1);
+    const v = vals[i]; let below=0;
+    for (const x of slice) if (x<=v) below++;
+    return below/slice.length;
+  }
+  function fromPct(p)    { return p>=.70?1:p>=.50?2:p>=.35?3:p>=.20?4:5; }
+  function fromPctTGA(p) { return p<=.30?1:p<=.50?2:p<=.65?3:p<=.80?4:5; }
+  function scoreEI(bp)   { return bp<=-7?1:bp<=-5?2:bp<=-2?3:bp<=3?4:5; }
+  function scoreSE(bp)   { return bp<=0?1:bp<=3?2:bp<=8?3:bp<=15?4:5; }
+  function composite(s)  { return DIM_KEYS.reduce((a,k)=>a+s[k]*WEIGHTS[k],0); }
+
+  // Daily map helper
+  function buildDailyMap(obs) {
+    const m={}; obs.forEach(o=>{ m[o.date]=o.value; }); return m;
+  }
+  function dailyMean(map, weekDate, n=5) {
+    const keys = Object.keys(map).filter(d=>d<=weekDate).sort().slice(-n);
+    if (!keys.length) return NaN;
+    const vals = keys.map(d=>map[d]).filter(v=>!isNaN(v));
+    return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : NaN;
+  }
+
+  // FRED fetch (reuse v3 proxy, add api_key)
+  const RADAR_API_KEY = document.getElementById('apiKey')?.value || 'cd80bce065d6d311df574fbe558929f6';
+  async function rFetch(series, freq) {
+    let url = `/fred?series_id=${series}&observation_start=${RADAR_OBS_START}&api_key=${RADAR_API_KEY}&file_type=json`;
+    if (freq) url += `&frequency=${freq}`;
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`FRED ${series} ${r.status}`);
+    const j = await r.json();
+    return (j.observations||[]).filter(o=>o.value!=='.'&&o.value!='').map(o=>({date:o.date,value:parseFloat(o.value)}));
+  }
+
+  // Chart instance
+  let radarChart = null;
+  function initRadarChart() {
+    const ctx = document.getElementById('gcpRadarCanvas')?.getContext('2d');
+    if (!ctx) return;
+    radarChart = new Chart(ctx, {
+      type:'radar',
+      data:{
+        labels: DIM_LABELS,
+        datasets:[
+          { label:'当前', data:[3,3,3,3,3,3],
+            borderColor:'#E8700A', backgroundColor:'rgba(232,112,10,0.12)',
+            borderWidth:2.5, pointBackgroundColor:'#E8700A', pointRadius:3 },
+          { label:'COVID崩盘', data:[3,3,3,3,3,3],
+            borderColor:'#C62828', backgroundColor:'rgba(198,40,40,0.05)',
+            borderWidth:1.5, borderDash:[5,3],
+            pointBackgroundColor:'#C62828', pointRadius:2 },
+        ]
+      },
+      options:{
+        animation:false, responsive:true,
+        scales:{ r:{
+          min:0, max:5,
+          ticks:{ stepSize:1, font:{size:9}, color:'#bbb', backdropColor:'transparent',
+                  callback:v=>v===0?'':['','宽','偏宽','中','偏紧','紧'][v]||'' },
+          pointLabels:{ font:{size:11,weight:'600'},
+            color: ctx => '#555' }, // updated dynamically
+          grid:{ color: ctx => ctx.index===4?'rgba(198,40,40,0.2)':'#E8E8E8',
+                 lineWidth: ctx => ctx.index===4?1.5:1 },
+          angleLines:{ color:'#E8E8E8' },
+        }},
+        plugins:{ legend:{display:false}, tooltip:{enabled:false} },
+      }
+    });
+  }
+
+  function updateRadarChart(cur, ref, dimArr) {
+    if (!radarChart) return;
+    radarChart.options.scales.r.pointLabels.color = ctx => dimArr[ctx.index]>=4?'#C62828':'#444';
+    radarChart.data.datasets[0].data = DIM_KEYS.map(k=>cur[k]);
+    radarChart.data.datasets[1].data = DIM_KEYS.map(k=>ref[k]);
+    radarChart.update('none');
+  }
+
+  // Dim bars
+  function buildDimBars() {
+    const el = document.getElementById('gcpDimBars');
+    if (!el) return;
+    el.innerHTML = '<div style="font-size:10px;color:var(--muted);margin-bottom:8px;letter-spacing:.5px;">各维度压力评分</div>';
+    DIM_KEYS.forEach((k,i)=>{
+      const row = document.createElement('div');
+      row.className = 'gcp-dim-row';
+      row.innerHTML = `
+        <div class="gcp-dim-name">${DIM_LABELS[i]}</div>
+        <div class="gcp-bar-track"><div class="gcp-bar-fill" id="gcpBar-${k}" style="width:60%;background:#757575;"></div></div>
+        <div class="gcp-dim-val" id="gcpVal-${k}" style="color:#757575;">3</div>`;
+      el.appendChild(row);
+    });
+  }
+
+  function updateDimBars(scores) {
+    DIM_KEYS.forEach(k=>{
+      const s = scores[k];
+      const col = SCOLORS[Math.round(s)]||'#757575';
+      const fill = document.getElementById(`gcpBar-${k}`);
+      const val  = document.getElementById(`gcpVal-${k}`);
+      if (fill) { fill.style.width=(s/5*100)+'%'; fill.style.background=col; }
+      if (val)  { val.textContent=Math.round(s); val.style.color=col; }
+    });
+  }
+
+  // Timeline markers + year ticks
+  function buildTimeline(displayDates) {
+    const slider = document.getElementById('gcpSlider');
+    const markers = document.getElementById('gcpMarkersRow');
+    const yearEl  = document.getElementById('gcpYearTicks');
+    if (!slider||!markers||!yearEl) return;
+
+    slider.min = 0; slider.max = displayDates.length-1;
+    slider.value = displayDates.length-1;
+
+    const total = displayDates.length-1;
+
+    // Crisis markers
+    markers.innerHTML='';
+    RADAR_CRISIS.forEach(ev=>{
+      const idx = displayDates.findIndex(d=>d>=ev.date);
+      if (idx<0) return;
+      const pct = idx/total*100;
+      const m = document.createElement('div');
+      m.title = ev.label;
+      m.style.cssText=`position:absolute;left:${pct}%;transform:translateX(-50%);
+        display:flex;flex-direction:column;align-items:center;cursor:default;pointer-events:auto;`;
+      m.innerHTML=`<div style="width:1px;height:10px;background:#C62828;opacity:0.6;"></div>
+        <div style="font-size:9px;color:#C62828;white-space:nowrap;margin-top:1px;">${ev.label}</div>`;
+      markers.appendChild(m);
+    });
+
+    // Year ticks
+    yearEl.innerHTML='';
+    const startYear = parseInt(displayDates[0].slice(0,4));
+    const endYear   = parseInt(displayDates[total].slice(0,4));
+    for (let y=startYear;y<=endYear;y++) {
+      const idx = displayDates.findIndex(d=>d.startsWith(y+'-'));
+      if (idx<0) continue;
+      const pct = idx/total*100;
+      const t = document.createElement('div');
+      t.style.cssText=`position:absolute;left:${pct}%;transform:translateX(-50%);
+        font-size:10px;color:#999;`;
+      t.textContent=y;
+      yearEl.appendChild(t);
+    }
+  }
+
+  // Main init — called after v3 data loads
+  let radarCache = []; // [{date, scores, composite}]
+  let refScores  = {};
+
+  window.initRadarTimeline = async function() {
+    try {
+      // Fetch data independently (different time window from v3)
+      const [walcl,tga,rrp,res,effrD,iorbD,sofrD] = await Promise.all([
+        rFetch('WALCL','w'), rFetch('WDTGAL','w'), rFetch('RRPONTSYD','w'),
+        rFetch('WRESBAL','w'), rFetch('EFFR'), rFetch('IORB'), rFetch('SOFR'),
+      ]);
+
+      const effrMap = buildDailyMap(effrD);
+      const iorbMap = buildDailyMap(iorbD);
+      const sofrMap = buildDailyMap(sofrD);
+
+      // Align on WALCL dates
+      const walclMap={}, tgaMap={}, rrpMap={}, resMap={};
+      walcl.forEach(o=>walclMap[o.date]=o.value);
+      tga.forEach(o=>tgaMap[o.date]=o.value);
+      rrp.forEach(o=>rrpMap[o.date]=o.value);
+      res.forEach(o=>resMap[o.date]=o.value);
+
+      const allDates = Object.keys(walclMap).sort();
+
+      // Build value arrays for rolling pct
+      const nlArr=[],tgaArr=[],rrpArr=[],resArr=[];
+      allDates.forEach(d=>{
+        const w=walclMap[d]??NaN, t=tgaMap[d]??NaN, r=rrpMap[d]??0, rs=resMap[d]??NaN;
+        nlArr.push(w-t-r); tgaArr.push(t); rrpArr.push(r); resArr.push(rs);
+      });
+
+      // Pre-compute scores for every date
+      const allCache = allDates.map((d,i)=>{
+        const nlPct  = isNaN(nlArr[i])  ? 0.5 : rollingPct(nlArr, i, RADAR_ROLLING);
+        const tgaPct = isNaN(tgaArr[i]) ? 0.5 : rollingPct(tgaArr,i, RADAR_ROLLING);
+        const resPct = isNaN(resArr[i]) ? 0.5 : rollingPct(resArr,i, RADAR_ROLLING);
+        const rrpPct = isNaN(rrpArr[i]) ? 0.5 : rollingPct(rrpArr,i, RADAR_ROLLING);
+        const effrBp = dailyMean(effrMap,d)*100;
+        const iorbBp = dailyMean(iorbMap,d)*100;
+        const sofrBp = dailyMean(sofrMap,d)*100;
+        const eiMean = isNaN(effrBp)||isNaN(iorbBp) ? 3 : effrBp-iorbBp;
+        const seMean = isNaN(sofrBp)||isNaN(effrBp) ? 1 : sofrBp-effrBp;
+        const scores = {
+          nl:       fromPct(nlPct),
+          tga:      fromPctTGA(tgaPct),
+          reserves: fromPct(resPct),
+          effrIorb: scoreEI(eiMean),
+          sofrEffr: scoreSE(seMean),
+          rrp:      fromPct(rrpPct),
+        };
+        return { date:d, scores, composite:composite(scores) };
+      });
+
+      // COVID reference
+      const covidEntry = allCache.find(e=>e.date>=COVID_REF) || allCache[0];
+      refScores = covidEntry.scores;
+
+      // Display slice
+      radarCache = allCache.filter(e=>e.date>=RADAR_DISPLAY_START);
+      const displayDates = radarCache.map(e=>e.date);
+
+      // Init chart + UI
+      initRadarChart();
+      buildDimBars();
+      buildTimeline(displayDates);
+
+      // Show latest
+      showRadarEntry(radarCache.length-1);
+
+      // Slider interaction
+      const slider = document.getElementById('gcpSlider');
+      if (slider) slider.addEventListener('input', ()=>showRadarEntry(parseInt(slider.value)));
+
+    } catch(e) {
+      console.warn('Radar timeline init failed:', e);
+      const wrap = document.getElementById('gcpTimelineWrap');
+      if (wrap) wrap.style.display='none';
+    }
+  };
+
+  function showRadarEntry(idx) {
+    const entry = radarCache[idx];
+    if (!entry) return;
+    const { date, scores, composite: comp } = entry;
+    const dimArr = DIM_KEYS.map(k=>scores[k]);
+    const sci = Math.min(5,Math.max(1,Math.round(comp)));
+    const col = SCOLORS[sci]||'#757575';
+    const labels=['','极度宽松','宽松','中性','偏紧','极度紧张'];
+
+    // Date display
+    const dateEl = document.getElementById('gcpCurrentDate');
+    if (dateEl) dateEl.innerHTML=`<span style="font-weight:700;color:var(--text);">${date}</span>
+      <span style="margin-left:8px;font-weight:800;font-size:13px;color:${col};">${comp.toFixed(1)}</span>
+      <span style="margin-left:4px;font-size:11px;color:${col};">${labels[sci]}</span>`;
+
+    updateRadarChart(scores, refScores, dimArr);
+    updateDimBars(scores);
+  }
+
+})();
+
+// Trigger radar init after data loads (hooked into loadData flow)
+const _origRenderAll = typeof renderAll === 'function' ? renderAll : null;
 
 // Auto-load on page open
 window.addEventListener('DOMContentLoaded', loadData);
