@@ -406,8 +406,10 @@ function loadingText(msg) {
   document.getElementById('loading-text').textContent = msg;
 }
 
+const FRED_API_KEY = 'cd80bce065d6d311df574fbe558929f6';
+
 async function fredFetch(seriesId, frequency) {
-  let url = `/fred?series_id=${seriesId}&observation_start=${OBS_START}`;
+  let url = `/fred?series_id=${seriesId}&observation_start=${OBS_START}&api_key=${FRED_API_KEY}&file_type=json`;
   if (frequency) url += `&frequency=${frequency}`;
   const r = await fetch(url);
   if (!r.ok) throw new Error(`FRED ${seriesId} failed: ${r.status}`);
