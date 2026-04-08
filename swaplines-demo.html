@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Fed Swap Lines Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #222; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 32px; }
+
+  h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .sub { font-size: 12px; color: #888; margin-bottom: 28px; }
+
+  .kpi-row {
+    display: flex; gap: 20px; margin-bottom: 28px; flex-wrap: wrap;
+  }
+  .kpi {
+    background: #F5F5F5; border-radius: 6px; padding: 16px 22px;
+    min-width: 180px;
+  }
+  .kpi-label { font-size: 11px; color: #888; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .kpi-val { font-size: 22px; font-weight: 700; }
+  .kpi-val.stress { color: #C62828; }
+  .kpi-val.normal { color: #2E7D32; }
+  .kpi-sub { font-size: 11px; color: #999; margin-top: 4px; }
+
+  .chart-card {
+    background: #FAFAFA; border: 1px solid #E8E8E8; border-radius: 8px;
+    padding: 20px 24px; margin-bottom: 24px;
+  }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .chart-desc { font-size: 11px; color: #888; margin-bottom: 16px; }
+  canvas { max-height: 280px; }
+
+  .event-legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    font-size: 11px; color: #666; margin-top: 12px;
+  }
+  .event-legend span { display: flex; align-items: center; gap: 5px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+
+  .note {
+    background: #FFF8E1; border-left: 3px solid #E8700A;
+    padding: 12px 16px; font-size: 12px; color: #555; border-radius: 0 6px 6px 0;
+    margin-top: 24px; line-height: 1.7;
+  }
+  .note b { color: #E8700A; }
+
+  #status { font-size: 12px; color: #888; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<h1>Fed Swap Lines — Central Bank Liquidity Swaps (SWPT)</h1>
+<div class="sub">FRED · 周度 · 单位：十亿美元 &nbsp;|&nbsp; 数据来源：Federal Reserve H.4.1</div>
+
+<div id="status">加载中…</div>
+
+<div class="kpi-row" id="kpiRow"></div>
+
+<div class="chart-card">
+  <div class="chart-title">Swap Lines 使用量（2015–至今）</div>
+  <div class="chart-desc">平时接近零；危机时急剧飙升，是美元全球流动性最极端的压力计</div>
+  <canvas id="c-main"></canvas>
+  <div class="event-legend">
+    <span><span class="dot" style="background:#C62828;"></span>COVID 崩盘（2020-03）</span>
+    <span><span class="dot" style="background:#1565C0;"></span>GFC 峰值（2008-10）</span>
+    <span><span class="dot" style="background:#6A1B9A;"></span>欧债危机（2011-09）</span>
+  </div>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">近 3 年放大视图</div>
+  <div class="chart-desc">COVID 以后 Swap Lines 基本归零；当前使用量 = 离岸美元压力极低</div>
+  <canvas id="c-zoom"></canvas>
+</div>
+
+<div class="note">
+  <b>如何读这张图：</b><br>
+  · Swap Lines 正常情况接近 <b>$0</b>，表示离岸美元融资畅通，无需 Fed 背书<br>
+  · <b>COVID 峰值（2020-03）约 $4,480 亿</b>，远超 GFC 时期；Fed 在两周内向全球央行输送大量美元<br>
+  · 当前值接近零 → 离岸美元市场无系统性压力（但不代表无压力，EUR/USD CCS Basis 才是日度早期预警）<br>
+  · 触发时机：Swap Lines 飙升 <b>往往滞后于 CCS Basis 扩大 1–2 周</b>，属于确认信号而非领先信号
+</div>
+
+<script>
+const FRED_PROXY = '/api/fred';
+const API_KEY    = 'cd80bce065d6d311df574fbe558929f6';
+
+const EVENTS = [
+  { date: '2008-10-08', label: 'GFC峰值', color: '#1565C0' },
+  { date: '2011-09-07', label: '欧债危机', color: '#6A1B9A' },
+  { date: '2020-03-18', label: 'COVID', color: '#C62828' },
+];
+
+async function fetchSwpt() {
+  const params = new URLSearchParams({
+    series_id: 'SWPT', api_key: API_KEY, file_type: 'json',
+    observation_start: '2007-01-01', sort_order: 'asc',
+  });
+  const r = await fetch(`${FRED_PROXY}?${params}`);
+  const d = await r.json();
+  const out = {};
+  for (const o of d.observations) {
+    if (o.value !== '.') out[o.date] = parseFloat(o.value) / 1000; // M → B
+  }
+  return out;
+}
+
+function makeEventPlugin(data) {
+  return {
+    id: 'eventLines',
+    afterDraw(chart) {
+      const { ctx, scales: { x, y } } = chart;
+      EVENTS.forEach(ev => {
+        const px = x.getPixelForValue(new Date(ev.date).getTime());
+        if (px < x.left || px > x.right) return;
+        ctx.save();
+        ctx.setLineDash([5, 4]);
+        ctx.strokeStyle = ev.color;
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(px, y.top);
+        ctx.lineTo(px, y.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1;
+        ctx.font = '9px monospace';
+        ctx.fillStyle = ev.color;
+        ctx.fillText(ev.label, px + 3, y.top + 12);
+        ctx.restore();
+      });
+    }
+  };
+}
+
+function buildChart(canvasId, data, cutDate, showEvents) {
+  const dates = Object.keys(data).sort().filter(d => d >= cutDate);
+  const pts   = dates.map(d => ({ x: d, y: data[d] }));
+
+  const plugins = showEvents ? [makeEventPlugin(data)] : [];
+
+  new Chart(document.getElementById(canvasId), {
+    type: 'line',
+    plugins,
+    data: {
+      datasets: [{
+        label: 'Swap Lines (B USD)',
+        data: pts,
+        borderColor: '#E8700A',
+        backgroundColor: 'rgba(232,112,10,0.1)',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.15,
+        fill: true,
+        spanGaps: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#FFF', titleColor: '#E8700A', bodyColor: '#444',
+          borderColor: '#E0E0E0', borderWidth: 1,
+          callbacks: {
+            label: c => ` Swap Lines: $${c.parsed.y.toFixed(1)}B`
+          }
+        },
+      },
+      scales: {
+        x: {
+          type: 'time',
+          time: { unit: canvasId === 'c-zoom' ? 'month' : 'year',
+                  displayFormats: { month: 'yy-MM', year: 'yyyy' } },
+          ticks: { color: '#666', font: { size: 10 }, maxTicksLimit: 12 },
+          grid: { color: '#EEEEEE' },
+        },
+        y: {
+          ticks: { color: '#999', font: { size: 10 }, callback: v => '$' + v.toFixed(0) + 'B' },
+          grid: { color: '#EEEEEE' },
+          title: { display: true, text: 'Billion USD', color: '#999', font: { size: 10 } },
+        }
+      }
+    }
+  });
+}
+
+function renderKPIs(data) {
+  const dates = Object.keys(data).sort();
+  const last  = dates[dates.length - 1];
+  const val   = data[last];
+  const peak  = Math.max(...Object.values(data));
+  const peakDate = dates.find(d => data[d] === peak);
+
+  // 近期最大值（过去1年内）
+  const cut1y = new Date(); cut1y.setFullYear(cut1y.getFullYear() - 1);
+  const cut1yStr = cut1y.toISOString().slice(0, 10);
+  const recent1y = dates.filter(d => d >= cut1yStr).map(d => data[d]);
+  const recentMax = recent1y.length ? Math.max(...recent1y) : 0;
+
+  const isStress = val > 10; // >$10B 算有动作
+
+  document.getElementById('kpiRow').innerHTML = `
+    <div class="kpi">
+      <div class="kpi-label">当前使用量</div>
+      <div class="kpi-val ${isStress ? 'stress' : 'normal'}">$${val.toFixed(1)}B</div>
+      <div class="kpi-sub">截至 ${last}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">历史峰值</div>
+      <div class="kpi-val stress">$${(peak/1000).toFixed(1)}T</div>
+      <div class="kpi-sub">${peakDate}（COVID 峰值）</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">近1年最大值</div>
+      <div class="kpi-val ${recentMax > 10 ? 'stress' : 'normal'}">$${recentMax.toFixed(1)}B</div>
+      <div class="kpi-sub">${recentMax < 5 ? '离岸美元市场平静' : '需关注动态'}</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">压力信号</div>
+      <div class="kpi-val ${isStress ? 'stress' : 'normal'}">${isStress ? '⚠️ 活跃' : '✅ 静默'}</div>
+      <div class="kpi-sub">${isStress ? '离岸美元需求上升' : '无系统性压力'}</div>
+    </div>
+  `;
+}
+
+async function main() {
+  try {
+    const data = await fetchSwpt();
+    document.getElementById('status').textContent =
+      `数据已加载 · ${Object.keys(data).length} 个周度观测值`;
+
+    renderKPIs(data);
+    buildChart('c-main', data, '2007-01-01', true);
+    buildChart('c-zoom', data, '2022-01-01', false);
+  } catch(e) {
+    document.getElementById('status').textContent = '加载失败：' + e.message;
+  }
+}
+
+main();
+</script>
+</body>
+</html>
