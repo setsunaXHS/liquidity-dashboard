@@ -1646,21 +1646,27 @@ function buildCommentary(score, raw) {
 
   // 句1：压力来源
   const pressures = [];
-  if (resVal != null && resVal < 3.0) pressures.push(`准备金 <b>${fmt(resVal)}</b> 已低于 $3T 警戒线`);
+  if (resVal != null && resVal < 3.0) pressures.push(`准备金 <b>${fmt(resVal)}</b> 已跌破 $3T 警戒线，处于高度敏感区域`);
+  else if (resVal != null && resVal < 3.3) pressures.push(`准备金 <b>${fmt(resVal)}</b> 已逼近 $3T 警戒线，缓冲空间有限`);
   if (rrpVal != null && rrpVal < 0.1) pressures.push(`ON RRP 缓冲垫 <b>${fmt(rrpVal)}</b> 基本耗尽`);
   if (tgaVal != null && tgaVal > 0.8) pressures.push(`TGA <b>${fmt(tgaVal)}</b> 处于较高水位，持续抽水`);
   if (effrIorbVal != null && effrIorbVal > -2) pressures.push(`EFFR-IORB 利差收窄至 <b>${fmtBp(effrIorbVal)}</b>，货币市场压力上升`);
   if (nlPct != null && nlPct < 30) pressures.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏紧`);
   if (nl4wChg != null && nl4wChg < -0.05) pressures.push(`净流动性近4周收缩 <b>${fmt(nl4wChg)}</b>`);
 
-  // 句2：缓冲/支撑因素
+  // 句2：真正的支撑因素（高置信度，条件严格）
+  // 原则：说不出高 conviction 的就不说，不凑句子
   const supports = [];
-  if (tgaVal != null && tgaVal > 0.5) supports.push(`TGA 余额 ${fmt(tgaVal)}，若债务上限解除可释放大量流动性`);
-  if (rrpVal != null && rrpVal > 0.3) supports.push(`ON RRP 仍有 ${fmt(rrpVal)} 缓冲垫`);
-  if (resVal != null && resVal >= 3.0) supports.push(`准备金仍在 $3T 警戒线上方`);
-  if (res4wChg != null && res4wChg > 0.05) supports.push(`准备金近4周改善 +${fmt(res4wChg)}`);
-  if (nlPct != null && nlPct >= 50) supports.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏宽松`);
-  if (nl4wChg != null && nl4wChg > 0.05) supports.push(`净流动性近4周扩张 +${fmt(nl4wChg)}`);
+  // RRP 仍有充足缓冲垫（>$100B 才算真正有余量）
+  if (rrpVal != null && rrpVal > 0.1) supports.push(`ON RRP 仍有 <b>${fmt(rrpVal)}</b> 缓冲垫，尚未耗尽`);
+  // 净流动性分位偏高（>50% 才算真正宽松区间）
+  if (nlPct != null && nlPct >= 50) supports.push(`净流动性处于近2年第 <b>${nlPct}%</b> 分位，历史中位以上`);
+  // 净流动性近期显著扩张（>$0.2T 才有意义，小幅波动不算）
+  if (nl4wChg != null && nl4wChg > 0.2) supports.push(`净流动性近4周显著扩张 <b>+${fmt(nl4wChg)}</b>`);
+  // EFFR-IORB 仍在健康区间（<= -5bp，货币市场无压力）
+  if (effrIorbVal != null && effrIorbVal <= -5) supports.push(`EFFR-IORB 利差 <b>${fmtBp(effrIorbVal)}</b>，货币市场运转正常`);
+  // 准备金近期明显改善（绝对值同时仍需合理，否则从极低反弹不算支撑）
+  if (res4wChg != null && res4wChg > 0.15 && resVal != null && resVal > 2.8) supports.push(`准备金近4周改善 <b>+${fmt(res4wChg)}</b>`);
 
   // 句3：一句话结论
   const conclusions = {
