@@ -1,1 +1,24 @@
-{"ok":true,"news":[],"fetchedAt":"2026-04-08"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "Fed Balance Sheet & Net Liquidity: TGA at $848B, Total Assets $4,390B as of April 1",
+      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
+      "desc": "As of April 1, 2026, the Federal Reserve balance sheet stands at $4,390B. The Treasury General Account (TGA) is at $848B on the liability side, with reserve balances and net liquidity metrics updated weekly.",
+      "date": "2026-04-01"
+    },
+    {
+      "title": "NY Fed: TGA Rebuild and QT Runoff Brought System Liquidity to Lowest Levels Since Runoff Began",
+      "url": "https://www.newyorkfed.org/newsevents/speeches/2026/per260326",
+      "desc": "A March 26 NY Fed speech on reserve management purchases highlighted that the TGA rebuild combined with cumulative QT balance sheet runoff drove system liquidity to its lowest point since quantitative tightening began, signaling tightening financial conditions.",
+      "date": "2026-03-26"
+    },
+    {
+      "title": "The Fed's Balance Sheet: Reserve Scarcity, QT Strategy, and TGA Volatility",
+      "url": "https://e-axes.com/the-feds-balance-sheet-reserve-scarcity-qt-strategy-and-tga-volatility/",
+      "desc": "New Fed research establishes that reserves plus ON RRP balances of roughly $2.3 trillion would approach September 2019 scarcity levels. The analysis examines QT strategy risks and TGA-driven liquidity volatility heading into 2026.",
+      "date": "2026-02-11"
+    }
+  ],
+  "fetchedAt": "2026-04-08"
+}
