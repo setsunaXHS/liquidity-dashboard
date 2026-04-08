@@ -1644,29 +1644,24 @@ function buildCommentary(score, raw) {
   const fmt = v => v != null ? `$${Math.abs(v).toFixed(2)}T` : '—';
   const fmtBp = v => v != null ? `${v.toFixed(1)}bp` : '—';
 
-  // 句1：净流动性总体定位
-  if (nlVal != null) {
-    const pctStr = nlPct != null ? `，处于近2年第 ${nlPct}% 分位` : '';
-    const momentStr = nl4wChg != null
-      ? (nl4wChg > 0.05 ? `，近4周扩张 +${fmt(nl4wChg)}` : nl4wChg < -0.05 ? `，近4周收缩 ${'-'+fmt(nl4wChg)}` : '，近4周基本持平')
-      : '';
-    parts.push(`净流动性当前 <b>${fmt(nlVal)}</b>${pctStr}${momentStr}。`);
-  }
-
-  // 句2：压力来源
+  // 句1：压力来源
   const pressures = [];
   if (resVal != null && resVal < 3.0) pressures.push(`准备金 <b>${fmt(resVal)}</b> 已低于 $3T 警戒线`);
   if (rrpVal != null && rrpVal < 0.1) pressures.push(`ON RRP 缓冲垫 <b>${fmt(rrpVal)}</b> 基本耗尽`);
   if (tgaVal != null && tgaVal > 0.8) pressures.push(`TGA <b>${fmt(tgaVal)}</b> 处于较高水位，持续抽水`);
   if (effrIorbVal != null && effrIorbVal > -2) pressures.push(`EFFR-IORB 利差收窄至 <b>${fmtBp(effrIorbVal)}</b>，货币市场压力上升`);
+  if (nlPct != null && nlPct < 30) pressures.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏紧`);
+  if (nl4wChg != null && nl4wChg < -0.05) pressures.push(`净流动性近4周收缩 <b>${fmt(nl4wChg)}</b>`);
   if (pressures.length) parts.push(`主要压力：${pressures.join('；')}。`);
 
-  // 句3：缓冲/支撑因素
+  // 句2：缓冲/支撑因素
   const supports = [];
-  if (tgaVal != null && tgaVal > 0.5) supports.push(`TGA 余额 ${fmt(tgaVal)} 若债务上限解除，可释放大量流动性`);
+  if (tgaVal != null && tgaVal > 0.5) supports.push(`TGA 余额 ${fmt(tgaVal)}，若债务上限解除可释放大量流动性`);
   if (rrpVal != null && rrpVal > 0.3) supports.push(`ON RRP 仍有 ${fmt(rrpVal)} 缓冲垫`);
-  if (resVal != null && resVal >= 3.0) supports.push(`准备金仍在警戒线以上`);
+  if (resVal != null && resVal >= 3.0) supports.push(`准备金仍在 $3T 警戒线上方`);
   if (res4wChg != null && res4wChg > 0.05) supports.push(`准备金近4周改善 +${fmt(res4wChg)}`);
+  if (nlPct != null && nlPct >= 50) supports.push(`净流动性处于近2年第 ${nlPct}% 分位，历史偏宽松`);
+  if (nl4wChg != null && nl4wChg > 0.05) supports.push(`净流动性近4周扩张 +${fmt(nl4wChg)}`);
   if (supports.length) parts.push(`支撑因素：${supports.join('；')}。`);
 
   // 句4：一句话结论
