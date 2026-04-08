@@ -48,929 +48,783 @@
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-size: 14px; color: #555; }
-  #loading-detail { font-size: 12px; color: #999; max-width: 320px; text-align: center; }
+  #loading-text {
+    font-size: 13px;
+    color: #555;
+  }
 
   /* ── Main layout ── */
   .main-grid {
     display: grid;
-    grid-template-columns: 1fr 260px;
-    gap: 20px;
-    align-items: start;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
   }
 
   .card {
     background: #F5F5F5;
     border: 1px solid #E0E0E0;
     border-radius: 8px;
-    padding: 20px;
-  }
-
-  /* ── Radar ── */
-  .radar-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  #radarChart { display: block; }
-
-  /* ── Score panel ── */
-  .score-panel {
-    display: flex; flex-direction: column; gap: 14px;
-  }
-  .score-big {
-    text-align: center;
     padding: 16px;
-    background: #fff;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
   }
-  .score-num {
-    font-size: 56px;
+
+  /* ── Radar card ── */
+  .radar-card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 340px;
+  }
+
+  #radarCanvas {
+    max-width: 320px;
+    max-height: 320px;
+  }
+
+  /* ── Score card ── */
+  .score-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .current-date {
+    font-size: 12px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .composite-score-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  #compositeScore {
+    font-size: 72px;
     font-weight: 700;
     line-height: 1;
-    color: #E8700A;
-  }
-  .score-label {
-    font-size: 14px;
-    font-weight: 600;
-    color: #555;
-    margin-top: 4px;
-  }
-  .score-date {
-    font-size: 11px;
-    color: #999;
-    margin-top: 6px;
+    transition: color 0.2s;
   }
 
-  .dim-scores { display: flex; flex-direction: column; gap: 6px; }
+  .score-label {
+    font-size: 13px;
+    color: #888;
+  }
+
+  .rating-text {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  /* ── Dimension bars ── */
+  .dim-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+  }
+
   .dim-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 12px;
   }
-  .dim-name { flex: 1; color: #555; }
-  .dim-name.stressed { color: #D93025; font-weight: 600; }
-  .dim-bar-wrap {
-    width: 80px; height: 6px;
+
+  .dim-name {
+    font-size: 11px;
+    color: #555;
+    width: 90px;
+    flex-shrink: 0;
+  }
+
+  .dim-name.stress { color: #C62828; font-weight: 600; }
+
+  .bar-track {
+    flex: 1;
+    height: 6px;
     background: #E0E0E0;
     border-radius: 3px;
     overflow: hidden;
   }
-  .dim-bar {
+
+  .bar-fill {
     height: 100%;
     border-radius: 3px;
-    transition: width 0.2s;
+    transition: width 0.15s, background 0.15s;
   }
+
   .dim-val {
-    width: 20px;
+    font-size: 11px;
+    color: #888;
+    width: 16px;
     text-align: right;
-    font-weight: 600;
-    color: #333;
-  }
-  .dim-val.stressed { color: #D93025; }
-
-  /* ── Timeline section ── */
-  .timeline-section {
-    margin-top: 20px;
-  }
-  .tl-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-  }
-  #currentDateLabel {
-    flex: 1;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    color: #333;
   }
 
-  .btn {
-    padding: 7px 20px;
-    border: 1px solid #E0E0E0;
-    border-radius: 5px;
-    background: #F5F5F5;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s, border-color 0.15s;
-    color: #333;
-  }
-  .btn:hover:not(:disabled) { background: #E8700A; color: #fff; border-color: #E8700A; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .btn.playing { background: #E8700A; color: #fff; border-color: #E8700A; }
-
-  /* ── Slider container ── */
-  .slider-container {
-    position: relative;
-    padding: 32px 8px 28px;
+  /* ── Timeline slider ── */
+  .timeline-card {
     background: #F5F5F5;
     border: 1px solid #E0E0E0;
     border-radius: 8px;
+    padding: 16px 20px 12px;
   }
 
-  /* Crisis markers */
-  .crisis-markers {
-    position: absolute;
-    top: 0; left: 8px; right: 8px;
-    height: 28px;
-    pointer-events: none;
-  }
-  .crisis-mark {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transform: translateX(-50%);
-    pointer-events: auto;
-    cursor: default;
-  }
-  .crisis-label {
-    font-size: 9px;
-    color: #D93025;
-    white-space: nowrap;
-    line-height: 1.2;
-    text-align: center;
-    font-weight: 600;
-  }
-  .crisis-tick {
-    width: 1px;
-    height: 8px;
-    background: #D93025;
-    margin-top: 1px;
-  }
-  .crisis-mark:hover .crisis-tooltip {
-    display: block;
-  }
-  .crisis-tooltip {
-    display: none;
-    position: absolute;
-    top: 26px;
-    background: #333;
-    color: #fff;
-    font-size: 11px;
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
+  .slider-container {
+    position: relative;
+    margin-bottom: 28px;
   }
 
-  /* Range input */
-  input[type=range] {
+  #timeSlider {
+    width: 100%;
     -webkit-appearance: none;
     appearance: none;
-    width: 100%;
     height: 4px;
-    background: linear-gradient(to right, #E8700A 0%, #E8700A var(--pct, 0%), #D0D0D0 var(--pct, 0%), #D0D0D0 100%);
+    background: #E0E0E0;
     border-radius: 2px;
     outline: none;
     cursor: pointer;
   }
-  input[type=range]:disabled { cursor: not-allowed; opacity: 0.5; }
-  input[type=range]::-webkit-slider-thumb {
+
+  #timeSlider::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 16px; height: 16px;
-    border-radius: 50%;
-    background: #E8700A;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-    cursor: pointer;
-  }
-  input[type=range]::-moz-range-thumb {
     width: 14px; height: 14px;
     border-radius: 50%;
     background: #E8700A;
-    border: 2px solid #fff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
     cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  #timeSlider::-moz-range-thumb {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: #E8700A;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+
+  /* Crisis markers */
+  .markers-row {
+    position: absolute;
+    top: -20px;
+    left: 0; right: 0;
+    pointer-events: none;
+  }
+
+  .crisis-marker {
+    position: absolute;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: auto;
+    cursor: default;
+  }
+
+  .crisis-marker .marker-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #C62828;
+    margin-bottom: 2px;
+  }
+
+  .crisis-marker .marker-label {
+    font-size: 9px;
+    color: #C62828;
+    white-space: nowrap;
+    background: #FFF;
+    padding: 0 2px;
+    letter-spacing: -0.01em;
   }
 
   /* Year ticks */
   .year-ticks {
-    position: absolute;
-    bottom: 4px; left: 8px; right: 8px;
-    height: 22px;
-    pointer-events: none;
+    position: relative;
+    height: 16px;
+    margin-top: 4px;
   }
+
   .year-tick {
     position: absolute;
     transform: translateX(-50%);
-    display: flex; flex-direction: column; align-items: center;
-    gap: 1px;
-  }
-  .year-tick-line {
-    width: 1px; height: 5px;
-    background: #AAAAAA;
-  }
-  .year-tick-label {
     font-size: 10px;
-    color: #888;
+    color: #999;
   }
 
-  /* ── Legend ── */
-  .legend {
-    display: flex; gap: 16px;
+  /* Legend */
+  .radar-legend {
+    display: flex;
+    gap: 16px;
     margin-top: 8px;
     font-size: 11px;
-    color: #888;
-    justify-content: flex-end;
-  }
-  .legend-item { display: flex; align-items: center; gap: 4px; }
-  .legend-line {
-    width: 24px; height: 2px;
-    border-radius: 1px;
-  }
-  .legend-line.solid { background: #E8700A; }
-  .legend-line.dashed {
-    background: repeating-linear-gradient(to right, #D93025 0, #D93025 4px, transparent 4px, transparent 8px);
+    color: #666;
   }
 
-  @media (max-width: 640px) {
-    .main-grid { grid-template-columns: 1fr; }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .legend-line {
+    width: 20px;
+    height: 2px;
+  }
+
+  .legend-line.current {
+    background: #E8700A;
+  }
+
+  .legend-line.ref {
+    background: #C62828;
+    border-top: 2px dashed #C62828;
+    height: 0;
   }
 </style>
 </head>
 <body>
 
-<!-- Loading -->
+<!-- Loading overlay -->
 <div id="loading-overlay">
   <div class="spinner"></div>
-  <div class="loading-text">正在加载流动性数据…</div>
-  <div id="loading-detail">连接 FRED 数据源</div>
+  <div id="loading-text">正在加载数据…</div>
 </div>
 
+<!-- Header -->
 <h1>美联储流动性压力雷达</h1>
-<p class="subtitle">数据来源：FRED · 周度更新 · 评分 1=宽松 5=紧缩</p>
+<p class="subtitle">Fed Liquidity Stress Monitor · 5年滚动历史分位 · 数据来源 FRED</p>
 
-<!-- Main -->
+<!-- Main grid -->
 <div class="main-grid">
   <!-- Radar -->
-  <div class="card">
-    <div class="radar-wrap">
-      <canvas id="radarChart" width="460" height="380"></canvas>
-    </div>
-    <div class="legend">
-      <div class="legend-item"><div class="legend-line solid"></div>当前</div>
-      <div class="legend-item"><div class="legend-line dashed"></div>2019-09 Repo危机</div>
-    </div>
+  <div class="card radar-card">
+    <canvas id="radarCanvas"></canvas>
   </div>
 
   <!-- Score panel -->
-  <div class="score-panel">
-    <div class="card score-big">
-      <div class="score-num" id="scoreNum">—</div>
-      <div class="score-label" id="scoreLabel">—</div>
-      <div class="score-date" id="scoreDate">—</div>
-    </div>
-    <div class="card">
-      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:10px;">各维度评分</div>
-      <div class="dim-scores" id="dimScores">
-        <!-- filled by JS -->
+  <div class="card score-card">
+    <div class="current-date" id="currentDate">—</div>
+
+    <div>
+      <div class="composite-score-wrap">
+        <div id="compositeScore">—</div>
+        <div class="score-label">/ 5 综合压力</div>
       </div>
+      <div id="ratingText" class="rating-text" style="margin-top:6px;">—</div>
+    </div>
+
+    <!-- Legend -->
+    <div class="radar-legend">
+      <div class="legend-item">
+        <div class="legend-line current"></div>
+        <span>当前</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-line ref"></div>
+        <span>COVID崩盘(2020-03)</span>
+      </div>
+    </div>
+
+    <!-- Dimension bars -->
+    <div class="dim-bars" id="dimBars">
+      <!-- populated by JS -->
     </div>
   </div>
 </div>
 
 <!-- Timeline -->
-<div class="timeline-section">
-  <div class="tl-header">
-    <button class="btn" id="playBtn" disabled>▶ 播放</button>
-    <div id="currentDateLabel">—</div>
-    <button class="btn" id="resetBtn" disabled>⟳ 重置</button>
+<div class="timeline-card">
+  <div class="slider-container">
+    <div class="markers-row" id="markersRow"></div>
+    <input type="range" id="timeSlider" min="0" max="0" value="0" step="1">
   </div>
-  <div class="slider-container" id="sliderContainer">
-    <div class="crisis-markers" id="crisisMarkers"></div>
-    <input type="range" id="timeSlider" min="0" value="0" disabled>
-    <div class="year-ticks" id="yearTicks"></div>
-  </div>
+  <div class="year-ticks" id="yearTicks"></div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════════════════
-const SERIES = ['WALCL','WDTGAL','RRPONTSYD','WRESBAL','EFFR','IORB','SOFR'];
-const FRED_BASE = '/fred';
-const OBS_START = '2017-01-01';
+// ─────────────────────────────────────────────────────────────
+// CONFIG
+// ─────────────────────────────────────────────────────────────
+const OBS_START      = '2019-01-01'; // data fetch start (for rolling window base)
+const DISPLAY_START  = '2020-01-01'; // slider display start
+const ROLLING_WINDOW = 260;          // 5 years of weekly data
 
 const CRISIS_EVENTS = [
-  { date: '2019-09-17', label: 'Repo危机',  full: '2019-09-17 Repo市场流动性危机' },
-  { date: '2020-03-09', label: 'COVID',      full: '2020-03-09 COVID崩盘' },
-  { date: '2022-06-01', label: 'QT开始',    full: '2022-06-01 美联储缩表开始' },
-  { date: '2023-03-10', label: 'SVB危机',   full: '2023-03-10 硅谷银行危机' },
-  { date: '2023-06-03', label: 'TGA重建',   full: '2023-06-03 财政部TGA重建' },
-  { date: '2025-12-01', label: 'QT停止',    full: '2025-12-01 美联储停止缩表' },
+  { date: '2020-03-09', label: 'COVID崩盘' },
+  { date: '2022-06-01', label: 'QT开始' },
+  { date: '2023-03-10', label: 'SVB危机' },
+  { date: '2023-06-03', label: 'TGA重建' },
+  { date: '2025-12-01', label: 'QT停止' },
 ];
 
-const DIM_NAMES = ['净流动性','TGA','准备金','EFFR-IORB','SOFR-EFFR','ON RRP'];
-const WEIGHTS   = [0.25, 0.18, 0.22, 0.20, 0.10, 0.05];
+const COVID_REF_DATE = '2020-03-09'; // reference snapshot for radar comparison
 
-// ══════════════════════════════════════════════════════════
-//  HELPERS
-// ══════════════════════════════════════════════════════════
-function parseDate(s) { return new Date(s + 'T00:00:00Z'); }
-function fmtDate(d)   { return d.toISOString().slice(0,10); }
-function weekKey(d)   {
-  // ISO Monday
-  const t = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
-  const day = t.getUTCDay() || 7;
-  t.setUTCDate(t.getUTCDate() - day + 1);
-  return t.toISOString().slice(0,10);
-}
-function scoreColor(s) {
-  if (s <= 1.5) return '#2E7D32';
-  if (s <= 2.5) return '#558B2F';
-  if (s <= 3.5) return '#F57F17';
-  if (s <= 4.2) return '#E65100';
-  return '#B71C1C';
-}
-function scoreText(s) {
-  if (s <= 1.5) return '宽松';
-  if (s <= 2.5) return '较宽松';
-  if (s <= 3.5) return '中性';
-  if (s <= 4.2) return '偏紧';
-  return '紧缩';
-}
-function barColor(v) {
-  if (v <= 2) return '#4CAF50';
-  if (v <= 3) return '#FF9800';
-  return '#D93025';
+const WEIGHTS = {
+  nl:       0.25,
+  tga:      0.18,
+  reserves: 0.22,
+  effrIorb: 0.20,
+  sofrEffr: 0.10,
+  rrp:      0.05,
+};
+
+const DIM_LABELS = ['净流动性', 'TGA', '准备金', 'EFFR-IORB', 'SOFR-EFFR', 'ON RRP'];
+const DIM_KEYS   = ['nl', 'tga', 'reserves', 'effrIorb', 'sofrEffr', 'rrp'];
+
+// Score → color mapping
+const SCORE_COLORS = {
+  1: '#2E7D32',
+  2: '#00838F',
+  3: '#757575',
+  4: '#E8700A',
+  5: '#C62828',
+};
+
+const RATING_LABELS = {
+  1: { text: '极度宽松', bg: '#E8F5E9', color: '#2E7D32' },
+  2: { text: '宽松',     bg: '#E0F7FA', color: '#00838F' },
+  3: { text: '中性',     bg: '#F5F5F5', color: '#757575' },
+  4: { text: '偏紧',     bg: '#FFF3E0', color: '#E8700A' },
+  5: { text: '极度紧张', bg: '#FFEBEE', color: '#C62828' },
+};
+
+// Bar color by score
+function barColor(score) {
+  return SCORE_COLORS[Math.round(score)] || '#757575';
 }
 
-// ══════════════════════════════════════════════════════════
-//  FETCH FRED
-// ══════════════════════════════════════════════════════════
-async function fetchSeries(series_id) {
-  setLoadDetail(`加载 ${series_id}…`);
-  const url = `${FRED_BASE}?series_id=${series_id}&observation_start=${OBS_START}&frequency=w`;
+// ─────────────────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────────────────
+
+function loadingText(msg) {
+  document.getElementById('loading-text').textContent = msg;
+}
+
+async function fredFetch(seriesId, frequency) {
+  let url = `/fred?series_id=${seriesId}&observation_start=${OBS_START}`;
+  if (frequency) url += `&frequency=${frequency}`;
   const r = await fetch(url);
-  if (!r.ok) throw new Error(`FRED ${series_id}: ${r.status}`);
+  if (!r.ok) throw new Error(`FRED ${seriesId} failed: ${r.status}`);
   const j = await r.json();
-  // FRED returns { observations: [{date,value},...] }
-  const obs = (j.observations || []).filter(o => o.value !== '.' && o.value !== null);
-  const map = {};
-  obs.forEach(o => { map[o.date] = parseFloat(o.value); });
-  return map;  // date-string → value
+  // Return array of {date, value}
+  return (j.observations || [])
+    .filter(o => o.value !== '.' && o.value !== null && o.value !== undefined)
+    .map(o => ({ date: o.date, value: parseFloat(o.value) }));
 }
 
-// Daily series → weekly map (last obs of week)
-function dailyToWeekly(dailyMap) {
-  const entries = Object.entries(dailyMap).sort((a,b) => a[0].localeCompare(b[0]));
-  const weekly = {};
-  entries.forEach(([d, v]) => {
-    const wk = weekKey(parseDate(d));
-    weekly[wk] = v;   // later dates overwrite, giving last-of-week
-  });
-  return weekly;
+// Build a date→value map from daily series
+function buildDailyMap(obs) {
+  const m = {};
+  obs.forEach(o => { m[o.date] = o.value; });
+  return m;
 }
 
-// ══════════════════════════════════════════════════════════
-//  SCORING
-// ══════════════════════════════════════════════════════════
-function scoreNL(pct) {
+// For a given weekly date, look back to find up to N recent daily values
+function dailyMean(dailyMap, weekDate, n = 5) {
+  const sorted = Object.keys(dailyMap).sort();
+  // Find entries <= weekDate
+  const candidates = sorted.filter(d => d <= weekDate);
+  const recent = candidates.slice(-n);
+  if (recent.length === 0) return NaN;
+  const vals = recent.map(d => dailyMap[d]).filter(v => !isNaN(v));
+  if (vals.length === 0) return NaN;
+  return vals.reduce((a, b) => a + b, 0) / vals.length;
+}
+
+// Rolling percentile: for index i in values array, 
+// compute pct of values[i] among the previous `window` values (inclusive)
+function rollingPct(values, i, window) {
+  const start = Math.max(0, i - window + 1);
+  const slice = values.slice(start, i + 1);
+  const v = values[i];
+  let below = 0;
+  for (const x of slice) { if (x <= v) below++; }
+  return below / slice.length;
+}
+
+// Score from pct (high=good, i.e. high pct=low stress)
+function scoreFromPct(pct) {
   if (pct >= 0.70) return 1;
   if (pct >= 0.50) return 2;
   if (pct >= 0.35) return 3;
   if (pct >= 0.20) return 4;
   return 5;
 }
-function scoreTGA(v) {
-  if (v < 300000)  return 1;
-  if (v < 500000)  return 2;
-  if (v < 700000)  return 3;
-  if (v < 900000)  return 4;
+
+// Score from pct for TGA (low pct = loose = low stress)
+function scoreFromPctTGA(pct) {
+  if (pct <= 0.30) return 1;
+  if (pct <= 0.50) return 2;
+  if (pct <= 0.65) return 3;
+  if (pct <= 0.80) return 4;
   return 5;
 }
-function scoreRES(v) {
-  if (v >= 4000000) return 1;
-  if (v >= 3500000) return 2;
-  if (v >= 3000000) return 3;
-  if (v >= 2500000) return 4;
-  return 5;
-}
-function scoreEFFRIORB(bp) {
+
+// EFFR-IORB absolute score (bp)
+function scoreEffrIorb(bp) {
   if (bp <= -7) return 1;
   if (bp <= -5) return 2;
   if (bp <= -2) return 3;
   if (bp <=  3) return 4;
   return 5;
 }
-function scoreSOFREFFR(bp) {
+
+// SOFR-EFFR absolute score (bp)
+function scoreSofrEffr(bp) {
   if (bp <=  0) return 1;
   if (bp <=  3) return 2;
   if (bp <=  8) return 3;
   if (bp <= 15) return 4;
   return 5;
 }
-function scoreRRP(v) {
-  if (v >= 1500000) return 1;
-  if (v >=  500000) return 2;
-  if (v >=  100000) return 3;
-  if (v >=   10000) return 4;
-  return 5;
-}
-function composite(dims) {
-  return WEIGHTS.reduce((s, w, i) => s + w * dims[i], 0);
-}
 
-// ══════════════════════════════════════════════════════════
-//  MAIN DATA PROCESSING
-// ══════════════════════════════════════════════════════════
-let cachedWeeks = [];       // [{date, dims:[6], score}]
-let repoRefDims = null;     // hardcoded Repo crisis dims
-
-function getWeekVal(map, wk, fallbackFn) {
-  if (map[wk] !== undefined) return map[wk];
-  // search ±14 days
-  const base = parseDate(wk);
-  for (let delta = 1; delta <= 14; delta++) {
-    for (const sign of [1,-1]) {
-      const d = new Date(base.getTime() + sign*delta*86400000);
-      const k = fmtDate(d);
-      if (map[k] !== undefined) return map[k];
-    }
-  }
-  return null;
+function compositeScore(scores) {
+  return (
+    scores.nl       * WEIGHTS.nl +
+    scores.tga      * WEIGHTS.tga +
+    scores.reserves * WEIGHTS.reserves +
+    scores.effrIorb * WEIGHTS.effrIorb +
+    scores.sofrEffr * WEIGHTS.sofrEffr +
+    scores.rrp      * WEIGHTS.rrp
+  );
 }
 
-function avg5(vals) {
-  const valid = vals.filter(v => v !== null);
-  if (!valid.length) return null;
-  return valid.reduce((a,b)=>a+b,0)/valid.length;
-}
-
-async function processData() {
-  // fetch all
-  const [walcl, tga, rrp, res, effr_w, iorb_w, sofr_w] =
-    await Promise.all(SERIES.map(s => fetchSeries(s)));
-
-  setLoadDetail('整理周度数据…');
-  // EFFR/IORB/SOFR come back as weekly from FRED (frequency=w already)
-  // but let's also handle daily fallback via dailyToWeekly
-  // Actually FRED with frequency=w already aggregates. We just use the weekly maps.
-
-  // Build sorted list of all weeks >= 2018-01-01
-  const allWeeks = new Set();
-  const cutoff = '2018-01-01';
-  [walcl, tga, rrp, res, effr_w, iorb_w, sofr_w].forEach(m => {
-    Object.keys(m).forEach(k => { if (k >= cutoff) allWeeks.add(k); });
-  });
-  const sortedWeeks = [...allWeeks].sort();
-
-  // Build NL series for rolling percentile
-  const nlSeries = [];
-  sortedWeeks.forEach(wk => {
-    const w = walcl[wk], t = tga[wk], r = rrp[wk];
-    if (w != null && t != null && r != null) {
-      nlSeries.push({ wk, nl: w - t - r });
-    } else {
-      nlSeries.push({ wk, nl: null });
-    }
-  });
-
-  // Rolling 104-week percentile of NL
-  function pct104(idx) {
-    const end = idx;
-    const start = Math.max(0, end - 103);
-    const window = [];
-    for (let i = start; i <= end; i++) {
-      if (nlSeries[i].nl !== null) window.push(nlSeries[i].nl);
-    }
-    if (window.length < 2) return 0.5;
-    const cur = nlSeries[idx].nl;
-    if (cur === null) return 0.5;
-    const sorted = [...window].sort((a,b) => a-b);
-    let rank = 0;
-    for (const v of sorted) { if (v <= cur) rank++; }
-    return rank / sorted.length;
-  }
-
-  // For EFFR-IORB / SOFR-EFFR 5-point avg
-  function get5avg_spread(map1, map2, idx, weeks) {
-    const vals = [];
-    for (let i = Math.max(0, idx-4); i <= idx; i++) {
-      const wk = weeks[i];
-      const v1 = map1[wk], v2 = map2[wk];
-      if (v1 != null && v2 != null) vals.push((v1 - v2) * 100);
-    }
-    return avg5(vals);
-  }
-
-  setLoadDetail('计算评分缓存…');
-  cachedWeeks = [];
-
-  // Find repo crisis week (2019-09-17)
-  const repoCrisisWk = weekKey(parseDate('2019-09-17'));
-
-  sortedWeeks.forEach((wk, idx) => {
-    const w = walcl[wk], t = tga[wk], r = rrp[wk];
-    const res_v = res[wk];
-    const nl = (w != null && t != null && r != null) ? w - t - r : null;
-    const pct = pct104(idx);
-
-    // dim1: NL
-    const d1 = nl !== null ? scoreNL(pct) : 3;
-    // dim2: TGA
-    const d2 = t != null ? scoreTGA(t) : 3;
-    // dim3: WRESBAL
-    const d3 = res_v != null ? scoreRES(res_v) : 3;
-    // dim4: EFFR-IORB spread (5-pt avg)
-    const spread4 = get5avg_spread(effr_w, iorb_w, idx, sortedWeeks);
-    const d4 = spread4 !== null ? scoreEFFRIORB(spread4) : 3;
-    // dim5: SOFR-EFFR (5-pt avg) — note: SOFR - EFFR
-    const spread5 = get5avg_spread(sofr_w, effr_w, idx, sortedWeeks);
-    const d5 = spread5 !== null ? scoreSOFREFFR(spread5) : 3;
-    // dim6: ON RRP
-    const d6 = r != null ? scoreRRP(r) : 3;
-
-    const dims = [d1, d2, d3, d4, d5, d6];
-    const score = parseFloat(composite(dims).toFixed(1));
-
-    const entry = { date: wk, dims, score };
-    cachedWeeks.push(entry);
-
-    if (wk === repoCrisisWk) repoRefDims = dims.slice();
-  });
-
-  // fallback repo ref if exact week missing
-  if (!repoRefDims) {
-    // find nearest
-    const idx = sortedWeeks.findIndex(w => w >= repoCrisisWk);
-    if (idx >= 0) repoRefDims = cachedWeeks[idx].dims.slice();
-    else repoRefDims = [3,4,2,2,2,1];
-  }
-}
-
-// ══════════════════════════════════════════════════════════
-//  CHART
-// ══════════════════════════════════════════════════════════
+// ─────────────────────────────────────────────────────────────
+// CHART
+// ─────────────────────────────────────────────────────────────
 let radarChart = null;
 
 function initChart() {
-  const ctx = document.getElementById('radarChart').getContext('2d');
-
-  // Custom plugin: color outermost ring red
-  const outerRingPlugin = {
-    id: 'outerRing',
-    afterDraw(chart) {
-      const scale = chart.scales.r;
-      if (!scale) return;
-      const { ctx: c, data: { datasets } } = chart;
-      const ticks = scale.ticks;
-      if (!ticks || ticks.length < 2) return;
-
-      // Draw outermost polygon in light red
-      const maxTick = ticks[ticks.length - 1];
-      const points = scale.getPointLabelPosition ? null : null;
-      const numPoints = chart.data.labels.length;
-      const angle = (2 * Math.PI) / numPoints;
-
-      c.save();
-      c.beginPath();
-      for (let i = 0; i < numPoints; i++) {
-        const a = angle * i - Math.PI / 2;
-        const r = scale.getDistanceFromCenterForValue(5);
-        const x = scale.xCenter + Math.cos(a) * r;
-        const y = scale.yCenter + Math.sin(a) * r;
-        if (i === 0) c.moveTo(x, y);
-        else c.lineTo(x, y);
-      }
-      c.closePath();
-      c.strokeStyle = 'rgba(211,48,36,0.35)';
-      c.lineWidth = 2;
-      c.stroke();
-      c.restore();
-    }
-  };
-  Chart.register(outerRingPlugin);
-
+  const ctx = document.getElementById('radarCanvas').getContext('2d');
   radarChart = new Chart(ctx, {
     type: 'radar',
     data: {
-      labels: DIM_NAMES,
+      labels: DIM_LABELS,
       datasets: [
         {
           label: '当前',
           data: [3,3,3,3,3,3],
           borderColor: '#E8700A',
-          backgroundColor: 'rgba(232,112,10,0.15)',
-          borderWidth: 2.5,
+          backgroundColor: 'rgba(232,112,10,0.12)',
+          borderWidth: 2,
           pointBackgroundColor: '#E8700A',
-          pointRadius: 4,
-          pointHoverRadius: 6,
-          order: 1,
+          pointRadius: 3,
         },
         {
-          label: '2019-09 Repo危机',
-          data: repoRefDims || [3,3,3,3,3,3],
-          borderColor: '#D93025',
-          backgroundColor: 'rgba(217,48,37,0.06)',
+          label: 'COVID崩盘',
+          data: [3,3,3,3,3,3],
+          borderColor: '#C62828',
+          backgroundColor: 'rgba(198,40,40,0.05)',
           borderWidth: 1.5,
-          borderDash: [6, 4],
-          pointBackgroundColor: '#D93025',
-          pointRadius: 3,
-          pointHoverRadius: 5,
-          order: 2,
+          borderDash: [5,3],
+          pointBackgroundColor: '#C62828',
+          pointRadius: 2,
         }
       ]
     },
     options: {
+      animation: false,
       responsive: true,
-      animation: { duration: 150 },
       scales: {
         r: {
           min: 0, max: 5,
           ticks: {
             stepSize: 1,
-            display: true,
+            font: { size: 9 },
+            color: '#999',
             backdropColor: 'transparent',
-            color: '#AAAAAA',
-            font: { size: 10 },
-            callback: (v) => v === 0 ? '' : v,
+            callback: v => v === 0 ? '' : v,
+          },
+          pointLabels: {
+            font: { size: 11 },
+            color: ctx => {
+              // Will be updated dynamically
+              return '#555';
+            }
           },
           grid: {
-            color: (ctx) => ctx.tick.value === 5 ? 'rgba(211,48,36,0.2)' : '#E0E0E0',
-            lineWidth: (ctx) => ctx.tick.value === 5 ? 1.5 : 1,
+            color: ctx => {
+              // Outermost ring (value=5) → light red
+              if (ctx.index === 4) return 'rgba(198,40,40,0.25)';
+              return '#E0E0E0';
+            },
+            lineWidth: ctx => ctx.index === 4 ? 1.5 : 1,
           },
           angleLines: { color: '#E0E0E0' },
-          pointLabels: {
-            font: { size: 12, weight: '600' },
-            color: (ctx) => {
-              // Will be overridden after update
-              return '#555';
-            },
-          },
         }
       },
       plugins: {
-        legend: {
-          display: false,
-        },
-        tooltip: {
-          callbacks: {
-            label: (item) => ` ${item.dataset.label}: ${item.raw}`,
-          }
-        }
+        legend: { display: false },
+        tooltip: { enabled: false },
       }
     }
   });
 }
 
-function updateChart(entry) {
-  if (!radarChart || !entry) return;
-  radarChart.data.datasets[0].data = entry.dims;
+function updateChart(currentScores, refScores, dimScoreArr) {
+  if (!radarChart) return;
 
-  // Update point label colors based on score
+  // Update point label colors based on current scores
   radarChart.options.scales.r.pointLabels.color = (ctx) => {
-    const val = entry.dims[ctx.index];
-    return val >= 4 ? '#D93025' : '#555';
+    const score = dimScoreArr[ctx.index];
+    return score >= 4 ? '#C62828' : '#555';
   };
 
-  radarChart.update('active');
+  radarChart.data.datasets[0].data = DIM_KEYS.map(k => currentScores[k]);
+  radarChart.data.datasets[1].data = DIM_KEYS.map(k => refScores[k]);
+  radarChart.update('none');
 }
 
-// ══════════════════════════════════════════════════════════
-//  SCORE PANEL
-// ══════════════════════════════════════════════════════════
-function updateScorePanel(entry) {
-  if (!entry) return;
-  const s = entry.score;
-  document.getElementById('scoreNum').textContent = s.toFixed(1);
-  document.getElementById('scoreNum').style.color = scoreColor(s);
-  document.getElementById('scoreLabel').textContent = scoreText(s);
-  document.getElementById('scoreDate').textContent = entry.date;
+// ─────────────────────────────────────────────────────────────
+// UI UPDATE
+// ─────────────────────────────────────────────────────────────
 
-  const container = document.getElementById('dimScores');
-  container.innerHTML = '';
-  DIM_NAMES.forEach((name, i) => {
-    const v = entry.dims[i];
-    const stressed = v >= 4;
+function buildDimBars() {
+  const el = document.getElementById('dimBars');
+  el.innerHTML = '';
+  DIM_KEYS.forEach((key, i) => {
     const row = document.createElement('div');
     row.className = 'dim-row';
     row.innerHTML = `
-      <span class="dim-name${stressed?' stressed':''}">${name}</span>
-      <div class="dim-bar-wrap">
-        <div class="dim-bar" style="width:${v/5*100}%;background:${barColor(v)}"></div>
+      <div class="dim-name" id="dimName-${key}">${DIM_LABELS[i]}</div>
+      <div class="bar-track">
+        <div class="bar-fill" id="barFill-${key}" style="width:60%; background:#757575;"></div>
       </div>
-      <span class="dim-val${stressed?' stressed':''}">${v}</span>
+      <div class="dim-val" id="dimVal-${key}">3</div>
     `;
-    container.appendChild(row);
+    el.appendChild(row);
   });
 }
 
-// ══════════════════════════════════════════════════════════
-//  SLIDER & TIMELINE
-// ══════════════════════════════════════════════════════════
-const slider = document.getElementById('timeSlider');
-const currentDateLabel = document.getElementById('currentDateLabel');
+function updateUI(entry) {
+  if (!entry) return;
+  const scores = entry.scores;
+  const composite = entry.composite;
+  const roundedComposite = Math.round(composite * 10) / 10;
+  const scoreInt = Math.min(5, Math.max(1, Math.round(composite)));
 
-function sliderPct() {
-  const max = parseInt(slider.max) || 1;
-  return (parseInt(slider.value) / max * 100).toFixed(2) + '%';
+  // Date
+  document.getElementById('currentDate').textContent = entry.date;
+
+  // Composite score
+  const scoreEl = document.getElementById('compositeScore');
+  scoreEl.textContent = roundedComposite.toFixed(1);
+  scoreEl.style.color = SCORE_COLORS[scoreInt] || '#757575';
+
+  // Rating text
+  const rating = RATING_LABELS[scoreInt];
+  const ratingEl = document.getElementById('ratingText');
+  ratingEl.textContent = rating.text;
+  ratingEl.style.background = rating.bg;
+  ratingEl.style.color = rating.color;
+
+  // Dim bars
+  DIM_KEYS.forEach(key => {
+    const s = scores[key];
+    const pct = ((s - 1) / 4) * 100;
+    document.getElementById('barFill-' + key).style.width = pct + '%';
+    document.getElementById('barFill-' + key).style.background = barColor(s);
+    document.getElementById('dimVal-' + key).textContent = s;
+    const nameEl = document.getElementById('dimName-' + key);
+    nameEl.className = 'dim-name' + (s >= 4 ? ' stress' : '');
+  });
+
+  // Radar
+  updateChart(
+    scores,
+    entry.refScores,
+    DIM_KEYS.map(k => scores[k])
+  );
 }
-function updateSliderTrack() {
-  slider.style.setProperty('--pct', sliderPct());
-}
 
-function buildYearTicks() {
-  if (!cachedWeeks.length) return;
-  const container = document.getElementById('yearTicks');
-  container.innerHTML = '';
-  const startDate = parseDate(cachedWeeks[0].date);
-  const endDate   = parseDate(cachedWeeks[cachedWeeks.length-1].date);
-  const totalMs   = endDate - startDate;
+// ─────────────────────────────────────────────────────────────
+// TIMELINE SLIDER
+// ─────────────────────────────────────────────────────────────
 
-  const startYear = startDate.getUTCFullYear();
-  const endYear   = endDate.getUTCFullYear();
+function buildTimeline(displayDates) {
+  const slider = document.getElementById('timeSlider');
+  slider.min = 0;
+  slider.max = displayDates.length - 1;
+  slider.value = displayDates.length - 1;
 
-  for (let yr = startYear; yr <= endYear; yr++) {
-    const d = new Date(Date.UTC(yr, 0, 1));
-    const pct = (d - startDate) / totalMs * 100;
-    if (pct < 0 || pct > 100) continue;
+  const minDate = displayDates[0];
+  const maxDate = displayDates[displayDates.length - 1];
+
+  function dateToFrac(dateStr) {
+    const mn = new Date(minDate).getTime();
+    const mx = new Date(maxDate).getTime();
+    const d  = new Date(dateStr).getTime();
+    return (d - mn) / (mx - mn);
+  }
+
+  // Crisis markers
+  const markersRow = document.getElementById('markersRow');
+  markersRow.innerHTML = '';
+  CRISIS_EVENTS.forEach(ev => {
+    if (ev.date < minDate || ev.date > maxDate) return;
+    const frac = dateToFrac(ev.date);
+    const div = document.createElement('div');
+    div.className = 'crisis-marker';
+    div.style.left = (frac * 100) + '%';
+    div.innerHTML = `<div class="marker-dot"></div><div class="marker-label">${ev.label}</div>`;
+    markersRow.appendChild(div);
+  });
+
+  // Year ticks
+  const yearTicks = document.getElementById('yearTicks');
+  yearTicks.innerHTML = '';
+  const startYear = new Date(minDate).getFullYear();
+  const endYear   = new Date(maxDate).getFullYear();
+  for (let y = startYear; y <= endYear; y++) {
+    const yDateStr = `${y}-01-01`;
+    if (yDateStr < minDate) continue;
+    const frac = Math.max(0, Math.min(1, dateToFrac(yDateStr)));
     const tick = document.createElement('div');
     tick.className = 'year-tick';
-    tick.style.left = pct + '%';
-    tick.innerHTML = `<div class="year-tick-line"></div><div class="year-tick-label">${yr}</div>`;
-    container.appendChild(tick);
+    tick.style.left = (frac * 100) + '%';
+    tick.textContent = y;
+    yearTicks.appendChild(tick);
   }
 }
 
-function buildCrisisMarkers() {
-  if (!cachedWeeks.length) return;
-  const container = document.getElementById('crisisMarkers');
-  container.innerHTML = '';
-  const startDate = parseDate(cachedWeeks[0].date);
-  const endDate   = parseDate(cachedWeeks[cachedWeeks.length-1].date);
-  const totalMs   = endDate - startDate;
+// ─────────────────────────────────────────────────────────────
+// MAIN DATA PIPELINE
+// ─────────────────────────────────────────────────────────────
 
-  CRISIS_EVENTS.forEach(ev => {
-    const d = parseDate(ev.date);
-    const pct = (d - startDate) / totalMs * 100;
-    if (pct < 0 || pct > 100) return;
-    const mark = document.createElement('div');
-    mark.className = 'crisis-mark';
-    mark.style.left = pct + '%';
-    mark.innerHTML = `
-      <div class="crisis-label">▲ ${ev.label}</div>
-      <div class="crisis-tick"></div>
-      <div class="crisis-tooltip">${ev.full}</div>
-    `;
-    container.appendChild(mark);
-  });
-}
-
-function sliderToEntry() {
-  const idx = parseInt(slider.value);
-  return cachedWeeks[idx] || null;
-}
-
-function onSliderChange() {
-  updateSliderTrack();
-  const entry = sliderToEntry();
-  if (!entry) return;
-  currentDateLabel.textContent = entry.date;
-  updateChart(entry);
-  updateScorePanel(entry);
-}
-
-slider.addEventListener('input', onSliderChange);
-
-// ══════════════════════════════════════════════════════════
-//  PLAY / PAUSE
-// ══════════════════════════════════════════════════════════
-let playTimer = null;
-const playBtn  = document.getElementById('playBtn');
-const resetBtn = document.getElementById('resetBtn');
-
-function stopPlay() {
-  if (playTimer) { clearInterval(playTimer); playTimer = null; }
-  playBtn.textContent = '▶ 播放';
-  playBtn.classList.remove('playing');
-}
-function startPlay() {
-  const max = parseInt(slider.max);
-  if (parseInt(slider.value) >= max) slider.value = 0;
-  playBtn.textContent = '⏸ 暂停';
-  playBtn.classList.add('playing');
-  playTimer = setInterval(() => {
-    const cur = parseInt(slider.value);
-    if (cur >= max) { stopPlay(); return; }
-    slider.value = cur + 1;
-    onSliderChange();
-  }, 100);  // 10fps
-}
-
-playBtn.addEventListener('click', () => {
-  if (playTimer) stopPlay(); else startPlay();
-});
-resetBtn.addEventListener('click', () => {
-  stopPlay();
-  slider.value = 0;
-  onSliderChange();
-});
-
-// ══════════════════════════════════════════════════════════
-//  LOADING HELPERS
-// ══════════════════════════════════════════════════════════
-function setLoadDetail(txt) {
-  document.getElementById('loading-detail').textContent = txt;
-}
-function hideLoading() {
-  document.getElementById('loading-overlay').classList.add('hidden');
-}
-
-// ══════════════════════════════════════════════════════════
-//  BOOT
-// ══════════════════════════════════════════════════════════
 async function main() {
   try {
-    await processData();
+    loadingText('正在拉取 WALCL…');
+    const walcl   = await fredFetch('WALCL',    'w');
+    loadingText('正在拉取 WDTGAL…');
+    const wdtgal  = await fredFetch('WDTGAL',   'w');
+    loadingText('正在拉取 RRPONTSYD…');
+    const rrp     = await fredFetch('RRPONTSYD','w');
+    loadingText('正在拉取 WRESBAL…');
+    const wresbal = await fredFetch('WRESBAL',  'w');
+    loadingText('正在拉取 EFFR（日度）…');
+    const effrDay = await fredFetch('EFFR');
+    loadingText('正在拉取 IORB（日度）…');
+    const iorbDay = await fredFetch('IORB');
+    loadingText('正在拉取 SOFR（日度）…');
+    const sofrDay = await fredFetch('SOFR');
 
-    setLoadDetail('渲染图表…');
+    loadingText('正在计算评分…');
+
+    // Build daily maps
+    const effrMap = buildDailyMap(effrDay);
+    const iorbMap = buildDailyMap(iorbDay);
+    const sofrMap = buildDailyMap(sofrDay);
+
+    // Align weekly series on common dates
+    // Use WALCL as anchor dates
+    const walclMap  = buildDailyMap(walcl);
+    const tgaMap    = buildDailyMap(wdtgal);
+    const rrpMap    = buildDailyMap(rrp);
+    const resMap    = buildDailyMap(wresbal);
+
+    // Get sorted common weekly dates from WALCL
+    const allWeekDates = walcl.map(o => o.date).sort();
+
+    // For each weekly date, compute raw values
+    const rawData = allWeekDates.map(date => {
+      const walcl_v  = walclMap[date] ?? NaN;
+      const tga_v    = tgaMap[date]   ?? NaN;
+      const rrp_v    = rrpMap[date]   ?? NaN;
+      const res_v    = resMap[date]   ?? NaN;
+      const nl_v     = walcl_v - tga_v - rrp_v;
+
+      const effr5 = dailyMean(effrMap, date, 5);
+      const iorb5 = dailyMean(iorbMap, date, 5);
+      const sofr5 = dailyMean(sofrMap, date, 5);
+      const effrIorb_v = (isNaN(effr5) || isNaN(iorb5)) ? NaN : (effr5 - iorb5) * 100;
+      const sofrEffr_v = (isNaN(sofr5) || isNaN(effr5)) ? NaN : (sofr5 - effr5) * 100;
+
+      return { date, nl: nl_v, tga: tga_v, reserves: res_v, rrp: rrp_v,
+               effrIorb: effrIorb_v, sofrEffr: sofrEffr_v };
+    });
+
+    // Extract value arrays for rolling pct computation
+    const nlArr  = rawData.map(d => d.nl);
+    const tgaArr = rawData.map(d => d.tga);
+    const resArr = rawData.map(d => d.reserves);
+    const rrpArr = rawData.map(d => d.rrp);
+
+    // Compute all entries with scores
+    const allEntries = rawData.map((d, i) => {
+      const nlPct  = isNaN(d.nl)       ? 0.5 : rollingPct(nlArr,  i, ROLLING_WINDOW);
+      const tgaPct = isNaN(d.tga)      ? 0.5 : rollingPct(tgaArr, i, ROLLING_WINDOW);
+      const resPct = isNaN(d.reserves) ? 0.5 : rollingPct(resArr, i, ROLLING_WINDOW);
+      const rrpPct = isNaN(d.rrp)      ? 0.5 : rollingPct(rrpArr, i, ROLLING_WINDOW);
+
+      const scores = {
+        nl:       scoreFromPct(nlPct),
+        tga:      scoreFromPctTGA(tgaPct),
+        reserves: scoreFromPct(resPct),
+        effrIorb: isNaN(d.effrIorb) ? 3 : scoreEffrIorb(d.effrIorb),
+        sofrEffr: isNaN(d.sofrEffr) ? 3 : scoreSofrEffr(d.sofrEffr),
+        rrp:      scoreFromPct(rrpPct),
+      };
+
+      return {
+        date:      d.date,
+        scores,
+        composite: compositeScore(scores),
+      };
+    });
+
+    // Find COVID reference entry
+    let refEntry = allEntries.find(e => e.date === COVID_REF_DATE);
+    if (!refEntry) {
+      // Find nearest date
+      let minDiff = Infinity;
+      allEntries.forEach(e => {
+        const diff = Math.abs(new Date(e.date) - new Date(COVID_REF_DATE));
+        if (diff < minDiff) { minDiff = diff; refEntry = e; }
+      });
+    }
+    const refScores = refEntry ? refEntry.scores : { nl:5, tga:1, reserves:5, effrIorb:5, sofrEffr:5, rrp:5 };
+
+    // Attach refScores to all entries
+    allEntries.forEach(e => { e.refScores = refScores; });
+
+    // Filter display entries (from 2020-01-01)
+    const displayEntries = allEntries.filter(e => e.date >= DISPLAY_START);
+
+    if (displayEntries.length === 0) throw new Error('No display data after filtering');
+
+    // Build timeline
+    const displayDates = displayEntries.map(e => e.date);
+    buildTimeline(displayDates);
+
+    // Init chart
     initChart();
 
-    // Setup slider
-    slider.max   = cachedWeeks.length - 1;
-    slider.value = cachedWeeks.length - 1;  // start at latest
-    slider.disabled = false;
-    updateSliderTrack();
+    // Build dim bars
+    buildDimBars();
 
-    buildYearTicks();
-    buildCrisisMarkers();
+    // Slider interaction
+    const slider = document.getElementById('timeSlider');
+    slider.addEventListener('input', () => {
+      const idx = parseInt(slider.value, 10);
+      updateUI(displayEntries[idx]);
+    });
 
-    // Update repo ref dims in chart (now we have real data)
-    if (radarChart && repoRefDims) {
-      radarChart.data.datasets[1].data = repoRefDims;
-      radarChart.update('none');
-    }
+    // Show latest
+    updateUI(displayEntries[displayEntries.length - 1]);
 
-    playBtn.disabled  = false;
-    resetBtn.disabled = false;
+    // Hide loading
+    document.getElementById('loading-overlay').classList.add('hidden');
 
-    onSliderChange();  // render current (latest) week
-    hideLoading();
-  } catch(err) {
+  } catch (err) {
+    loadingText('加载失败：' + err.message);
     console.error(err);
-    setLoadDetail('⚠ 数据加载失败：' + err.message);
-    document.querySelector('.loading-text').textContent = '无法连接 FRED API';
-    // Still hide overlay after a moment so UI is visible
-    setTimeout(hideLoading, 3000);
-    // Show demo data
-    loadDemoData();
   }
-}
-
-// ══════════════════════════════════════════════════════════
-//  DEMO FALLBACK (no FRED API)
-// ══════════════════════════════════════════════════════════
-function loadDemoData() {
-  // Generate synthetic weekly data 2018-01 → now
-  cachedWeeks = [];
-  const start = parseDate('2018-01-01');
-  const end   = new Date();
-  let cur = new Date(start);
-  while (cur <= end) {
-    const wk  = fmtDate(cur);
-    const t   = (cur - start) / (end - start);  // 0→1
-    // Synthetic dims with some shape
-    const d1 = Math.max(1, Math.min(5, Math.round(1 + 4*(1-t) + Math.sin(t*10)*0.5)));
-    const d2 = Math.max(1, Math.min(5, Math.round(2 + 2*t)));
-    const d3 = Math.max(1, Math.min(5, Math.round(1 + 3*(1-t) + 0.5)));
-    const d4 = Math.max(1, Math.min(5, Math.round(2 + 2*t)));
-    const d5 = Math.max(1, Math.min(5, Math.round(2 + Math.sin(t*8))));
-    const d6 = Math.max(1, Math.min(5, Math.round(t < 0.6 ? 1 : 4)));
-    const dims = [d1,d2,d3,d4,d5,d6];
-    const score = parseFloat(composite(dims).toFixed(1));
-    cachedWeeks.push({ date: wk, dims, score });
-    cur.setUTCDate(cur.getUTCDate() + 7);
-  }
-
-  // Repo crisis ref: 2019-09-16
-  const repoCrisisWk = weekKey(parseDate('2019-09-17'));
-  const repoEntry = cachedWeeks.find(e => e.date >= repoCrisisWk);
-  repoRefDims = repoEntry ? repoEntry.dims.slice() : [2,4,2,4,3,1];
-
-  initChart();
-  slider.max   = cachedWeeks.length - 1;
-  slider.value = cachedWeeks.length - 1;
-  slider.disabled = false;
-  updateSliderTrack();
-  buildYearTicks();
-  buildCrisisMarkers();
-  if (radarChart && repoRefDims) {
-    radarChart.data.datasets[1].data = repoRefDims;
-    radarChart.update('none');
-  }
-  playBtn.disabled  = false;
-  resetBtn.disabled = false;
-  onSliderChange();
-  hideLoading();
 }
 
 main();
