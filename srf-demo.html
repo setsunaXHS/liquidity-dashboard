@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>Fed SRF 用量 Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #FFFFFF; color: #222; font-family: 'Helvetica Neue', Arial, sans-serif; padding: 32px; }
+
+  h1 { font-size: 18px; font-weight: 700; letter-spacing: 0.3px; margin-bottom: 4px; }
+  .sub { font-size: 12px; color: #888; margin-bottom: 28px; }
+
+  .kpi-row { display: flex; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; }
+  .kpi { background: #F5F5F5; border-radius: 6px; padding: 16px 22px; min-width: 180px; }
+  .kpi-label { font-size: 11px; color: #888; letter-spacing: 0.4px; margin-bottom: 6px; }
+  .kpi-val { font-size: 22px; font-weight: 700; }
+  .kpi-val.stress { color: #C62828; }
+  .kpi-val.normal { color: #2E7D32; }
+  .kpi-val.warn   { color: #E8700A; }
+  .kpi-sub { font-size: 11px; color: #999; margin-top: 4px; }
+
+  .chart-card {
+    background: #FAFAFA; border: 1px solid #E8E8E8; border-radius: 8px;
+    padding: 20px 24px; margin-bottom: 24px;
+  }
+  .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .chart-desc  { font-size: 11px; color: #888; margin-bottom: 16px; }
+  canvas { max-height: 280px; }
+
+  .note {
+    background: #FFF8E1; border-left: 3px solid #E8700A;
+    padding: 12px 16px; font-size: 12px; color: #555; border-radius: 0 6px 6px 0;
+    margin-top: 24px; line-height: 1.7;
+  }
+  .note b { color: #E8700A; }
+
+  .signal-box {
+    border-radius: 6px; padding: 12px 16px; font-size: 12px; line-height: 1.7;
+    margin-bottom: 24px;
+  }
+  .signal-box.dormant { background: #F1F8E9; border-left: 3px solid #2E7D32; color: #333; }
+  .signal-box.active  { background: #FFF3E0; border-left: 3px solid #E8700A; color: #333; }
+  .signal-box.crisis  { background: #FFEBEE; border-left: 3px solid #C62828; color: #333; }
+
+  #status { font-size: 12px; color: #888; margin-bottom: 20px; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: left; padding: 8px 10px; background: #F5F5F5; color: #555; font-weight: 600; letter-spacing: 0.3px; }
+  td { padding: 7px 10px; border-bottom: 1px solid #F0F0F0; color: #333; }
+  tr:last-child td { border-bottom: none; }
+  .td-val { font-weight: 600; }
+  .td-hi  { color: #C62828; }
+</style>
+</head>
+<body>
+
+<h1>Fed SRF（常设回购便利）用量监控</h1>
+<div class="sub">FRED: WORAL — Assets: Other Repurchase Agreements · 单位：十亿美元 · 数据来源：美联储 H.4.1 报表</div>
+
+<div id="status">加载中…</div>
+
+<div id="signal-wrap"></div>
+
+<div class="kpi-row" id="kpi-row"></div>
+
+<div class="chart-card">
+  <div class="chart-title">SRF 用量历史（月末水平）</div>
+  <div class="chart-desc">SRF（Standing Repo Facility）于 2021 年 7 月设立，为一级交易商提供隔夜回购融资兜底。正常情况下用量接近零，月末数字偶有尖刺系季节性报表效应，非真实压力信号。</div>
+  <canvas id="srfChart"></canvas>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">SRF 用量 · 近 52 周放大</div>
+  <div class="chart-desc">聚焦近一年走势，便于观察是否有持续性放量。真正的压力信号需连续多周 >$10B 且非月末。</div>
+  <canvas id="srfChartZoom"></canvas>
+</div>
+
+<div class="chart-card">
+  <div class="chart-title">历史高点记录</div>
+  <canvas id="dummy" style="display:none"></canvas>
+  <table id="peaks-table">
+    <thead><tr><th>日期</th><th>用量（$B）</th><th>背景</th></tr></thead>
+    <tbody id="peaks-body"></tbody>
+  </table>
+</div>
+
+<div class="note">
+  <b>如何读 SRF 用量：</b><br>
+  ① <b>平时接近零</b>：正常。SRF 是兜底工具，不用代表货币市场自行出清。<br>
+  ② <b>月末出现尖刺（$10-80B）</b>：银行季末/月末资产负债表压缩导致隔夜拆借收紧，交易商通过 SRF 临时融资。属<b>季节性报表效应</b>，不代表系统性流动性问题。<br>
+  ③ <b>持续多周 >$50B 且非月末</b>：真正的预警信号，代表货币市场出现结构性紧张。<br>
+  ④ <b>与 EFFR-IORB 利差结合看</b>：SRF 大量使用 + EFFR 明显高于 IORB，才是双重确认的流动性压力信号。
+</div>
+
+<script>
+const FRED_KEY = 'cd80bce065d6d311df574fbe558929f6';
+const PROXY    = '/fred';
+
+async function fetchFred(series, params = {}) {
+  const q = new URLSearchParams({ series_id: series, api_key: FRED_KEY, file_type: 'json', sort_order: 'asc', ...params });
+  const r = await fetch(`${PROXY}?${q}`);
+  if (!r.ok) throw new Error(`FRED ${series} ${r.status}`);
+  return r.json();
+}
+
+function parseObs(data) {
+  return (data.observations || [])
+    .filter(o => o.value !== '.')
+    .map(o => ({ date: o.date, value: parseFloat(o.value) / 1e3 })); // M$ → B$
+}
+
+// Known high-usage context
+const KNOWN_PEAKS = {
+  '2021-09-29': 'SRF 设立后首次月末尖刺',
+  '2022-03-30': 'Fed 加息初期，月末回购市场收紧',
+  '2022-06-29': '季末资产负债表压缩',
+  '2022-09-28': '英国养老金危机期间，全球流动性紧张',
+  '2022-12-28': '年末，银行缩表高峰',
+  '2023-03-29': 'SVB 危机后，月末使用回升',
+  '2023-06-28': '债务上限解决后 TGA 快速重建，流动性收紧',
+  '2023-09-27': '季末，准备金持续下降',
+  '2023-12-27': '年末，季节性高点',
+  '2025-12-31': '近期高点 $74.6B',
+};
+
+function formatB(v) {
+  if (v < 0.01) return '~$0';
+  return `$${v.toFixed(1)}B`;
+}
+
+function isMonthEnd(dateStr) {
+  const d = new Date(dateStr);
+  const next = new Date(d);
+  next.setDate(d.getDate() + 7);
+  return next.getMonth() !== d.getMonth();
+}
+
+async function init() {
+  document.getElementById('status').textContent = '正在从 FRED 拉取 WORAL 数据…';
+
+  try {
+    const raw = await fetchFred('WORAL', { observation_start: '2021-07-01' });
+    const obs  = parseObs(raw);
+    if (!obs.length) throw new Error('无数据');
+
+    document.getElementById('status').textContent =
+      `数据已加载 · ${obs.length} 个观测点 · 最新：${obs[obs.length-1].date}`;
+
+    const latest    = obs[obs.length - 1];
+    const prev      = obs[obs.length - 2] || { value: 0 };
+    const maxAll    = obs.reduce((a, b) => b.value > a.value ? b : a, obs[0]);
+    const nonZero   = obs.filter(o => o.value > 0.1);
+    const avgNonZero = nonZero.length ? nonZero.reduce((s, o) => s + o.value, 0) / nonZero.length : 0;
+
+    // Signal assessment
+    const signalWrap = document.getElementById('signal-wrap');
+    let signalClass = 'dormant', signalText = '';
+    if (latest.value < 5) {
+      signalClass = 'dormant';
+      signalText = `<b>🟢 当前：休眠</b>　SRF 用量 ${formatB(latest.value)}，接近零。货币市场自行出清，无需 Fed 兜底。属正常状态。`;
+    } else if (latest.value < 30) {
+      signalClass = 'active';
+      signalText = `<b>🟡 当前：轻度使用</b>　SRF 用量 ${formatB(latest.value)}。${isMonthEnd(latest.date) ? '处于月末，大概率为季节性报表效应，非真实压力。' : '非月末出现放量，需关注是否持续。'}`;
+    } else {
+      signalClass = 'crisis';
+      signalText = `<b>🔴 当前：显著放量</b>　SRF 用量 ${formatB(latest.value)}。${isMonthEnd(latest.date) ? '处于月末窗口，含季节性因素，需结合 EFFR-IORB 利差判断真实压力。' : '非月末出现大额使用，需高度关注货币市场流动性状况。'}`;
+    }
+    signalWrap.innerHTML = `<div class="signal-box ${signalClass}">${signalText}</div>`;
+
+    // KPIs
+    document.getElementById('kpi-row').innerHTML = `
+      <div class="kpi">
+        <div class="kpi-label">最新用量</div>
+        <div class="kpi-val ${latest.value > 30 ? 'stress' : latest.value > 5 ? 'warn' : 'normal'}">${formatB(latest.value)}</div>
+        <div class="kpi-sub">${latest.date} · ${latest.value > prev.value ? '▲' : latest.value < prev.value ? '▼' : '─'} 较上周 ${formatB(Math.abs(latest.value - prev.value))}</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">历史最高</div>
+        <div class="kpi-val stress">${formatB(maxAll.value)}</div>
+        <div class="kpi-sub">${maxAll.date}（月末尖刺）</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">非零均值</div>
+        <div class="kpi-val">${formatB(avgNonZero)}</div>
+        <div class="kpi-sub">仅含用量 >$0.1B 的周次</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-label">非零出现频率</div>
+        <div class="kpi-val">${(nonZero.length / obs.length * 100).toFixed(0)}%</div>
+        <div class="kpi-sub">${nonZero.length} / ${obs.length} 周</div>
+      </div>
+    `;
+
+    // Full history chart
+    const labels = obs.map(o => o.date);
+    const values = obs.map(o => o.value);
+    const colors = obs.map(o => isMonthEnd(o.date) ? 'rgba(232,112,10,0.7)' : 'rgba(198,40,40,0.8)');
+
+    new Chart(document.getElementById('srfChart').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: 'SRF 用量 ($B)',
+          data: values,
+          backgroundColor: colors,
+          borderRadius: 2,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: { type: 'time', time: { unit: 'quarter', displayFormats: { quarter: 'yyyy Q' } },
+               grid: { display: false }, ticks: { font: { size: 10 }, color: '#999' } },
+          y: { beginAtZero: true, ticks: { font: { size: 10 }, color: '#999',
+               callback: v => `$${v}B` }, grid: { color: '#F0F0F0' } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            title: c => c[0].label.slice(0, 10),
+            label: c => {
+              const d = labels[c.dataIndex];
+              const ctx = KNOWN_PEAKS[d] ? `  (${KNOWN_PEAKS[d]})` : '';
+              return `用量：${formatB(c.parsed.y)}${ctx}`;
+            },
+            afterLabel: c => isMonthEnd(labels[c.dataIndex]) ? '⚠ 月末窗口（季节性）' : '',
+          }}
+        }
+      }
+    });
+
+    // Zoom — last 52 weeks
+    const zoom = obs.slice(-52);
+    const zLabels = zoom.map(o => o.date);
+    const zValues = zoom.map(o => o.value);
+    const zColors = zoom.map(o => isMonthEnd(o.date) ? 'rgba(232,112,10,0.7)' : 'rgba(198,40,40,0.8)');
+
+    new Chart(document.getElementById('srfChartZoom').getContext('2d'), {
+      type: 'bar',
+      data: {
+        labels: zLabels,
+        datasets: [{
+          label: 'SRF 用量 ($B)',
+          data: zValues,
+          backgroundColor: zColors,
+          borderRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          x: { type: 'time', time: { unit: 'month', displayFormats: { month: 'MM/yy' } },
+               grid: { display: false }, ticks: { font: { size: 10 }, color: '#999' } },
+          y: { beginAtZero: true, ticks: { font: { size: 10 }, color: '#999',
+               callback: v => `$${v}B` }, grid: { color: '#F0F0F0' } }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: {
+            title: c => c[0].label.slice(0, 10),
+            label: c => `用量：${formatB(c.parsed.y)}`,
+            afterLabel: c => isMonthEnd(zLabels[c.dataIndex]) ? '⚠ 月末窗口（季节性）' : '',
+          }}
+        }
+      }
+    });
+
+    // Peaks table — top 10 non-zero sorted by value desc
+    const top10 = [...obs].filter(o => o.value > 0.5).sort((a, b) => b.value - a.value).slice(0, 10);
+    document.getElementById('peaks-body').innerHTML = top10.map(o => `
+      <tr>
+        <td>${o.date}</td>
+        <td class="td-val ${o.value > 30 ? 'td-hi' : ''}">${formatB(o.value)}</td>
+        <td style="color:#666">${KNOWN_PEAKS[o.date] || (isMonthEnd(o.date) ? '月末季节性' : '—')}</td>
+      </tr>
+    `).join('');
+
+  } catch(e) {
+    document.getElementById('status').textContent = '加载失败：' + e.message;
+    console.error(e);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
