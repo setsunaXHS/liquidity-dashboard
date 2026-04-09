@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "Treasury Market Liquidity Since April 2025",
-      "url": "https://libertystreeteconomics.newyorkfed.org/2026/04/treasury-market-liquidity-since-april-2025/",
-      "desc": "New York Fed Liberty Street Economics reviews how U.S. Treasury market liquidity has evolved over the past year amid economic and political developments, including the impact of QT and TGA fluctuations on system reserve levels.",
-      "date": "2026-04-08"
-    },
-    {
-      "title": "Fed's Logan Proposes Reducing Bank Reserve Demand to Shrink Balance Sheet Without Tightening Liquidity",
+      "title": "美联储缩表新思路！洛根提议"降需求"替代收紧流动性",
       "url": "https://finance.sina.cn/hkstock/ggyw/2026-04-02/detail-inhtcspt4213263.d.html",
-      "desc": "Dallas Fed President Lorie Logan proposed adjusting regulatory rules to lower banks' reserve demand as an alternative path for balance sheet reduction, avoiding a return to reserve scarcity — a key signal for USD liquidity outlook in Q2 2026.",
+      "desc": "达拉斯联储主席洛根表示，美联储可通过调整监管规则降低银行对准备金的需求，从而实现资产负债表收缩，无需回到"稀缺准备金"模式，为QT路径提供新思路。",
       "date": "2026-04-02"
     },
     {
-      "title": "Reflections on the Early Days of Reserve Management Purchases — New York Fed",
-      "url": "https://www.newyorkfed.org/newsevents/speeches/2026/per260326",
-      "desc": "NY Fed speech highlighting that TGA rebuild and cumulative QT runoff brought system liquidity to the lowest levels since balance sheet reduction began, with reserves + ON RRP approaching critical scarcity thresholds near $2.3 trillion.",
-      "date": "2026-03-26"
+      "title": "The Fed's Balance Sheet: Reserve Scarcity, QT Strategy, and TGA Volatility",
+      "url": "https://e-axes.com/the-feds-balance-sheet-reserve-scarcity-qt-strategy-and-tga-volatility/",
+      "desc": "New Fed research estimates reserves plus ON RRP of ~$2.3T would approach September 2019 scarcity levels. The TGA ($850B target) remains highly volatile due to debt ceiling dynamics, posing ongoing liquidity risks.",
+      "date": "2026-02-11"
+    },
+    {
+      "title": "The Central Bank Balance-Sheet Trilemma (Fed Notes)",
+      "url": "https://www.federalreserve.gov/econres/notes/feds-notes/the-central-bank-balance-sheet-trilemma-20260114.html",
+      "desc": "Federal Reserve staff note analyzes the trilemma between balance sheet size, reserve adequacy, and liquidity conditions. Between Dec 2005 and Dec 2025 the Fed's balance sheet grew from ~$800B to ~$6.5T; supply-demand shifts in reserves can create sudden liquidity stress.",
+      "date": "2026-01-14"
     }
   ],
-  "fetchedAt": "2026-04-09"
+  "fetchedAt": "2026-04-10"
 }
