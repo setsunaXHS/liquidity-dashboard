@@ -2,22 +2,22 @@
   "ok": true,
   "news": [
     {
-      "title": "Fed Balance Sheet Edges Higher to $6.675 Trillion as of April 2, 2026",
-      "url": "https://www.fx.co/en/forex-news/2957682",
-      "desc": "The U.S. Federal Reserve's balance sheet expanded modestly to $6.675 trillion as of April 2, 2026, marking a slight uptick after an extended period of quantitative tightening. The Treasury General Account (TGA) stood at $848B while reserve balances remain in focus as the Fed manages liquidity conditions.",
-      "date": "2026-04-02"
+      "title": "Treasury Market Liquidity Since April 2025",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2026/04/treasury-market-liquidity-since-april-2025/",
+      "desc": "NY Fed Liberty Street Economics examines how U.S. Treasury market liquidity evolved over the past year. Liquidity worsened sharply after the April 2025 tariff announcement, quickly recovered once tariff increases were partially rolled back, and remained relatively stable through February 2026 despite subsequent new tariff rounds.",
+      "date": "2026-04-10"
     },
     {
-      "title": "美联储缩表预期升温叠加2026年降息路径展望",
-      "url": "https://finance.sina.com.cn/money/forex/hbfx/2026-03-31/doc-inhswicy5769272.shtml",
-      "desc": "纽约梅隆银行宏观策略团队指出，随着政策环境变化，关于缩表路径与准备金水平的讨论持续升温。当前美联储资产负债表中，银行准备金已成为最大负债项，市场预期美联储可能在2026年下半年启动降息周期，ON RRP余额已降至极低水平。",
-      "date": "2026-03-31"
+      "title": "Fed Balance Sheet & Net Liquidity: TGA at $848B as of April 1, 2026",
+      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
+      "desc": "As of April 1, 2026, the Federal Reserve balance sheet totals $4,390B. The Treasury General Account (TGA) stands at $848B. The Fed's shift from QT to Reserve Management Purchases (RMP) continues to support reserve adequacy heading into the debt-ceiling resolution window.",
+      "date": "2026-04-01"
     },
     {
-      "title": "Factors Affecting Reserve Balances — H.4.1 Release (April 9, 2026)",
-      "url": "https://www.federalreserve.gov/releases/h41/current/",
-      "desc": "The Federal Reserve's latest H.4.1 statistical release (April 9, 2026) details current factors affecting reserve balances, including securities holdings, the Treasury General Account, overnight reverse repo (ON RRP) facility usage, and bank reserve levels — key inputs for tracking U.S. dollar liquidity conditions.",
-      "date": "2026-04-09"
+      "title": "美以伊冲突如何重塑美元流动性格局——从预期路径到现实偏离",
+      "url": "https://www.sohu.com/a/1001640330_122014422",
+      "desc": "浙商银行FICC研究：2026年一季度美元流动性呈现分化格局。美联储RMP支撑短端平稳（SOFR-OIS维持约5bp低位），但中长端利率受地缘风险溢价驱动大幅抬升（2年期以上上行40-50bp）。离岸美元及境内美元流动性全面趋紧，境内拆借情绪指数接近历史高位70。",
+      "date": "2026-03-27"
     }
   ],
   "fetchedAt": "2026-04-11"
