@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "美联储缩表新思路！洛根提议"降需求"替代收紧流动性",
-      "url": "https://finance.sina.cn/hkstock/ggyw/2026-04-02/detail-inhtcspt4213263.d.html",
-      "desc": "达拉斯联储主席洛根表示，美联储可通过调整监管规则降低银行对准备金的需求，从而实现资产负债表收缩，无需回到"稀缺准备金"模式，为QT路径提供新思路。",
+      "title": "Fed Balance Sheet Edges Higher to $6.675 Trillion as of April 2, 2026",
+      "url": "https://www.fx.co/en/forex-news/2957682",
+      "desc": "The U.S. Federal Reserve's balance sheet expanded modestly to $6.675 trillion as of April 2, 2026, marking a slight uptick after an extended period of quantitative tightening. The Treasury General Account (TGA) stood at $848B while reserve balances remain in focus as the Fed manages liquidity conditions.",
       "date": "2026-04-02"
     },
     {
-      "title": "The Fed's Balance Sheet: Reserve Scarcity, QT Strategy, and TGA Volatility",
-      "url": "https://e-axes.com/the-feds-balance-sheet-reserve-scarcity-qt-strategy-and-tga-volatility/",
-      "desc": "New Fed research estimates reserves plus ON RRP of ~$2.3T would approach September 2019 scarcity levels. The TGA ($850B target) remains highly volatile due to debt ceiling dynamics, posing ongoing liquidity risks.",
-      "date": "2026-02-11"
+      "title": "美联储缩表预期升温叠加2026年降息路径展望",
+      "url": "https://finance.sina.com.cn/money/forex/hbfx/2026-03-31/doc-inhswicy5769272.shtml",
+      "desc": "纽约梅隆银行宏观策略团队指出，随着政策环境变化，关于缩表路径与准备金水平的讨论持续升温。当前美联储资产负债表中，银行准备金已成为最大负债项，市场预期美联储可能在2026年下半年启动降息周期，ON RRP余额已降至极低水平。",
+      "date": "2026-03-31"
     },
     {
-      "title": "The Central Bank Balance-Sheet Trilemma (Fed Notes)",
-      "url": "https://www.federalreserve.gov/econres/notes/feds-notes/the-central-bank-balance-sheet-trilemma-20260114.html",
-      "desc": "Federal Reserve staff note analyzes the trilemma between balance sheet size, reserve adequacy, and liquidity conditions. Between Dec 2005 and Dec 2025 the Fed's balance sheet grew from ~$800B to ~$6.5T; supply-demand shifts in reserves can create sudden liquidity stress.",
-      "date": "2026-01-14"
+      "title": "Factors Affecting Reserve Balances — H.4.1 Release (April 9, 2026)",
+      "url": "https://www.federalreserve.gov/releases/h41/current/",
+      "desc": "The Federal Reserve's latest H.4.1 statistical release (April 9, 2026) details current factors affecting reserve balances, including securities holdings, the Treasury General Account, overnight reverse repo (ON RRP) facility usage, and bank reserve levels — key inputs for tracking U.S. dollar liquidity conditions.",
+      "date": "2026-04-09"
     }
   ],
-  "fetchedAt": "2026-04-10"
+  "fetchedAt": "2026-04-11"
 }
