@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "Fed Balance Sheet & Net Liquidity: TGA at $748B as of April 8, 2026",
-      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
-      "desc": "As of April 8, 2026, the Federal Reserve balance sheet stands at $4,407B. The Treasury General Account (TGA) is at $748B, a key driver of net liquidity in the system. Reserve balances remain a closely watched indicator following the end of QT.",
-      "date": "2026-04-08"
+      "title": "Fed Balance Sheet Edges Higher to $6.694 Trillion, Signaling Liquidity Shift",
+      "url": "https://www.fx.co/cn/forex-news/2964871",
+      "desc": "The U.S. Federal Reserve's balance sheet rose to $6.694 trillion as of April 9, 2026 (up from $6.675T), reversing recent QT-era contraction and pointing to a modest re-expansion of system liquidity. H.4.1 reserve factors data published the same day confirms the uptick.",
+      "date": "2026-04-09"
     },
     {
-      "title": "Fed Research: Setting a TGA Cap — A New Path for Balance Sheet Reduction",
-      "url": "https://www.federalreserve.gov/econres/feds/files/2026019pap.pdf",
-      "desc": "A new Fed working paper explores capping the Treasury General Account to reduce the Fed's balance sheet while maintaining the Treasury's overall liquidity position. The proposal would roughly halve the TGA held at the Fed, keeping bank reserves stable.",
+      "title": "Federal Reserve Formally Ends Quantitative Tightening to Stabilize Market Liquidity",
+      "url": "https://markets.financialcontent.com/stocks/article/marketminute-2026-1-19-the-great-unwind-concludes-federal-reserve-formally-ends-quantitative-tightening-to-stabilize-market-liquidity",
+      "desc": "With the ON RRP facility hitting effectively zero in early January 2026, the Fed officially concluded its QT programme to prevent further drains on bank reserves. The move marks a structural pivot: any additional balance-sheet reduction would now come directly at the expense of reserve buffers rather than the RRP cushion.",
+      "date": "2026-01-19"
+    },
+    {
+      "title": "设定TGA上限？沃什"缩表+降息"政策组合引发流动性讨论",
+      "url": "https://wallstreetcn.com/articles/3767208",
+      "desc": "美联储主席提名人凯文·沃什主张限制财政部一般账户（TGA）规模，以配合"缩表+降息"政策组合。分析人士指出，若TGA被设定上限，财政部消费TGA余额将持续向银行体系净注入准备金，短期内对美元流动性构成利好，但财政部实际接受度存疑。",
       "date": "2026-03-11"
-    },
-    {
-      "title": "美联储缩表预期升温叠加2026年降息路径展望",
-      "url": "https://finance.sina.com.cn/money/forex/hbfx/2026-03-31/doc-inhswicy5769272.shtml",
-      "desc": "部分美联储政策制定者提出新路径：通过降低银行对准备金的结构性需求，在不引发市场波动的前提下推进缩表。与此同时，市场对2026年降息路径的预期也在重新定价，流动性前景面临双重不确定性。",
-      "date": "2026-03-31"
     }
   ],
-  "fetchedAt": "2026-04-12"
+  "fetchedAt": "2026-04-13"
 }
