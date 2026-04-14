@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "Treasury Market Liquidity Since April 2025",
-      "url": "https://libertystreeteconomics.newyorkfed.org/2026/04/treasury-market-liquidity-since-april-2025/",
-      "desc": "NY Fed Liberty Street Economics reviews how U.S. Treasury market liquidity has evolved over the past year amid economic and political developments, with the Fed balance sheet at $4,407B and TGA at $748B as of April 8, 2026.",
-      "date": "2026-04-08"
+      "title": "NY Fed: Implementation of Reserve Management Purchases to Maintain Ample Reserves",
+      "url": "https://tellerwindow.newyorkfed.org/2026/03/31/the-implementation-of-reserve-management-purchases-to-maintain-ample-reserves/",
+      "desc": "NY Fed详解RMP实施机制：2025年12月FOMC认定准备金降至"充裕"水平后启动购债，每月约400亿美元规模购入短期国债。文章指出4月税季将导致TGA大幅上升，快速抽走银行体系准备金，是当前流动性的核心压力点。",
+      "date": "2026-03-31"
     },
     {
-      "title": "美国隔夜逆回购（ONRRP）接近清零，流动性危机显现",
-      "url": "https://xueqiu.com/9216592857/380509790",
-      "desc": "分析指出美联储QT持续回收流动性、TGA账户飙升至超9000亿美元吸走大量资金，叠加货币基金从ONRRP撤出转向短债，美元净流动性持续收紧，ONRRP余额接近清零。",
-      "date": "2026-03-20"
+      "title": "Wolf Street: Update on the Fed's Balance Sheet and Reserve Management Purchases",
+      "url": "https://wolfstreet.com/2026/03/05/update-on-the-feds-balance-sheet-and-its-reserve-management-purchases/",
+      "desc": "美联储资产负债表自RMP启动以来已扩张930亿美元至6.63万亿，每月购入约400亿T-bills并以T-bills置换到期MBS。候任主席Warsh强烈反对庞大资产负债表，Tax Day（4月15日）后RMP将"大幅缩减"，流动性走向存在不确定性。",
+      "date": "2026-03-05"
     },
     {
-      "title": "美以伊冲突如何重塑美元流动性格局——从预期路径到现实偏离",
-      "url": "http://finance.sina.com.cn/wm/2026-03-27/doc-inhskmqi8556320.shtml",
-      "desc": "2026年初市场预计随美联储扩表美元流动性将由紧转松，但2月底"美以伊"冲突使预期失效，驱动逻辑切换至"地缘政治风险定价"模式，一季度美国在岸市场短端流动性承压。",
-      "date": "2026-03-27"
+      "title": "Seeking Alpha: The Market Faces Renewed Liquidity Pressure",
+      "url": "https://seekingalpha.com/article/4860569-the-market-faces-renewed-liquidity-pressure",
+      "desc": "分析指出财政部加大国库券发行将推升TGA余额、抽走银行准备金，Fed每月约550亿购债难以完全对冲流动性消耗。保证金债务增速放缓历史上与准备金下降同步，暗示股票杠杆和标普500面临潜在压力，SOFR利差和回购设施使用量是关键监测指标。",
+      "date": "2026-01-16"
     }
   ],
-  "fetchedAt": "2026-04-14"
+  "fetchedAt": "2026-04-15"
 }
