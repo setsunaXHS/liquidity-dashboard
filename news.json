@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "Wall Street Expects a Cautious Fed as T-Bill Purchases Wind Down",
-      "url": "https://www.advisorperspectives.com/articles/2026/04/13/wall-street-cautious-fed-t-bill-purchases-down",
-      "desc": "The Fed ended QT in late 2025 and pivoted to buying ~$40B/month in T-bills to stabilize reserves through April tax season. NY Fed's Roberto Perli signaled the monthly purchase pace will be \"significantly reduced\" from mid-April onward, as reserve pressures ease.",
-      "date": "2026-04-13"
+      "title": "Fed H.4.1: Factors Affecting Reserve Balances – April 9, 2026",
+      "url": "https://www.federalreserve.gov/releases/h41/current/",
+      "desc": "美联储最新资产负债表周报（4月9日），追踪准备金余额、TGA及各流动性设施最新规模，是判断系统净流动性的核心数据源。",
+      "date": "2026-04-09"
     },
     {
-      "title": "Fed Balance Sheet & Net Liquidity — As of April 8, 2026",
-      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
-      "desc": "As of April 8, 2026, the Federal Reserve balance sheet stands at $4,407B. The Treasury General Account (TGA) holds $748B, keeping net liquidity in focus as the debt-ceiling resolution and tax season draw down the TGA balance.",
-      "date": "2026-04-08"
+      "title": "The Fed Has Two Tools to Influence Money Market Conditions",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2026/04/the-fed-has-two-tools-to-influence-money-market-conditions/",
+      "desc": "纽约联储4月发文解析美联储调控货币市场的两大政策工具（管理利率与准备金规模），探讨后QT时代如何维护利率走廊稳定及流动性充裕。",
+      "date": "2026-04-01"
     },
     {
-      "title": "美联储3月FOMC会议纪要：官员分歧加剧，流动性走向存不确定性",
-      "url": "https://finance.sina.com.cn/money/bond/2026-04-13/doc-inhuipif9751747.shtml",
-      "desc": "美联储3月FOMC会议纪要显示，多数官员认为中东局势可能损害劳动力市场，或需降息应对；但许多官员同时强调通胀上行风险，不排除加息可能。美联储政策路径的不确定性加大了美元流动性前景的分歧。",
-      "date": "2026-04-13"
+      "title": "Fed's Balance Sheet and Ample Reserves – St. Louis Fed, Feb 2026",
+      "url": "https://www.stlouisfed.org/publications/page-one-economics/2026/feb/fed-balance-sheet-and-ample-reserves",
+      "desc": "圣路易斯联储2026年2月报告梳理QT结束后美联储"充裕准备金"框架运作机制，说明当前约3万亿美元准备金水平对流动性的支撑及潜在收紧风险。",
+      "date": "2026-02-18"
     }
   ],
-  "fetchedAt": "2026-04-16"
+  "fetchedAt": "2026-04-17"
 }
