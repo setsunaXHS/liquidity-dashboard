@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"Why The Fed Could Shrink Its Balance Sheet Again (And Markets Might Not Notice)","url":"https://seekingalpha.com/article/4891465-why-fed-could-shrink-its-balance-sheet-again-markets-might-not-notice","desc":"Late last year, the Federal Reserve ended its latest quantitative tightening (QT) program, reducing the balance sheet by more than $2 trillion from a peak of almost $9 trillion. The Fed appears to be implementing policies that seek to reduce banks' demand for reserves, which could allow for gradual balance sheet expansion even without QE programs.","date":"2026-04-17"},{"title":"Fed Balance Sheet & Net Liquidity - Latest Data","url":"https://streetstats.finance/liquidity/fed-balance-sheet","desc":"As of April 8, 2026, the Federal Reserve balance sheet stands at $4,407B. On the liability side, the Treasury General Account (TGA) is at $748B. Data updated April 17, 2026 with latest market closing values showing 10-Yr Treasury at 4.25% and U.S. Dollar at 98.22.","date":"2026-04-08"},{"title":"流动性环境 - Liquidity Environment Analysis","url":"https://www.themarketbrew.com/macro/liquidity","desc":"商业银行存放在美联储的准备金余额是银行进行借贷和交易的基础。美联储认为准备金在 3 万亿美元以上属于'充裕'水平，低于该水平可能引发流动性紧张。数据来源 FRED，图表来自 TradingView。","date":"2026-03-06"}],"fetchedAt":"2026-04-18"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "April 2026 Trading Outlook: Fiscal Flows, Oil, Bank Credit, And Fed Interest Rates",
+      "url": "https://seekingalpha.com/article/4891750-april-2026-trading-outlook-fiscal-flows-oil-bank-credit-and-fed-interest-rates",
+      "desc": "Risk assets remain resilient with SPX at all-time highs despite weak fiscal flows. Global liquidity forecast to peak early-to-mid 2026, with significant tightening and risk asset correction likely through 2027. April tax collections may trigger short-term retrace. Persistently high oil prices threaten construction-led recession as central banks maintain 'higher for longer' rates.",
+      "date": "2026-04-19"
+    },
+    {
+      "title": "新浪美联储热点：IMF春会评估、美联储政策偏宽松、美元避险行情或已结束",
+      "url": "https://cj.sina.cn/articles/view/7857201856/1d45362c001904ffhu",
+      "desc": "IMF春会指出中东能源冲击对亚洲影响显著，油价涨60%或致亚洲产出下降0.8%-2%。普徕仕分析美联储政策仍偏宽松，货币政策在利率层面略偏紧但被资产负债表变动抵消，整体金融环境接近中性。华尔街警告美元受战争驱动的避险行情可能已结束，德意志银行和富国银行建议做空美元。",
+      "date": "2026-04-17"
+    },
+    {
+      "title": "IMF和世行春季年会：美联储3月纪要显示降息与加息分歧并存",
+      "url": "https://finance.sina.com.cn/money/bond/2026-04-13/doc-inhuipif9751747.shtml",
+      "desc": "美联储3月FOMC会议纪要显示，多数官员认为中东战争可能损害劳动力市场，或需降息应对；但许多官员同时强调通胀上行风险，不排除加息可能。会后多位政策制定者发表鹰派言论，市场对美联储政策路径分歧加剧。",
+      "date": "2026-04-13"
+    }
+  ],
+  "fetchedAt": "2026-04-20"
+}
