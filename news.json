@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "April 2026 Trading Outlook: Fiscal Flows, Oil, Bank Credit, And Fed Interest Rates",
-      "url": "https://seekingalpha.com/article/4891750-april-2026-trading-outlook-fiscal-flows-oil-bank-credit-and-fed-interest-rates",
-      "desc": "Risk assets remain resilient with SPX at all-time highs despite weak fiscal flows. Global liquidity forecast to peak early-to-mid 2026, with significant tightening and risk asset correction likely through 2027. April tax collections may trigger short-term retrace. Persistently high oil prices threaten construction-led recession as central banks maintain 'higher for longer' rates.",
-      "date": "2026-04-19"
+      "title": "美联储超预期缩减RMP规模，月度购债从400亿砍至250亿美元",
+      "url": "https://finance.sina.cn/2026-04-14/detail-inhumfsq4314879.d.html",
+      "desc": "美联储于4月14日宣布，将准备金管理购买（RMP）计划的月度短期国库券购买规模从400亿美元大幅缩减至250亿美元，降幅近四成，令华尔街措手不及。这一决定标志着自2025年底启动的流动性注入计划开始放缓，RMP本质是美联储在QT结束后为维持银行系统准备金充裕而设的技术性流动性管理工具。市场原本预期降幅不会如此激进。",
+      "date": "2026-04-14"
     },
     {
-      "title": "新浪美联储热点：IMF春会评估、美联储政策偏宽松、美元避险行情或已结束",
-      "url": "https://cj.sina.cn/articles/view/7857201856/1d45362c001904ffhu",
-      "desc": "IMF春会指出中东能源冲击对亚洲影响显著，油价涨60%或致亚洲产出下降0.8%-2%。普徕仕分析美联储政策仍偏宽松，货币政策在利率层面略偏紧但被资产负债表变动抵消，整体金融环境接近中性。华尔街警告美元受战争驱动的避险行情可能已结束，德意志银行和富国银行建议做空美元。",
-      "date": "2026-04-17"
-    },
-    {
-      "title": "IMF和世行春季年会：美联储3月纪要显示降息与加息分歧并存",
-      "url": "https://finance.sina.com.cn/money/bond/2026-04-13/doc-inhuipif9751747.shtml",
-      "desc": "美联储3月FOMC会议纪要显示，多数官员认为中东战争可能损害劳动力市场，或需降息应对；但许多官员同时强调通胀上行风险，不排除加息可能。会后多位政策制定者发表鹰派言论，市场对美联储政策路径分歧加剧。",
+      "title": "NY Fed SOMA Annual Report: The Transition to Ample Reserves",
+      "url": "https://tellerwindow.newyorkfed.org/2026/04/13/the-federal-reserves-transition-to-ample-reserves-a-view-from-the-soma-annual-report/",
+      "desc": "纽约联储发布2025年SOMA年度报告摘要，详述美联储如何管理从充足准备金向平衡准备金的过渡。报告回顾了在准备金降至约3万亿美元后，美联储如何通过启动准备金管理购买（RMP）来防止流动性过度收紧，并指出未来银行监管流动性要求的变化可能进一步影响准备金需求。",
       "date": "2026-04-13"
+    },
+    {
+      "title": "Fed Balance Sheet Data: TGA at $751B, Reserves Stabilizing Near $3T",
+      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
+      "desc": "截至2026年4月15日，美联储资产负债表显示总规模约$4.407万亿，财政部一般账户（TGA）余额为$7,510亿。随着RMP购债持续注入流动性，银行准备金稳定在约$3万亿附近，RRP工具已基本耗尽至$1,000亿以下。流动性净规模约$5.81万亿，市场对美联储流动性政策路径的关注度持续升温。",
+      "date": "2026-04-15"
     }
   ],
-  "fetchedAt": "2026-04-20"
+  "fetchedAt": "2026-04-21"
 }
