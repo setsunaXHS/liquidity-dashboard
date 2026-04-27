@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"广发宏观 | 沃什会带来"降息+缩表"吗？","url":"http://finance.sina.com.cn/wm/2026-04-26/doc-inhvuxum3353430.shtml","desc":"广发宏观深度分析沃什参议院听证会核心信息：强调美联储独立性、制度性改革、回归本职。沃什主张利率工具优于资产负债表工具，认为缩表节奏预计缓慢，短期难有新QT计划。当前美国经济结构性分化显著，AI产业链高增但传统部门承压，短期降息概率大于缩表。","date":"2026-04-26"},{"title":"美国2026年4月经济情况分析及政策展望","url":"https://sfi.cuhk.edu.cn/zh-hans/node/9919","desc":"中大（深圳）金融稳定学院发布4月美国经济分析：3月CPI同比回升至3.3%，能源价格环比大涨10.9%；核心PCE同比2.97%。制造业持续扩张但动能边际放缓。美联储4月会议预计维持利率3.50%-3.75%不变。中东冲突缓和推动油价回落，布伦特原油报93.8美元/桶。","date":"2026-04-24"},{"title":"深度拆解美联储重磅"缩表"论文：缩多少，怎么缩，影响几何？","url":"https://baijiahao.baidu.com/s?id=1862961668760190024","desc":"美联储理事Miran联合三位经济学家发布工作论文《缩减美联储资产负债表用户指南》，打破"缩表天花板即准备金耗尽"的市场惯常认知。论文指出通过监管与操作框架调整（如放宽LCR标准、改革SRP等），美联储可在维持充足准备金框架前提下实现资产负债表显著瘦身。","date":"2026-04-20"}],"fetchedAt":"2026-04-28"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "Warsh Brings 'Rate Cut + Balance Sheet Reduction'? Senate Hearing Analysis",
+      "url": "https://finance.sina.com.cn/roll/2026-04-23/doc-inhvnxny5329878.shtml",
+      "desc": "Kevin Warsh attended Senate confirmation hearing on April 21, 2026. He emphasized Fed independence, regime change in monetary policy framework, and staying in the Fed's lane. On rate cuts, Warsh was cautious, refusing to give a definite timeline while tying rate questions to balance sheet issues. On balance sheet, he criticized past QE rounds and stressed the necessity of balance sheet reduction. GF Macro expects balance sheet reduction pace to be slow with no substantial new QT plan in the near term; rate cut probability is higher than balance sheet reduction.",
+      "date": "2026-04-23"
+    },
+    {
+      "title": "Fed Director Miran: Prospects for Shrinking the Fed's Balance Sheet",
+      "url": "https://baijiahao.baidu.com/s?id=1862544391369965180&wfr=spider&for=pc",
+      "desc": "Federal Reserve Governor Stephen Miran delivered a speech at the Miami Economic Club on March 26, 2026, summarizing the working paper 'A User's Guide to Reducing the Federal Reserve's Balance Sheet'. He argued for reducing the Fed's balance sheet size to minimize market distortions, reduce mark-to-market losses, and better protect the boundary between monetary and fiscal policy. The paper challenges the conventional wisdom that 'the ceiling for balance sheet reduction is reserves depletion', suggesting policy frameworks can be reshaped to achieve significant balance sheet reduction.",
+      "date": "2026-04-15"
+    },
+    {
+      "title": "US Economy April 2026 Analysis & Policy Outlook",
+      "url": "https://sfi.cuhk.edu.cn/zh-hans/node/9919",
+      "desc": "CUHK SFI's analysis of US economy in April 2026: March CPI rose 0.9% MoM, YoY returned to 3.3%; core CPI YoY at 2.6%. Energy prices surged 10.9% MoM driven by Middle East conflict. Core PCE YoY at 2.97%. Non-farm payrolls added 178K in March with unemployment at 4.3%. The Fed is expected to hold rates at 3.50%-3.75% at the April meeting. Geopolitical tensions easing pushed oil prices down 9% to ~$94/barrel (Brent). Liquidity implications: inflation pressures complicate rate cut timeline, while TGA fluctuations remain a key liquidity driver.",
+      "date": "2026-04-24"
+    }
+  ],
+  "fetchedAt": "2026-04-28"
+}
