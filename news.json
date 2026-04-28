@@ -2,23 +2,23 @@
   "ok": true,
   "news": [
     {
-      "title": "Warsh Brings 'Rate Cut + Balance Sheet Reduction'? Senate Hearing Analysis",
-      "url": "https://finance.sina.com.cn/roll/2026-04-23/doc-inhvnxny5329878.shtml",
-      "desc": "Kevin Warsh attended Senate confirmation hearing on April 21, 2026. He emphasized Fed independence, regime change in monetary policy framework, and staying in the Fed's lane. On rate cuts, Warsh was cautious, refusing to give a definite timeline while tying rate questions to balance sheet issues. On balance sheet, he criticized past QE rounds and stressed the necessity of balance sheet reduction. GF Macro expects balance sheet reduction pace to be slow with no substantial new QT plan in the near term; rate cut probability is higher than balance sheet reduction.",
+      "title": "Fed RRP Usage Hits Record Low at $503M, Signal of Near-Exhausted Liquidity Buffer",
+      "url": "https://www.chnfund.com/article/b9abbaac-a467-4b03-43ac-3a20be12ba1a",
+      "desc": "Fed data shows ON RRP usage fell to just $503M on April 20, 2026, near record lows. The ON RRP facility, once holding over $2.5T, has been nearly drained, marking a critical transition point for market liquidity. With the RRP buffer essentially gone, bank reserves now bear the full brunt of Fed balance sheet runoff and TGA fluctuations, raising the stakes for future liquidity management.",
+      "date": "2026-04-21"
+    },
+    {
+      "title": "Fed H.4.1 Report (Apr 23): Balance Sheet Total at ~$6.7T, TGA at $1,006B",
+      "url": "https://www.federalreserve.gov/releases/h41/current/",
+      "desc": "The latest Federal Reserve H.4.1 statistical release (April 23, 2026) shows the Fed balance sheet holding near $6.7T. The Treasury General Account (TGA) stands at approximately $1,006B per StreetStats data, a key drain on system liquidity. Reserve balances remain closely watched as the primary buffer against funding stress, with RRP now near zero.",
       "date": "2026-04-23"
     },
     {
-      "title": "Fed Director Miran: Prospects for Shrinking the Fed's Balance Sheet",
-      "url": "https://baijiahao.baidu.com/s?id=1862544391369965180&wfr=spider&for=pc",
-      "desc": "Federal Reserve Governor Stephen Miran delivered a speech at the Miami Economic Club on March 26, 2026, summarizing the working paper 'A User's Guide to Reducing the Federal Reserve's Balance Sheet'. He argued for reducing the Fed's balance sheet size to minimize market distortions, reduce mark-to-market losses, and better protect the boundary between monetary and fiscal policy. The paper challenges the conventional wisdom that 'the ceiling for balance sheet reduction is reserves depletion', suggesting policy frameworks can be reshaped to achieve significant balance sheet reduction.",
-      "date": "2026-04-15"
-    },
-    {
-      "title": "US Economy April 2026 Analysis & Policy Outlook",
-      "url": "https://sfi.cuhk.edu.cn/zh-hans/node/9919",
-      "desc": "CUHK SFI's analysis of US economy in April 2026: March CPI rose 0.9% MoM, YoY returned to 3.3%; core CPI YoY at 2.6%. Energy prices surged 10.9% MoM driven by Middle East conflict. Core PCE YoY at 2.97%. Non-farm payrolls added 178K in March with unemployment at 4.3%. The Fed is expected to hold rates at 3.50%-3.75% at the April meeting. Geopolitical tensions easing pushed oil prices down 9% to ~$94/barrel (Brent). Liquidity implications: inflation pressures complicate rate cut timeline, while TGA fluctuations remain a key liquidity driver.",
-      "date": "2026-04-24"
+      "title": "U.S. Dollar Liquidity Deep Dive: TGA, RRP, and Reserve Dynamics in April 2026",
+      "url": "https://crypto-resources.com/us-dollar-liquidity-tga-rrp-bitcoin/",
+      "desc": "A comprehensive breakdown of how TGA balances, ON RRP depletion, and bank reserve levels interact to determine dollar liquidity conditions in April 2026. Explains the shift from RRP-funded liquidity to reserve-dependent dynamics, with practical implications for risk assets. Highlights the formula evolution: Net Liquidity = Fed Balance Sheet - TGA - RRP, now that RRP is nearly exhausted.",
+      "date": "2026-04-14"
     }
   ],
-  "fetchedAt": "2026-04-28"
+  "fetchedAt": "2026-04-29"
 }
