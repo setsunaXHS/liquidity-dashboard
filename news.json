@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"Fed Keeps Rates Steady at 3.5%-3.75% in April 2026 Meeting","url":"https://www.advisorperspectives.com/dshort/updates/2026/04/29/feds-interest-rate-decision-april-29-2026","desc":"The Federal Reserve maintained the federal funds rate at 3.5%-3.75% at the April 29 FOMC meeting, marking continued pause since January 2026. Markets now eye the June 17 meeting for any signal shift on rate cuts.","date":"2026-04-29"},{"title":"Fed Balance Sheet at $6.7T: Liquidity Remains Historically Supportive","url":"https://streetstats.finance/liquidity/fed-balance-sheet","desc":"Fed total assets at $6,700B as of April 29 — up $25B over 1 month. Bank reserves at $2.90T (down $92B MoM). RRP near $1.63B, TGA at ~$969B. Treasury holdings rose $210B YoY while MBS declined $192B, suggesting a Treasury-centric portfolio shift. Net liquidity remains in the 78th historical percentile.","date":"2026-05-01"},{"title":"Barclays Expects Fed to Hold Rates Through All of 2026","url":"https://www.cls.cn/detail/2362487","desc":"Barclays revised its Fed outlook, now forecasting rates remain unchanged through 2026, upgrading from a prior prediction of a 25bp cut in September. The shift reflects persistent inflation and the Fed's cautious stance amid tariff and fiscal uncertainty.","date":"2026-05-04"}],"fetchedAt":"2026-05-08"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "US Treasury weighs repo role for cash, liquidity management",
+      "url": "https://www.reuters.com/legal/transactional/us-treasury-weighs-investing-cash-repo-market-2026-05-06/",
+      "desc": "Reuters reports the US Treasury is considering investing its cash balances in the repo market as a liquidity management tool. Currently SOFR stands at 3.62% vs Fed IORB at 3.65%, creating incentives for Treasury to explore repo deployment of its cash reserves, which could meaningfully impact money market dynamics and overall USD liquidity conditions.",
+      "date": "2026-05-06"
+    },
+    {
+      "title": "Reducing the Fed's Balance Sheet Would Be Risky, Unlikely to Be Rapid — Fitch Ratings",
+      "url": "https://www.fitchratings.com/research/sovereigns/reducing-feds-balance-sheet-would-be-risky-unlikely-to-be-rapid-06-05-2026",
+      "desc": "Fitch warns that further balance sheet reduction would be risky. The Fed ended QT and began expanding its balance sheet in December 2025, but recent Fed staff analysis suggests any future shrinkage should be cautious and gradual to avoid destabilizing bank reserves and money market functioning.",
+      "date": "2026-05-06"
+    },
+    {
+      "title": "美债季度再融资1250亿不变，TGA现金余额7月底或达万亿峰值",
+      "url": "https://news.fx678.com/202605062054232287.shtml",
+      "desc": "美国财政部公布2026年5月季度再融资规模维持1250亿美元不变，TGA余额预计6月底达9000亿美元、7月底冲击1万亿美元。财政部将增加短期国库券发行并于5月底发行CMB。TGA快速累积将从市场抽走流动性，叠加关税不确定性，季末资金面收紧风险值得关注。",
+      "date": "2026-05-06"
+    }
+  ],
+  "fetchedAt": "2026-05-09"
+}
