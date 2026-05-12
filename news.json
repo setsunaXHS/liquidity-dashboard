@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"US Treasury weighs repo role for cash, liquidity management","url":"https://www.reuters.com/legal/transactional/us-treasury-weighs-investing-cash-repo-market-2026-05-06/","desc":"TBAC discussed a proposal for the US Treasury to invest excess cash in the overnight repo market — a potentially significant shift in cash management policy. With TGA at ~$879B, placing surplus cash in repo could ease liquidity strains in short-term funding markets and offset reserve drain from large Fed balances.","date":"2026-05-06"},{"title":"下一届美联储主席'降息+缩表'对股市流动性有什么影响？","url":"https://news.qq.com/rain/a/20260504A03ONC00","desc":"分析沃什提名后'降息+缩表'政策组合对流动性的影响：缩表直接压低Fed资产端、减少银行准备金；当前Fed资产负债表约6.75万亿美元，RRP缓冲垫已大幅缩减，准备金约3.0万亿美元。若7-9月通胀就业数据给空间，政策窗口才会真正打开。","date":"2026-05-04"},{"title":"美财政部TBAC 5月会议：维持短债融资策略，不增名义付息国债发行","url":"https://home.treasury.gov/news/press-releases/sb0490","desc":"财政部借款咨询委员会（TBAC）5月会议向财政部长提交报告，讨论国债发行策略与流动性管理。当前TGA高企叠加QT背景，财政部融资方式直接影响市场流动性分布。","date":"2026-05-06"}],"fetchedAt":"2026-05-12"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "华盈视界 | 浅析美联储缩表及其影响",
+      "url": "https://finance.sina.com.cn/wm/2026-05-09/doc-inhxhcxr3660046.shtml",
+      "desc": "美联储主席提名人凯文·沃什4月21日出席参议院听证会，主张渐进式缩表与维护美联储独立性。文章分析缩表对债券、股票、黄金市场的影响，指出沃什构想的政策组合可能是'缩表+降息'双线并行，缩表推高长期利率而降息对冲紧缩效应。鲍威尔任期将于2026年5月结束。",
+      "date": "2026-05-09"
+    },
+    {
+      "title": "美联储发布2026年5月金融稳定报告",
+      "url": "https://www.federalreserve.gov/publications/files/financial-stability-report-20260508.pdf",
+      "desc": "美联储发布最新金融稳定报告（2026年5月），指出大多数银行维持较高流动性水平，资金来源变化不大，银行体系整体流动性保持稳定。报告评估了当前金融系统面临的主要风险及韧性状况。",
+      "date": "2026-05-08"
+    },
+    {
+      "title": "下一届美联储主席'降息+缩表'，对股市流动性有什么影响？",
+      "url": "https://news.qq.com/rain/a/20260504A03ONC00",
+      "desc": "沃什提名已于4月29日通过参议院银行委员会，预计5月中下旬正式上任。文章分析'降息+缩表'组合政策对流动性的影响：缩表直接压低Fed资产端减少银行准备金，而当前RRP余额已远低于高位、缓冲垫变薄。美联储资产负债表约6.75万亿美元，仍呈货币政策边际收紧态势。",
+      "date": "2026-05-04"
+    }
+  ],
+  "fetchedAt": "2026-05-13"
+}
