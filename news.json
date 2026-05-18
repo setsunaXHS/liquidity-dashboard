@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"Fed Balance Sheet Reaches $6.7 Trillion as Liquidity Resilience Persists","url":"https://api.finexus.net/api/news/economic/9a5d76fa-a666-4356-883b-58738a1a6837/html","desc":"As of May 13, 2026, the Federal Reserve's balance sheet stands at $6.728 trillion, reflecting a complex tug-of-war between structural QT runoff and Reserve Management Purchase (RMP) operations that have been offsetting reserve drains. The data highlights ongoing liquidity management challenges as the Fed navigates post-QT policy.","date":"2026-05-17"},{"title":"U.S. Bank Reserves Edge Higher to $3.12 Trillion, Signaling Ample Liquidity","url":"https://www.fx.co/cn/forex-news/2997141","desc":"Reserve balances held at Federal Reserve Banks rose to $3.117 trillion, up from $3.051 trillion, signaling that banking system liquidity remains ample despite the Fed's balance sheet normalization efforts. The rise suggests RMP operations and TGA dynamics are supporting reserve levels.","date":"2026-05-15"},{"title":"美联储5月大幅削减国库券购买：RMP计划第二次缩减","url":"https://unifuncs.com/s/a20eGird","desc":"2026年5月14日，美联储将国库券购买规模从250亿美元降至100亿美元，为RMP（储备管理购买）计划第二次大幅缩减。此次削减基于银行准备金已回升至3.05万亿美元的水平，表明美联储认为流动性充足程度已允许进一步缩减干预操作。","date":"2026-05-14"}],"fetchedAt":"2026-05-18"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "美联储2026年5月大幅削减国库券购买：政策意图与市场影响",
+      "url": "https://unifuncs.com/s/a20eGird",
+      "desc": "2026年5月14日美联储将国库券购买规模从250亿美元降至100亿美元，为RMP计划第二次大幅缩减。银行准备金回升至3.05万亿美元，核心意图从紧急流动性注入转向常态化流动性管理。",
+      "date": "2026-05-14"
+    },
+    {
+      "title": "【央行圆桌汇】美联储步入\"沃什时代\" — 参议院确认Kevin Warsh任美联储主席",
+      "url": "https://m.cnfin.com/hs-lb//zixun/20260518/4413775_1.html",
+      "desc": "参议院以54:45确认凯文·沃什接任美联储主席。美联储理事米兰递交辞呈。巴尔明确反对通过放宽流动性规定来缩减资产负债表。纽约联储威廉姆斯称当前货币政策略显紧缩但处于良好状态。通胀前景分歧加剧。",
+      "date": "2026-05-18"
+    },
+    {
+      "title": "美联储政策范式转变与潜在溢出风险 — 沃什时代的资产负债表与流动性框架",
+      "url": "https://www.21jingji.com/article/20260518/herald/1775ba3dcdb76226855db13dcb70d93d.html",
+      "desc": "沃什将从\"数据依赖\"转向\"趋势依赖\"范式，预计采取\"短期降息+长期缩表\"组合。截至2026年4月美联储持有美债4.39万亿，占中长期存量18.5%。中东地缘冲突和油价波动可能迫使放缓降息节奏并备足流动性工具。",
+      "date": "2026-05-18"
+    }
+  ],
+  "fetchedAt": "2026-05-19"
+}
