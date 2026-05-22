@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"美联储2026年5月大幅削减国库券购买：政策意图与市场影响","url":"https://unifuncs.com/s/a20eGird","desc":"2026年5月14日美联储将国库券购买规模从250亿美元降至100亿美元，为RMP计划第二次大幅缩减。此次削减基于银行准备金回升至3.05万亿美元的流动性基础，核心意图是从紧急流动性支持过渡到正常化操作。","date":"2026-05-14"},{"title":"中金：美联储年内或难以降息，单纯由流动性驱动的资产或将持续承压","url":"https://view.inews.qq.com/a/20260519A02E0G00","desc":"中金研报指出，基准情形下美国PCE通胀全年或将维持在3.5%以上，核心PCE在3%以上，显著高于美联储2%目标。在此背景下，美联储政策立场将转为更加审慎，年内降息空间有限，流动性驱动资产持续承压。","date":"2026-05-19"},{"title":"Fed to Increase Treasury Bill Purchases in May 2026: Policy Shift and Market Implications","url":"https://streetstats.finance/liquidity/fed-balance-sheet","desc":"As of May 13, 2026, the Federal Reserve balance sheet includes $4,450B of Treasuries, $1,981B of MBS, and $297B of other assets. Net liquidity trends show the Fed navigating the transition from QT to a more balanced balance sheet approach amid evolving market conditions.","date":"2026-05-13"}],"fetchedAt":"2026-05-22"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "Fed's Barr: Easing liquidity regulations to reduce balance sheet not advisable",
+      "url": "https://www.tmgm.com/ar/analysis/market-news/article/feds-barr-easing-liquidity-regulations-to-reduce-fed-balance-sheet-not-advisable-202605142324",
+      "desc": "Fed Governor Michael Barr said lowering liquidity rules to shrink the Fed's balance sheet is a bad idea and could undermine financial system safety. Reducing liquidity requirements would heighten stability risks; a reduced balance sheet may boost demand for Fed liquidity facilities.",
+      "date": "2026-05-14"
+    },
+    {
+      "title": "美联储再次大幅削减国库券购买规模，RMP月度购债降至100亿美元",
+      "url": "https://www.cfi.net.cn/p20260514000102.html",
+      "desc": "美联储5月13日宣布将本月RMP（准备金管理购买）国库券购买规模从4月的250亿美元进一步削减至约100亿美元，降幅达60%，为RMP计划启动以来第二次大幅缩减。此举反映该旨在补充金融体系准备金、降低短期融资成本的计划进一步放缓，银行准备金已回升至约3.05万亿美元。",
+      "date": "2026-05-14"
+    },
+    {
+      "title": "Federal Reserve H.4.1 Release: Factors Affecting Reserve Balances (May 21, 2026)",
+      "url": "https://www.federalreserve.gov/releases/h41/current/",
+      "desc": "Latest Fed weekly balance sheet data (week ended May 20, 2026). Reserve Bank credit at ~$6.667 trillion; Securities held outright at ~$6.436 trillion, including $4.453T in Treasury securities and $1.981T in MBS. Key weekly and year-over-year changes tracked for reserves, TGA, and ON RRP balances.",
+      "date": "2026-05-21"
+    }
+  ],
+  "fetchedAt": "2026-05-23"
+}
