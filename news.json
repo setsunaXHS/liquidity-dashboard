@@ -1,1 +1,24 @@
-{"ok":true,"news":[{"title":"Battles to shrink the Federal Reserve's balance sheet begin","url":"https://www.axios.com/2026/05/20/warsh-federal-reserve-balance-sheet","desc":"新上任的美联储主席Kevin Warsh长期主张缩减央行6.7万亿美元资产负债表，但实际操作面临诸多制约。Fed资产截至5月17日当周为6.7万亿美元，较前一周下降近150亿美元，但仍较去年同期高出约250亿美元。","date":"2026-05-20"},{"title":"Reserve Management and the Fed's System Open Market Account: Recent Experience and Insights","url":"https://www.newyorkfed.org/newsevents/speeches/2026/per260519","desc":"纽约联储Perli在亚特兰大联储金融会议上指出，4月税收季TGA账户升至1.04万亿美元峰值，准备金下降约3000亿美元；准备金管理购买(RMP)确保准备金仍维持在充裕区间。SRP使用量在4月15日税收截止后显著上升，反映货币市场流动性趋紧。","date":"2026-05-19"},{"title":"沃什要缩表？美银：恐怕只是'雷声大雨点小'","url":"https://view.inews.qq.com/a/20260519A06VXY00","desc":"美银利率策略师在5月18日报告中指出，美联储已于2025年Q4完成QT正常化，沃什可实质操作的仅有准备金一项（约3.12万亿美元），路径有限且节奏缓慢。TGA预计升至Q3末9500亿美元。美银认为SRP=IOR机制改革才是真正破局之道。","date":"2026-05-19"}],"fetchedAt":"2026-05-24"}
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "Former Fed officials say size may not matter on balance sheet",
+      "url": "https://www.reuters.com/business/finance/former-fed-officials-say-size-may-not-matter-balance-sheet-2026-05-18/",
+      "desc": "多位前美联储官员表示，新任主席Warsh应更关注资产负债表的使用策略而非单纯缩减规模。美联储目前持有约6.7万亿美元资产，Warsh此前将其视为过去通胀和市场扭曲的根源，并承诺进行\"体制变革\"。",
+      "date": "2026-05-18"
+    },
+    {
+      "title": "Battles to shrink the Federal Reserve's balance sheet begin",
+      "url": "https://www.axios.com/2026/05/20/warsh-federal-reserve-balance-sheet",
+      "desc": "新任美联储主席Kevin Warsh长期以来主张缩减央行6.7万亿美元的资产负债表，相关博弈已经开始。美联储资产负债表规模自2025年底QT结束后维持在约6.7万亿美元水平，Warsh上任后是否会推动新一轮缩表成为市场焦点。",
+      "date": "2026-05-20"
+    },
+    {
+      "title": "US Treasury weighs repo role for cash, liquidity management",
+      "url": "https://www.reuters.com/legal/transactional/us-treasury-weighs-investing-cash-repo-market-2026-05-06/",
+      "desc": "美国财政部借款咨询委员会（TBAC）讨论了一项重大提案：财政部将 excess cash 投入隔夜回购市场以获取投资收益。当财政部在美联储持有大额现金余额时，资金从私人金融系统抽离，消耗准备金并收紧流动性。此举可能缓解融资市场流动性紧张，对美元流动性管理具有重要意义。",
+      "date": "2026-05-06"
+    }
+  ],
+  "fetchedAt": "2026-05-25"
+}
