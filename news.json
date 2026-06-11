@@ -1,24 +1,32 @@
-{
-  "ok": true,
-  "news": [
-    {
-      "title": "Former Fed officials say size may not matter on balance sheet",
-      "url": "https://www.reuters.com/business/finance/former-fed-officials-say-size-may-not-matter-balance-sheet-2026-05-18/",
-      "desc": "多位前美联储官员表示，新任主席Warsh应更关注资产负债表的使用策略而非单纯缩减规模。美联储目前持有约6.7万亿美元资产，Warsh此前将其视为过去通胀和市场扭曲的根源，并承诺进行\"体制变革\"。",
-      "date": "2026-05-18"
-    },
-    {
-      "title": "Battles to shrink the Federal Reserve's balance sheet begin",
-      "url": "https://www.axios.com/2026/05/20/warsh-federal-reserve-balance-sheet",
-      "desc": "新任美联储主席Kevin Warsh长期以来主张缩减央行6.7万亿美元的资产负债表，相关博弈已经开始。美联储资产负债表规模自2025年底QT结束后维持在约6.7万亿美元水平，Warsh上任后是否会推动新一轮缩表成为市场焦点。",
-      "date": "2026-05-20"
-    },
-    {
-      "title": "US Treasury weighs repo role for cash, liquidity management",
-      "url": "https://www.reuters.com/legal/transactional/us-treasury-weighs-investing-cash-repo-market-2026-05-06/",
-      "desc": "美国财政部借款咨询委员会（TBAC）讨论了一项重大提案：财政部将 excess cash 投入隔夜回购市场以获取投资收益。当财政部在美联储持有大额现金余额时，资金从私人金融系统抽离，消耗准备金并收紧流动性。此举可能缓解融资市场流动性紧张，对美元流动性管理具有重要意义。",
-      "date": "2026-05-06"
-    }
-  ],
-  "fetchedAt": "2026-05-25"
-}
+[
+  {
+    "date": "2026-06-11",
+    "title": "Fed资产负债表持稳$6.7T，准备金逼近$3T警戒线",
+    "summary": "截至6月3日当周，Fed资产负债表报$6.71T，较前周小幅增加。银行准备金约$3.01T，已接近$3T关键警戒线。ON RRP降至$0.4B基本清零，QT环境下缓冲垫已耗尽。",
+    "source": "FRED / Federal Reserve"
+  },
+  {
+    "date": "2026-06-10",
+    "title": "ON RRP几乎归零，流动性缓冲消失",
+    "summary": "隔夜逆回购工具使用量降至$0.4B，意味着2022-2023年积累的RRP缓冲已完全释放。后续任何TGA上升或Fed缩表将直接消耗银行准备金。",
+    "source": "FRED"
+  },
+  {
+    "date": "2026-06-05",
+    "title": "华尔街关注QT对准备金的影响路径",
+    "summary": "American Action Forum追踪显示Fed资产同比仅增$38B至$6.7T。市场关注在RRP清零后，准备金是否将继续被消耗，以及Fed是否会调整QT步伐。",
+    "source": "American Action Forum"
+  },
+  {
+    "date": "2026-06-03",
+    "title": "TGA账户回升至$846B",
+    "summary": "财政部一般账户(TGA)报$846B，处于中等水平。在RRP已清零的背景下，TGA的上升将直接抽取银行系统准备金，需密切关注。",
+    "source": "FRED"
+  },
+  {
+    "date": "2026-05-28",
+    "title": "市场讨论Fed是否临近QT终点",
+    "summary": "随着准备金逼近$3T，市场开始讨论Fed可能在今年下半年放缓或停止QT。华尔街分析师认为即使QT停止，储备金短期内也不会大幅下降。",
+    "source": "综合"
+  }
+]
