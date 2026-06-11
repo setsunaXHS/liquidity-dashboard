@@ -1,32 +1,24 @@
-[
-  {
-    "date": "2026-06-11",
-    "title": "Fed资产负债表持稳$6.7T，准备金逼近$3T警戒线",
-    "summary": "截至6月3日当周，Fed资产负债表报$6.71T，较前周小幅增加。银行准备金约$3.01T，已接近$3T关键警戒线。ON RRP降至$0.4B基本清零，QT环境下缓冲垫已耗尽。",
-    "source": "FRED / Federal Reserve"
-  },
-  {
-    "date": "2026-06-10",
-    "title": "ON RRP几乎归零，流动性缓冲消失",
-    "summary": "隔夜逆回购工具使用量降至$0.4B，意味着2022-2023年积累的RRP缓冲已完全释放。后续任何TGA上升或Fed缩表将直接消耗银行准备金。",
-    "source": "FRED"
-  },
-  {
-    "date": "2026-06-05",
-    "title": "华尔街关注QT对准备金的影响路径",
-    "summary": "American Action Forum追踪显示Fed资产同比仅增$38B至$6.7T。市场关注在RRP清零后，准备金是否将继续被消耗，以及Fed是否会调整QT步伐。",
-    "source": "American Action Forum"
-  },
-  {
-    "date": "2026-06-03",
-    "title": "TGA账户回升至$846B",
-    "summary": "财政部一般账户(TGA)报$846B，处于中等水平。在RRP已清零的背景下，TGA的上升将直接抽取银行系统准备金，需密切关注。",
-    "source": "FRED"
-  },
-  {
-    "date": "2026-05-28",
-    "title": "市场讨论Fed是否临近QT终点",
-    "summary": "随着准备金逼近$3T，市场开始讨论Fed可能在今年下半年放缓或停止QT。华尔街分析师认为即使QT停止，储备金短期内也不会大幅下降。",
-    "source": "综合"
-  }
-]
+{
+  "ok": true,
+  "news": [
+    {
+      "title": "U.S. Treasury Plans to Raise TGA Balance to $900 Billion by Late June",
+      "url": "https://www.binance.com/en/square/post/331722991555794",
+      "desc": "美国财政部计划在6月底前将TGA余额提升至约9000亿美元，9月进一步提升至约1万亿美元。在RRP已接近清零的背景下，TGA持续上升将直接从银行准备金中抽水，进一步压缩金融系统流动性。",
+      "date": "2026-06-08"
+    },
+    {
+      "title": "Federal Reserve Balance Sheet Shrinks as Reserve Balances Drop $52.7B to $3.014T",
+      "url": "https://cryptobriefing.com/fed-balance-sheet-reserve-balances-drop-june-2026/",
+      "desc": "美联储最新资产负债表显示，银行准备金下降527亿美元至3.014万亿美元，已逼近3万亿美元关键警戒线。ON RRP基本归零，流动性缓冲垫完全耗尽，市场对准备金枯竭的担忧持续升温。",
+      "date": "2026-06-06"
+    },
+    {
+      "title": "Fed's Balance Sheet Assets at $6.7T, Up $38B Year-over-Year",
+      "url": "https://www.americanactionforum.org/insight/tracker-the-federal-reserves-balance-sheet/",
+      "desc": "截至6月3日当周，美联储总资产报6.7万亿美元，较前周微增70亿美元，同比增380亿。但在QT框架下，RRP缓冲已耗尽，准备金是唯一流动性来源，任何财政部的TGA上升或Fed缩表都将直接冲击银行准备金。",
+      "date": "2026-06-05"
+    }
+  ],
+  "fetchedAt": "2026-06-11"
+}
