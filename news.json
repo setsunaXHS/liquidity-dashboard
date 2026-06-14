@@ -1,41 +1,32 @@
-{
-  "ok": true,
-  "news": [
-    {
-      "title": "Federal Reserve Announces June 24 Release Date for 2026 Bank Stress Test Results",
-      "url": "https://www.reuters.com/business/finance/us-fed-release-2026-bank-stress-test-results-june-24-2026-06-09/",
-      "desc": "美联储确认将于6月24日公布年度大行压力测试结果。在准备金逼近3万亿美元警戒线、RRP缓冲垫已耗尽的背景下，压力测试结果将揭示主要银行在流动性紧缩情景下的资本充足状况，对评估金融系统抗冲击能力具有重要意义。",
-      "date": "2026-06-12",
-      "source": "Reuters"
-    },
-    {
-      "title": "ON RRP Balance Falls to $460M, Persisting Near-Zero Regime",
-      "url": "https://fred.stlouisfed.org/series/RRPONTSYD",
-      "desc": "美联储隔夜逆回购（ON RRP）余额于6月11日报4.6亿美元，持续维持接近零的历史低位水平。该数据确认RRP作为流动性缓冲垫已完全耗尽，当前金融系统流动性完全由银行准备金单独承载，任何TGA上升或QT缩表将直接压缩准备金。",
-      "date": "2026-06-11",
-      "source": "FRED"
-    },
-    {
-      "title": "June 2026: Loose US Financial Conditions, Compounding Risks for Bank ALM",
-      "url": "https://jillcetina.substack.com/p/june-2026-loose-us-financial-conditions",
-      "desc": "分析指出2026年6月美国金融条件依然宽松，但流动性、融资、盈利能力和信用在银行资产负债管理中高度关联。在RRP耗尽、准备金持续下降的背景下，表面宽松的市场环境下潜藏着流动性错配和融资成本上升的复合风险。",
-      "date": "2026-06-09",
-      "source": "Substack"
-    },
-    {
-      "title": "U.S. Treasury Plans to Raise TGA Balance to $900 Billion by Late June",
-      "url": "https://www.binance.com/en/square/post/331722991555794",
-      "desc": "美国财政部计划在6月底前将TGA余额提升至约9000亿美元，9月进一步提升至约1万亿美元。在RRP已接近清零的背景下，TGA持续上升将直接从银行准备金中抽水，进一步压缩金融系统流动性。",
-      "date": "2026-06-08",
-      "source": "Binance"
-    },
-    {
-      "title": "Fed's Reverse Repo Facility Drops to $761M as Liquidity Shifts to Risk Assets",
-      "url": "https://www.kucoin.com/news/flash/fed-s-reverse-repo-facility-drops-to-761m-as-liquidity-shifts-to-risk-assets",
-      "desc": "美联储隔夜逆回购（ON RRP）流动性降至7.61亿美元（6月5日），较2021年末的超2万亿美元大幅下降。货币基金将资金转向短期国债等风险资产，RRP作为流动性缓冲垫已基本耗尽。截至6月10日RRP余额约3.87亿美元，持续维持历史低位。",
-      "date": "2026-06-08",
-      "source": "Kucoin"
-    }
-  ],
-  "fetchedAt": "2026-06-12"
-}
+[
+  {
+    "date": "2026-06-13",
+    "title": "Fed Signals Potential Shift at June Meeting — Markets Price In 2026 Hike",
+    "summary": "Forbes报道美联储可能在6月会议上移除宽松措辞（easing bias），因通胀持续高企且就业市场保持强劲。市场已开始定价2026年加息可能性。在RRP耗尽、准备金持续下降的背景下，货币政策转向收紧将进一步影响金融系统流动性。",
+    "source": "Forbes"
+  },
+  {
+    "date": "2026-06-12",
+    "title": "Federal Reserve H.4.1 Balance Sheet Release — June 10 Data",
+    "summary": "美联储最新H.4.1资产负债表数据显示，截至6月10日，美联储持有国债4.48万亿美元，总准备金约3万亿美元附近。QT持续进行，资产负债表继续缩表。在RRP已接近清零的背景下，QT缩表直接削减银行准备金规模。",
+    "source": "Federal Reserve"
+  },
+  {
+    "date": "2026-06-12",
+    "title": "Daily Treasury Statement: TGA Balance at ~$844B Opening, New Deposits $248B",
+    "summary": "美国财政部每日财政声明显示，6月9日TGA期初余额约8442亿美元，当日总存款约2475亿美元。结合财政部计划6月底前将TGA提升至9000亿美元的目，TGA持续上升将继续从银行准备金中抽水。",
+    "source": "US Treasury Fiscal Data"
+  },
+  {
+    "date": "2026-06-11",
+    "title": "ON RRP Balance Falls to $460M, Persisting Near-Zero Regime",
+    "summary": "美联储隔夜逆回购（ON RRP）余额于6月11日报4.6亿美元，持续维持接近零的历史低位水平。该数据确认RRP作为流动性缓冲垫已完全耗尽，当前金融系统流动性完全由银行准备金单独承载，任何TGA上升或QT缩表将直接压缩准备金。",
+    "source": "FRED"
+  },
+  {
+    "date": "2026-06-08",
+    "title": "US Funding Markets Flooded With Cash — $120B Poured Into MMFs",
+    "summary": "Advisor Perspectives报道显示，5月约有1200亿美元涌入货币市场基金，近期流动性持续积累。这与RRP耗尽、TGA上升的趋势形成对比——短期资金充裕但结构性流动性压力仍在积聚。市场流动性从RRP向MMF的转移反映出资金在寻求更高收益资产。",
+    "source": "Advisor Perspectives"
+  }
+]
