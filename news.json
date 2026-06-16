@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-16",
+    "title": "沃什真的会缩表？花旗：盯紧准备金需求是否下调",
+    "summary": "华尔街见闻报道，美联储主席沃什倾向继续推进资产负债表缩减。花旗分析指出，若准备金需求仅下降5000亿美元，2027年不会出现RRP使用量回升；需下降约8000亿美元才会触发该情景。市场关注准备金充裕度是否足以支撑进一步缩表。",
+    "source": "华尔街见闻"
+  },
+  {
     "date": "2026-06-15",
     "title": "Fed Chair Warsh Favors Further Balance Sheet Reduction Amid Liquidity Debate",
     "summary": "Bank Policy Institute报道，美联储主席Kevin Warsh主张进一步缩减美联储资产负债表规模。该立场与当前流动性收紧背景形成张力——RRP已完全耗尽，银行准备金持续被QT和TGA上升挤压，市场对准备金充裕度分歧加剧。",
@@ -20,13 +26,7 @@
   {
     "date": "2026-06-11",
     "title": "Fed H.4.1: Total Reserves Under Pressure from QT + Elevated TGA",
-    "summary": "美联储最新H.4.1资产负债表周度报告（数据截至6月10日）显示，持有国债4.48万亿美元、MBS 1.965万亿美元。TGA余额约8280亿美元，RRP接近清零。QT持续缩表叠加高TGA对准备金形成双重挤压效应。",
+    "summary": "美联储最新H.4.1资产负债表周度报告（数据截至6月10日）显示，总资产约6.77万亿美元，周环比+81亿美元。持有国债4.48万亿美元、MBS 1.965万亿美元。TGA余额约8280亿美元，RRP降至3140亿美元。QT持续缩表叠加高TGA对准备金形成双重挤压效应。",
     "source": "Federal Reserve"
-  },
-  {
-    "date": "2026-06-11",
-    "title": "StreetStats: Fed Net Liquidity Dashboard — TGA $828B, RRP ~$1B",
-    "summary": "StreetStats流动性仪表板数据（6月10日）显示，财政部一般账户（TGA）约8280亿美元，ON RRP约10亿美元接近归零。美联储资产负债表中其他负债约1000亿美元。净流动性公式（总资产 - TGA - RRP）下的可用流动性持续收窄。",
-    "source": "StreetStats"
   }
 ]
