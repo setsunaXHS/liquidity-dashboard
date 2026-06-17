@@ -1,32 +1,32 @@
 [
   {
+    "date": "2026-06-17",
+    "title": "FOMC June Meeting: Warsh's First as Fed Chair, Rate Hold Expected",
+    "summary": "6月16-17日FOMC会议正在进行，为Warsh就任美联储主席后首次主持。市场普遍预期利率维持在3.50-3.75%不变，但最新CPI升至4.2%给委员会带来压力。5月核心CPI仅升0.2%，为鸽派提供支撑。委员会内部分裂：此前4月投票8比4维持利率，4名分歧者立场相反。",
+    "source": "Conference Board"
+  },
+  {
+    "date": "2026-06-17",
+    "title": "FOMC June 2026: The Decision Is Settled, the Dot Plot Isn't",
+    "summary": "REXShares分析指出Warsh首次主持FOMC会议，最大悬念不在利率决定而在点阵图前景。Warsh认为点阵图应成为"历史遗迹"，主张"战略性模糊"的沟通方式，减少会后记者会和官员演讲。此前FOMC内部对降息还是加息分歧严重，4月会议8比4投票出现鸽派与鹰派双向异议。",
+    "source": "REXShares"
+  },
+  {
+    "date": "2026-06-17",
+    "title": "Updated Dot Plot Shows Multiple FOMC Members Project Rate Hike in 2026",
+    "summary": "最新点阵图更新显示多名FOMC成员预计2026年晚些时候将加息。Warsh在5月就任后延续激进缩表立场，QT与高企的TGA对银行准备金形成持续挤压。市场关注Warsh能否在FOMC内推动其"战略性模糊"的沟通框架转变。",
+    "source": "Moomoo"
+  },
+  {
+    "date": "2026-06-16",
+    "title": "June FOMC Preview: Meet the Warsh Fed — Rates on Hold, Communication in Focus",
+    "summary": "Conference Board分析认为Warsh领导下的首次FOMC会议核心看点在沟通框架转变。5月CPI同比升至4.2%，能源价格受伊朗冲突影响年涨23.5%，但核心CPI环比仅升0.2%。5月非农就业+172K远超预期的+80K，失业率维持4.3%。美联储总资产约6.7万亿美元，QT持续进行中。",
+    "source": "Conference Board"
+  },
+  {
     "date": "2026-06-16",
     "title": "沃什真的会缩表？花旗：盯紧准备金需求是否下调",
     "summary": "华尔街见闻报道，美联储主席沃什倾向继续推进资产负债表缩减。花旗分析指出，若准备金需求仅下降5000亿美元，2027年不会出现RRP使用量回升；需下降约8000亿美元才会触发该情景。市场关注准备金充裕度是否足以支撑进一步缩表。",
     "source": "华尔街见闻"
-  },
-  {
-    "date": "2026-06-15",
-    "title": "Fed Chair Warsh Favors Further Balance Sheet Reduction Amid Liquidity Debate",
-    "summary": "Bank Policy Institute报道，美联储主席Kevin Warsh主张进一步缩减美联储资产负债表规模。该立场与当前流动性收紧背景形成张力——RRP已完全耗尽，银行准备金持续被QT和TGA上升挤压，市场对准备金充裕度分歧加剧。",
-    "source": "Bank Policy Institute"
-  },
-  {
-    "date": "2026-06-13",
-    "title": "Fed Balance Sheet Tracker: Total Assets Continue QT Decline Through June",
-    "summary": "American Action Forum最新追踪数据显示，截至6月中旬美联储总资产继续按QT节奏缩减。在RRP接近零、TGA维持在8280亿美元水平下，缩表效应完全传导至准备金端，引发市场对银行体系流动性缓冲的持续关注。",
-    "source": "American Action Forum"
-  },
-  {
-    "date": "2026-06-12",
-    "title": "ON RRP Usage Holds at $454B — Money Market Fund Parking Continues",
-    "summary": "FRED数据显示截至6月12日美联储隔夜逆回购（ON RRP）使用量为4540亿美元。该余额反映货币基金仍有部分资金停靠在美联储设施，但较2023年逾2万亿美元峰值已大幅萎缩。RRP作为流动性缓冲的功能已大幅减弱。",
-    "source": "FRED"
-  },
-  {
-    "date": "2026-06-11",
-    "title": "Fed H.4.1: Total Reserves Under Pressure from QT + Elevated TGA",
-    "summary": "美联储最新H.4.1资产负债表周度报告（数据截至6月10日）显示，总资产约6.77万亿美元，周环比+81亿美元。持有国债4.48万亿美元、MBS 1.965万亿美元。TGA余额约8280亿美元，RRP降至3140亿美元。QT持续缩表叠加高TGA对准备金形成双重挤压效应。",
-    "source": "Federal Reserve"
   }
 ]
