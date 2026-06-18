@@ -1,32 +1,32 @@
 [
   {
-    "date": "2026-06-17",
-    "title": "FOMC June Meeting: Warsh's First as Fed Chair, Rate Hold Expected",
-    "summary": "6月16-17日FOMC会议正在进行，为Warsh就任美联储主席后首次主持。市场普遍预期利率维持在3.50-3.75%不变，但最新CPI升至4.2%给委员会带来压力。5月核心CPI仅升0.2%，为鸽派提供支撑。委员会内部分裂：此前4月投票8比4维持利率，4名分歧者立场相反。",
-    "source": "Conference Board"
+    "date": "2026-06-18",
+    "title": "Markets Rally After FOMC Rate Decision — S&P +0.9%, Nasdaq +2%",
+    "summary": "6月18日市场在FOMC利率决定后走强：标普500涨0.91%至7487点，纳斯达克100涨2.01%至30268点，VIX下跌6.83%至17.18。10年期美债收益率下行5bp至4.44%，美元指数微涨0.32%至100.69。投资者对Warsh主席首次FOMC会议结果反应积极。",
+    "source": "StreetStats"
   },
   {
     "date": "2026-06-17",
-    "title": "FOMC June 2026: The Decision Is Settled, the Dot Plot Isn't",
-    "summary": "REXShares分析指出Warsh首次主持FOMC会议，最大悬念不在利率决定而在点阵图前景。Warsh认为点阵图应成为"历史遗迹"，主张"战略性模糊"的沟通方式，减少会后记者会和官员演讲。此前FOMC内部对降息还是加息分歧严重，4月会议8比4投票出现鸽派与鹰派双向异议。",
-    "source": "REXShares"
+    "title": "Warsh's First FOMC as Fed Chair — June 2026 Rate Decision Announced",
+    "summary": "6月16-17日FOMC会议结束，Kevin Warsh作为美联储主席首次主持。FOX 10等媒体直播报道其利率决定新闻发布会。市场关注Warsh的政策立场及其对点阵图和沟通框架的变革主张。",
+    "source": "Federal Reserve / FOX 10 Phoenix"
   },
   {
     "date": "2026-06-17",
-    "title": "Updated Dot Plot Shows Multiple FOMC Members Project Rate Hike in 2026",
-    "summary": "最新点阵图更新显示多名FOMC成员预计2026年晚些时候将加息。Warsh在5月就任后延续激进缩表立场，QT与高企的TGA对银行准备金形成持续挤压。市场关注Warsh能否在FOMC内推动其"战略性模糊"的沟通框架转变。",
-    "source": "Moomoo"
+    "title": "Fed Balance Sheet Update: Total Assets ~$6.7T as QT Continues",
+    "summary": "StreetStats数据显示，截至6月中旬，美联储总资产约6.7万亿美元，其中国债4.48万亿美元、MBS 1.965万亿美元、其他资产2810亿美元。QT持续缩减资产负债表规模，净流动性指标继续下降。",
+    "source": "StreetStats / Federal Reserve H.4.1"
   },
   {
-    "date": "2026-06-16",
-    "title": "June FOMC Preview: Meet the Warsh Fed — Rates on Hold, Communication in Focus",
-    "summary": "Conference Board分析认为Warsh领导下的首次FOMC会议核心看点在沟通框架转变。5月CPI同比升至4.2%，能源价格受伊朗冲突影响年涨23.5%，但核心CPI环比仅升0.2%。5月非农就业+172K远超预期的+80K，失业率维持4.3%。美联储总资产约6.7万亿美元，QT持续进行中。",
-    "source": "Conference Board"
+    "date": "2026-06-13",
+    "title": "AAF Tracker: Fed Balance Sheet Assets Under Watch",
+    "summary": "American Action Forum持续追踪美联储总资产变化，分析认为资产负债表缩减向市场注入流动性面临风险。总资产作为美联储直接干预经济的最佳指标，其变化趋势直接影响银行准备金充裕度和RRP使用量。",
+    "source": "American Action Forum"
   },
   {
-    "date": "2026-06-16",
-    "title": "沃什真的会缩表？花旗：盯紧准备金需求是否下调",
-    "summary": "华尔街见闻报道，美联储主席沃什倾向继续推进资产负债表缩减。花旗分析指出，若准备金需求仅下降5000亿美元，2027年不会出现RRP使用量回升；需下降约8000亿美元才会触发该情景。市场关注准备金充裕度是否足以支撑进一步缩表。",
-    "source": "华尔街见闻"
+    "date": "2026-05-28",
+    "title": "BPI: 流动性监管如何助力美联储进一步缩表",
+    "summary": "BPI分析指出，流动性监管改革和预置贴现窗口抵押品将帮助美联储继续缩减资产负债表。文章认为，较小的资产负债表和更少的储备余额可能导致银行囤积准备金而非借贷，需要平衡改革以避免加剧市场压力。",
+    "source": "Bank Policy Institute"
   }
 ]
