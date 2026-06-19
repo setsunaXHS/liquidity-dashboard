@@ -1,32 +1,32 @@
 [
   {
     "date": "2026-06-18",
+    "title": "Fed H.4.1 Release: Factors Affecting Reserve Balances Updated",
+    "summary": "美联储6月18日发布最新H.4.1资产负债表数据，更新银行准备金、财政部一般账户（TGA）及隔夜逆回购（ON RRP）余额。数据持续跟踪流动性核心指标变化，为市场评估准备金充裕度提供参考。",
+    "source": "Federal Reserve"
+  },
+  {
+    "date": "2026-06-18",
     "title": "Markets Rally After FOMC Rate Decision — S&P +0.9%, Nasdaq +2%",
     "summary": "6月18日市场在FOMC利率决定后走强：标普500涨0.91%至7487点，纳斯达克100涨2.01%至30268点，VIX下跌6.83%至17.18。10年期美债收益率下行5bp至4.44%，美元指数微涨0.32%至100.69。投资者对Warsh主席首次FOMC会议结果反应积极。",
     "source": "StreetStats"
   },
   {
     "date": "2026-06-17",
+    "title": "Fed ON RRP Rate Steady at 3.50% — Overnight Repo Operations Continue",
+    "summary": "截至6月17日，美联储隔夜逆回购利率维持在3.50%。Fed通过纽约联储持续进行公开市场回购操作，ON RRP作为补充性政策利率工具，继续为货币市场利率设定下限。RRP使用量仍是衡量银行体系流动性的关键指标。",
+    "source": "Macrotrends / Federal Reserve"
+  },
+  {
+    "date": "2026-06-17",
     "title": "Warsh's First FOMC as Fed Chair — June 2026 Rate Decision Announced",
-    "summary": "6月16-17日FOMC会议结束，Kevin Warsh作为美联储主席首次主持。FOX 10等媒体直播报道其利率决定新闻发布会。市场关注Warsh的政策立场及其对点阵图和沟通框架的变革主张。",
+    "summary": "6月16-17日FOMC会议结束，Kevin Warsh作为美联储主席首次主持。市场关注Warsh的政策立场及其对点阵图和沟通框架的变革主张，其对流动性监管和资产负债表管理的态度将直接影响未来QT/QT暂停决策。",
     "source": "Federal Reserve / FOX 10 Phoenix"
   },
   {
     "date": "2026-06-17",
-    "title": "Fed Balance Sheet Update: Total Assets ~$6.7T as QT Continues",
-    "summary": "StreetStats数据显示，截至6月中旬，美联储总资产约6.7万亿美元，其中国债4.48万亿美元、MBS 1.965万亿美元、其他资产2810亿美元。QT持续缩减资产负债表规模，净流动性指标继续下降。",
+    "title": "Fed Balance Sheet: Total Assets ~$6.7T, QT Trajectory Under New Leadership",
+    "summary": "StreetStats数据显示，截至6月中旬，美联储总资产约6.7万亿美元，其中国债4.48万亿美元、MBS 1.965万亿美元、其他资产2810亿美元。在新主席Warsh领导下，QT持续节奏及未来暂停时机成为市场关注焦点。",
     "source": "StreetStats / Federal Reserve H.4.1"
-  },
-  {
-    "date": "2026-06-13",
-    "title": "AAF Tracker: Fed Balance Sheet Assets Under Watch",
-    "summary": "American Action Forum持续追踪美联储总资产变化，分析认为资产负债表缩减向市场注入流动性面临风险。总资产作为美联储直接干预经济的最佳指标，其变化趋势直接影响银行准备金充裕度和RRP使用量。",
-    "source": "American Action Forum"
-  },
-  {
-    "date": "2026-05-28",
-    "title": "BPI: 流动性监管如何助力美联储进一步缩表",
-    "summary": "BPI分析指出，流动性监管改革和预置贴现窗口抵押品将帮助美联储继续缩减资产负债表。文章认为，较小的资产负债表和更少的储备余额可能导致银行囤积准备金而非借贷，需要平衡改革以避免加剧市场压力。",
-    "source": "Bank Policy Institute"
   }
 ]
