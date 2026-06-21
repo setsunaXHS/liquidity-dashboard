@@ -1,32 +1,32 @@
 [
   {
     "date": "2026-06-18",
-    "title": "Fed H.4.1 Release: Total Securities $6.45T, Reserves Tracking",
-    "summary": "美联储6月18日发布H.4.1资产负债表周度更新：持有证券总计6.45万亿美元，其中国债4.49万亿（周增55亿美元）、MBS 1.96万亿。银行准备金和TGA余额持续更新，为市场流动性状况评估提供核心数据。",
-    "source": "Federal Reserve H.4.1"
-  },
-  {
-    "date": "2026-06-18",
-    "title": "Markets Rally After FOMC Rate Decision — S&P +0.91%, Nasdaq +2.01%",
-    "summary": "6月18日市场在FOMC利率决定后走强：标普500涨0.91%至7487点，纳斯达克100涨2.01%至30268点，VIX下跌6.83%至17.18。10年期美债收益率下行5bp至4.44%，美元指数微涨0.32%至100.69。市场对Warsh主席首次FOMC会议反应积极。",
-    "source": "StreetStats"
+    "title": "Fed ON RRP Usage Collapses to Near-Zero — $251M, Lowest on Record",
+    "summary": "6月18日美联储隔夜逆回购（ON RRP）使用量骤降至仅2.51亿美元，前一日为68.3亿美元，6月16日为107亿美元。ON RRP几乎耗尽标志着货币市场基金流动性从逆回购工具完全流出，银行准备金面临更大压力。这一水平创下该工具历史新低，意味着QT对流动性的吸收效应正在加速显现。",
+    "source": "FRED (RRPONTSYD)"
   },
   {
     "date": "2026-06-17",
-    "title": "Fed ON RRP Rate Steady at 3.50% — Overnight Repo Operations Continue",
-    "summary": "截至6月17日，美联储隔夜逆回购利率维持在3.50%。纽约联储持续执行公开市场操作，ON RRP作为补充性政策利率工具为货币市场利率设定下限。RRP使用量持续作为衡量银行体系流动性的关键指标。",
-    "source": "Federal Reserve / NY Fed Markets"
+    "title": "TGA余额升至8807亿美元 — 周增526亿，税期资金回流",
+    "summary": "截至6月17日，财政部一般账户（TGA）余额达8807亿美元，较6月10日的8281亿美元大幅增加526亿美元，反映企业税和预估税缴纳带来的资金回流。TGA上升直接吸收银行准备金，对市场流动性构成短期压力。此前6月3日为8757亿美元，5月20日为7813亿美元，呈稳步上升趋势。",
+    "source": "FRED (WTREGEN)"
+  },
+  {
+    "date": "2026-06-18",
+    "title": "美联储资产负债表快照：总资产约6.74万亿美元，净流动性受RRP/TGA双向挤压",
+    "summary": "StreetStats数据：截至6月17日，美联储持有国债4.487万亿美元、MBS 1.965万亿美元、其他资产2840亿美元，总资产约6.74万亿。结合RRP接近清零和TGA持续攀升至8800亿以上，净流动性正面临双重压缩。当前S&P 500报7500.58点，VIX 16.78，10年期美债收益率4.46%，美元指数100.74。",
+    "source": "StreetStats"
+  },
+  {
+    "date": "2026-06-18",
+    "title": "Fed H.4.1 Release: Total Securities $6.45T, Reserves Tracking",
+    "summary": "美联储6月18日发布H.4.1资产负债表周度更新：持有证券总计6.45万亿美元，其中国债4.49万亿（周增55亿美元）、MBS 1.96万亿。银行准备金和TGA余额持续更新，为市场流动性状况评估提供核心数据。",
+    "source": "Federal Reserve H.4.1"
   },
   {
     "date": "2026-06-17",
     "title": "Warsh's First FOMC as Fed Chair — June 2026 Rate Decision",
     "summary": "6月16-17日FOMC会议结束，Kevin Warsh作为美联储主席首次主持。市场关注Warsh的政策立场及其对点阵图和沟通框架的变革主张，其对流动性监管和资产负债表管理的态度将直接影响未来QT暂停决策。",
     "source": "Federal Reserve"
-  },
-  {
-    "date": "2026-05-19",
-    "title": "NY Fed SOMA Manager Perli: Reserve Management Purchases & TGA Impact",
-    "summary": "纽约联储SOMA组合经理Roberto Perli在亚特兰大联储2026金融市场会议发表演讲，详述储备管理购买（RMPs）操作、TGA波动对准备金的影响，以及银行对储备需求的调查结果。演讲指出：税后TGA下降对应准备金上升，货币市场条件趋于宽松。",
-    "source": "Federal Reserve Bank of New York"
   }
 ]
