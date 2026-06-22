@@ -1,21 +1,15 @@
 [
   {
+    "date": "2026-06-22",
+    "title": "Fed Holds Rates at 3.5%-3.75%, Warsh Pivots to Inflation Fight — NYT",
+    "summary": "纽约时报6月22日报道，美联储在Warsh首秀中维持利率不变，但为应对通胀担忧做好了未来加息的准备。新的季度点阵图显示多位官员预期加息，声明大幅缩短并删除了降息倾向措辞。市场解读为'higher for longer'信号，对流动性预期构成压力。",
+    "source": "New York Times"
+  },
+  {
     "date": "2026-06-18",
     "title": "Fed ON RRP Usage Collapses to Near-Zero — $251M, Lowest on Record",
     "summary": "6月18日美联储隔夜逆回购（ON RRP）使用量骤降至仅2.51亿美元，前一日为68.3亿美元，6月16日为107亿美元。ON RRP几乎耗尽标志着货币市场基金流动性从逆回购工具完全流出，银行准备金面临更大压力。这一水平创下该工具历史新低，意味着QT对流动性的吸收效应正在加速显现。",
     "source": "FRED (RRPONTSYD)"
-  },
-  {
-    "date": "2026-06-17",
-    "title": "TGA余额升至8807亿美元 — 周增526亿，税期资金回流",
-    "summary": "截至6月17日，财政部一般账户（TGA）余额达8807亿美元，较6月10日的8281亿美元大幅增加526亿美元，反映企业税和预估税缴纳带来的资金回流。TGA上升直接吸收银行准备金，对市场流动性构成短期压力。此前6月3日为8757亿美元，5月20日为7813亿美元，呈稳步上升趋势。",
-    "source": "FRED (WTREGEN)"
-  },
-  {
-    "date": "2026-06-18",
-    "title": "美联储资产负债表快照：总资产约6.74万亿美元，净流动性受RRP/TGA双向挤压",
-    "summary": "StreetStats数据：截至6月17日，美联储持有国债4.487万亿美元、MBS 1.965万亿美元、其他资产2840亿美元，总资产约6.74万亿。结合RRP接近清零和TGA持续攀升至8800亿以上，净流动性正面临双重压缩。当前S&P 500报7500.58点，VIX 16.78，10年期美债收益率4.46%，美元指数100.74。",
-    "source": "StreetStats"
   },
   {
     "date": "2026-06-18",
@@ -24,9 +18,15 @@
     "source": "Federal Reserve H.4.1"
   },
   {
-    "date": "2026-06-17",
-    "title": "Warsh's First FOMC as Fed Chair — June 2026 Rate Decision",
-    "summary": "6月16-17日FOMC会议结束，Kevin Warsh作为美联储主席首次主持。市场关注Warsh的政策立场及其对点阵图和沟通框架的变革主张，其对流动性监管和资产负债表管理的态度将直接影响未来QT暂停决策。",
-    "source": "Federal Reserve"
+    "date": "2026-06-18",
+    "title": "Fed Holds Rates Steady, Pares Down Statement to Remove Cutting Bias — CNBC",
+    "summary": "CNBC报道：FOMC全票维持3.5%-3.75%利率不变，Warsh作为主席首次主持会议。声明大幅缩减，删除了暗示未来降息的关键措辞。Warsh未分享点阵图观点，表示将成立工作组改革美联储主要运营模式。此举被市场解读为向鹰派倾斜的信号。",
+    "source": "CNBC"
+  },
+  {
+    "date": "2026-06-18",
+    "title": "Reuters: Warsh's First FOMC — Rates Held, Nine Officials Signal Hike Possible",
+    "summary": "路透社报道，美联储在Warsh主持的首次FOMC会议上维持利率不变，新的季度经济预测摘要（SEP）显示9名美联储官员预期可能加息。Warsh强调通胀仍是首要关注点，并表示将推动美联储沟通框架改革，减少对前瞻指引和点阵图的依赖。",
+    "source": "Reuters"
   }
 ]
