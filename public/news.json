@@ -1,24 +1,32 @@
-{
-  "ok": true,
-  "news": [
-    {
-      "title": "Fed Balance Sheet & Net Liquidity: TGA at $848B, Total Assets $4,390B as of April 1",
-      "url": "https://streetstats.finance/liquidity/fed-balance-sheet",
-      "desc": "As of April 1, 2026, the Federal Reserve balance sheet stands at $4,390B. The Treasury General Account (TGA) is at $848B on the liability side, with reserve balances and net liquidity metrics updated weekly.",
-      "date": "2026-04-01"
-    },
-    {
-      "title": "NY Fed: TGA Rebuild and QT Runoff Brought System Liquidity to Lowest Levels Since Runoff Began",
-      "url": "https://www.newyorkfed.org/newsevents/speeches/2026/per260326",
-      "desc": "A March 26 NY Fed speech on reserve management purchases highlighted that the TGA rebuild combined with cumulative QT balance sheet runoff drove system liquidity to its lowest point since quantitative tightening began, signaling tightening financial conditions.",
-      "date": "2026-03-26"
-    },
-    {
-      "title": "The Fed's Balance Sheet: Reserve Scarcity, QT Strategy, and TGA Volatility",
-      "url": "https://e-axes.com/the-feds-balance-sheet-reserve-scarcity-qt-strategy-and-tga-volatility/",
-      "desc": "New Fed research establishes that reserves plus ON RRP balances of roughly $2.3 trillion would approach September 2019 scarcity levels. The analysis examines QT strategy risks and TGA-driven liquidity volatility heading into 2026.",
-      "date": "2026-02-11"
-    }
-  ],
-  "fetchedAt": "2026-04-08"
-}
+[
+  {
+    "date": "2026-06-25",
+    "title": "Fed H.4.1 Update: Reserve Balances Data Week of June 24",
+    "summary": "美联储最新H.4.1周度报告显示，截至6月17日当周联储总资产约6.74万亿美元，其中持有国债4.49万亿美元、MBS 1.96万亿美元。银行准备金余额和TGA账户余额数据更新，持续反映QT进程下的流动性趋势。",
+    "source": "Federal Reserve H.4.1"
+  },
+  {
+    "date": "2026-06-24",
+    "title": "Fed Releases 2026 Annual Bank Stress Test Results",
+    "summary": "美联储于6月24日公布2026年度大型银行压力测试结果，评估主要银行在极端经济和金融市场情景下的资本充足性。结果直接影响银行资本分配和分红计划，进而影响银行体系流动性传导效率。",
+    "source": "Reuters"
+  },
+  {
+    "date": "2026-06-23",
+    "title": "Fed Research: 'Beyond Reserves' — Balance Sheet and Repo Market Dynamics",
+    "summary": "美联储FEDS发布最新研究论文，探讨资产负债表操作如何通过回购市场渠道影响金融条件。研究指出随着ON RRP余额下降和准备金结构变化，回购市场在货币政策传导中的角色日益重要，为后QT时代流动性管理提供新视角。",
+    "source": "Federal Reserve FEDS Notes"
+  },
+  {
+    "date": "2026-06-22",
+    "title": "Fed Holds Rates at 3.5%-3.75%, Warsh Pivots to Inflation Fight",
+    "summary": "美联储在Warsh主席首秀中维持利率不变，但点阵图显示多位官员预期未来加息，声明大幅缩短并删除降息倾向措辞。市场解读为'higher for longer'信号，对流动性预期构成持续压力。",
+    "source": "New York Times"
+  },
+  {
+    "date": "2026-06-19",
+    "title": "U.S. Bank: Fed Asset Purchases and Market Liquidity Remain Key",
+    "summary": "U.S. Bank分析指出利率决策仅是政策工具之一，资产负债表操作对市场流动性的影响同样关键。在QT放缓背景下，市场关注Fed如何通过资产负债表管理维持流动性充裕，避免重演2019年回购市场波动。",
+    "source": "U.S. Bank"
+  }
+]

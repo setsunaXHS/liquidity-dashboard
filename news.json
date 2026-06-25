@@ -1,32 +1,32 @@
 [
   {
+    "date": "2026-06-25",
+    "title": "Fed H.4.1 Update: Reserve Balances Data Week of June 24",
+    "summary": "美联储最新H.4.1周度报告显示，截至6月17日当周联储总资产约6.74万亿美元，其中持有国债4.49万亿美元、MBS 1.96万亿美元。银行准备金余额和TGA账户余额数据更新，持续反映QT进程下的流动性趋势。",
+    "source": "Federal Reserve H.4.1"
+  },
+  {
     "date": "2026-06-24",
-    "title": "Fed ON RRP Rebounds to $6.48B After Near-Zero Collapse — FRED Data",
-    "summary": "FRED最新数据显示，6月23日美联储隔夜逆回购（ON RRP）用量回升至64.84亿美元，相较6月18日创纪录低点2.51亿美元大幅反弹。此前ON RRP几近耗尽引发流动性紧张担忧，此次回升可能反映月末流动性回补或货币市场基金短期资金回流。RRP的快速波动凸显银行准备金对流动性缓冲的敏感度正在上升。",
-    "source": "FRED (RRPONTSYD)"
+    "title": "Fed Releases 2026 Annual Bank Stress Test Results",
+    "summary": "美联储于6月24日公布2026年度大型银行压力测试结果，评估主要银行在极端经济和金融市场情景下的资本充足性。结果直接影响银行资本分配和分红计划，进而影响银行体系流动性传导效率。",
+    "source": "Reuters"
   },
   {
     "date": "2026-06-23",
-    "title": "AAF Fed Balance Sheet Tracker: Total Assets Held at ~$6.74T — Ongoing Monitoring",
-    "summary": "美国行动论坛（AAF）6月23日更新美联储资产负债表追踪器。Fed总资产约6.74万亿美元，其中国债和MBS持有量持续跟踪。QT仍在进行中，但速度较前期放缓，市场关注准备金水平是否正在接近"充裕"与"稀缺"的临界区域。",
-    "source": "American Action Forum"
+    "title": "Fed Research: 'Beyond Reserves' — Balance Sheet and Repo Market Dynamics",
+    "summary": "美联储FEDS发布最新研究论文，探讨资产负债表操作如何通过回购市场渠道影响金融条件。研究指出随着ON RRP余额下降和准备金结构变化，回购市场在货币政策传导中的角色日益重要，为后QT时代流动性管理提供新视角。",
+    "source": "Federal Reserve FEDS Notes"
   },
   {
     "date": "2026-06-22",
-    "title": "Fed Holds Rates at 3.5%-3.75%, Warsh Pivots to Inflation Fight — NYT",
-    "summary": "纽约时报6月22日报道，美联储在Warsh首秀中维持利率不变，但为应对通胀担忧做好了未来加息的准备。新的季度点阵图显示多位官员预期加息，声明大幅缩短并删除了降息倾向措辞。市场解读为'higher for longer'信号，对流动性预期构成压力。",
+    "title": "Fed Holds Rates at 3.5%-3.75%, Warsh Pivots to Inflation Fight",
+    "summary": "美联储在Warsh主席首秀中维持利率不变，但点阵图显示多位官员预期未来加息，声明大幅缩短并删除降息倾向措辞。市场解读为'higher for longer'信号，对流动性预期构成持续压力。",
     "source": "New York Times"
   },
   {
     "date": "2026-06-19",
-    "title": "U.S. Bank: Fed Asset Purchases and Market Liquidity Remain Key — Policy Analysis",
-    "summary": "U.S. Bank 6月19日分析指出，利率决策仅是美联储政策工具之一，资产负债表操作（资产购买/出售）对市场流动性的影响同样关键。在QT放缓背景下，市场关注Fed如何通过资产负债表管理维持流动性充裕，避免重演2019年回购市场波动。",
+    "title": "U.S. Bank: Fed Asset Purchases and Market Liquidity Remain Key",
+    "summary": "U.S. Bank分析指出利率决策仅是政策工具之一，资产负债表操作对市场流动性的影响同样关键。在QT放缓背景下，市场关注Fed如何通过资产负债表管理维持流动性充裕，避免重演2019年回购市场波动。",
     "source": "U.S. Bank"
-  },
-  {
-    "date": "2026-06-18",
-    "title": "Fed H.4.1 Release: Total Securities $6.45T, Reserves & TGA Update",
-    "summary": "美联储6月18日发布H.4.1资产负债表周度更新：持有证券总计6.45万亿美元，其中国债4.49万亿（周增55亿美元）、MBS 1.96万亿。银行准备金和TGA余额持续更新，为市场流动性状况评估提供核心数据。",
-    "source": "Federal Reserve H.4.1"
   }
 ]
