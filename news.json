@@ -1,5 +1,11 @@
 [
   {
+    "date": "2026-06-26",
+    "title": "Fed ON RRP Usage Falls to ~$4.5B as Money Fund Cash Migration Continues",
+    "summary": "Macrotrends数据显示，截至2026年6月24日，美联储隔夜逆回购（ON RRP）余额降至约45.3亿美元，较2022年底峰值大幅缩减。RRP余额持续下降反映货币市场基金将资金转向T-bill等更高收益资产，标志着后QT时代流动性结构的进一步演变。",
+    "source": "Macrotrends / NY Fed"
+  },
+  {
     "date": "2026-06-25",
     "title": "Fed H.4.1 Update: Reserve Balances Data Week of June 24",
     "summary": "美联储最新H.4.1周度报告显示，截至6月17日当周联储总资产约6.74万亿美元，其中持有国债4.49万亿美元、MBS 1.96万亿美元。银行准备金余额和TGA账户余额数据更新，持续反映QT进程下的流动性趋势。",
@@ -13,20 +19,14 @@
   },
   {
     "date": "2026-06-23",
-    "title": "Fed Research: 'Beyond Reserves' — Balance Sheet and Repo Market Dynamics",
-    "summary": "美联储FEDS发布最新研究论文，探讨资产负债表操作如何通过回购市场渠道影响金融条件。研究指出随着ON RRP余额下降和准备金结构变化，回购市场在货币政策传导中的角色日益重要，为后QT时代流动性管理提供新视角。",
-    "source": "Federal Reserve FEDS Notes"
+    "title": "全球央行加息潮下流动性承压：美联储年内加息风险升至52%",
+    "summary": "21经济分析指出，2026年以来多国央行重启加息，6月美联储FOMC维持利率不变但信号偏鹰，9月加息概率已升至52%。 Fed重申'保持银行体系充裕准备金'政策，流动性预期收紧。中国央行则通过收窄利率走廊、买断式逆回购等额续作维持中性偏宽松。",
+    "source": "21经济"
   },
   {
     "date": "2026-06-22",
     "title": "Fed Holds Rates at 3.5%-3.75%, Warsh Pivots to Inflation Fight",
     "summary": "美联储在Warsh主席首秀中维持利率不变，但点阵图显示多位官员预期未来加息，声明大幅缩短并删除降息倾向措辞。市场解读为'higher for longer'信号，对流动性预期构成持续压力。",
     "source": "New York Times"
-  },
-  {
-    "date": "2026-06-19",
-    "title": "U.S. Bank: Fed Asset Purchases and Market Liquidity Remain Key",
-    "summary": "U.S. Bank分析指出利率决策仅是政策工具之一，资产负债表操作对市场流动性的影响同样关键。在QT放缓背景下，市场关注Fed如何通过资产负债表管理维持流动性充裕，避免重演2019年回购市场波动。",
-    "source": "U.S. Bank"
   }
 ]
